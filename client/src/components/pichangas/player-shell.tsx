@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { PLAY_ROUTES } from "@/lib/routes";
 import { logout } from "@/lib/logout";
 import { UserAvatar } from "@/components/ui/user-avatar";
-import logoPichangas from "@/assets/logo-pichangas.png";
+import { BrandLogo } from "@/components/brand-logo";
 import { ProfileMenuButton } from "@/components/layout/profile-menu-button";
 import type { AccountAction } from "@/components/account/use-account-actions";
 
@@ -57,7 +57,7 @@ export function PlayerShell({ active, items = PLAYER_NAV, brand, accountActions,
       <div className="shell-grid min-h-dvh lg:mx-auto lg:grid lg:w-full lg:max-w-shell lg:grid-cols-12 lg:gap-6 lg:px-6">
         <aside className="hidden flex-col gap-1 p-4 lg:sticky lg:top-0 lg:col-span-2 lg:flex lg:h-dvh" aria-label="Menú principal">
           <div className="px-4 pb-4 pt-2">
-            <img src={logoPichangas} alt="Pichangas Perú" width={92} height={64} className="h-16 w-auto" />
+            <BrandLogo size="md" />
             {brand && <p className="mt-1 text-label font-semibold text-night-muted">{brand}</p>}
           </div>
           <nav className="flex flex-col gap-1">
@@ -106,7 +106,7 @@ export function PlayerShell({ active, items = PLAYER_NAV, brand, accountActions,
         <main className={cn("min-w-0 lg:col-span-10", !hideMobileBar && "pb-bottom-nav lg:pb-0")}>
           {!hideMobileBar && (
             <header className="sticky top-0 z-sticky flex h-16 items-center justify-between bg-night/90 px-page-h shadow-night-bar lg:hidden">
-              <img src={logoPichangas} alt="Pichangas Perú" width={58} height={40} className="h-10 w-auto" />
+              <BrandLogo size="sm" />
               <div className="flex items-center gap-2">
                 {headerAction}
                 <button type="button" aria-label="Mi perfil" onClick={() => setLocation(PLAY_ROUTES.profile)} className="flex size-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch">

@@ -46,7 +46,7 @@ function OverviewView() {
   const { data, isLoading, isError, refetch } = useAdminOverview();
 
   if (isError) {
-    return <NightEmpty icon={<ListChecks className="size-icon-empty" />} title="No pudimos cargar el resumen" action={<PitchButton onClick={() => refetch()}>Reintentar</PitchButton>} />;
+    return <NightEmpty fill icon={<ListChecks className="size-icon-empty" />} title="No pudimos cargar el resumen" action={<PitchButton onClick={() => refetch()}>Reintentar</PitchButton>} />;
   }
   if (isLoading || !data) {
     return (

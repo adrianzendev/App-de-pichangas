@@ -198,9 +198,9 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
             {players.map((p, i) => (
               <PlayerRow key={p.userId} name={p.name} avatar={p.avatar} isMe={p.userId === currentUserId} number={seatOf[i]} index={i} action={p.userId === match.organizerId || p.guests > 0 ? <span className="flex shrink-0 gap-1">{p.userId === match.organizerId && <span className="rounded-full bg-night-highest px-2 py-0.5 text-caption font-bold text-night-muted">Organiza</span>}{p.guests > 0 && <span className="rounded-full bg-night-highest px-2 py-0.5 text-caption font-bold text-pitch">+{p.guests}</span>}</span> : undefined} />
             ))}
-            {/* Cada cupo libre es igual (una columna) y, si todavia no estoy anotado, todos llevan "Separar ahora". */}
+            {/* Cada cupo libre es igual (una columna) y, si todavia no estoy anotado, solo el primero (el que sigue al ultimo inscrito) lleva "Separar ahora": invita a dar el primer paso. */}
             {Array.from({ length: cancelled ? 0 : left }, (_, i) => {
-              const canJoin = !isOrganizer && !me;
+              const canJoin = !isOrganizer && !me && i === 0;
               return (
                 <PlayerRow
                   key={`free-${i}`}

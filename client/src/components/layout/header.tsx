@@ -1,6 +1,6 @@
 import { Menu, Bell, BellRing, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logoPichangas from "@/assets/logo-pichangas.png";
+import { BrandLogo } from "@/components/brand-logo";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -51,7 +51,7 @@ export default function Header({
         <div aria-hidden className="h-safe-top" />
         <div className="mx-auto flex items-center justify-between max-w-container">
           <Link href={isAdminRole ? "/dashboard" : "/"} className="cursor-pointer">
-            <img src={logoPichangas} alt="Pichangas Perú" width={58} height={40} className="w-auto h-10" />
+            <BrandLogo size="sm" tone="light" />
           </Link>
 
           {isAdminRole ? (

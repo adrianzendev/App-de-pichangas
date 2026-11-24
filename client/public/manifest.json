@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Pichangas Perú",
-  "short_name": "Pichangas",
+  "name": "Pinkiball",
+  "short_name": "Pinkiball",
   "description": "Encuentra pichangas cerca de ti: elige cancha, horario y anótate al partido",
   "start_url": "/",
   "scope": "/",

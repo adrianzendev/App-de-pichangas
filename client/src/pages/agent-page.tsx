@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { LogOut, FileText, UserPlus, Loader2 } from "lucide-react";
-import logoPichangas from "@/assets/logo-pichangas.png";
+import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -105,7 +105,7 @@ export default function AgentPage() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-4 py-3">
         <div className="max-w-container mx-auto flex items-center justify-between">
-          <img src={logoPichangas} alt="Pichangas Perú" width={58} height={40} className="w-auto h-10" />
+          <BrandLogo size="sm" tone="light" />
           <div className="flex items-center gap-3">
             <span className="text-label text-gray-700 hidden sm:block">{currentUser.name}</span>
             <Badge variant="info">Agente</Badge>
