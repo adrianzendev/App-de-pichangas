@@ -1,0 +1,26 @@
+# Carga del WebSocket /ws (server/presence-system.ts) con usuarios SINTETICOS.
+# Correr contra servidor LOCAL: `npm run dev` y luego `npm run load:ws`.
+# NUNCA poner userIds reales: 'user_connected' ejecuta markMessagesAsDelivered
+# (escritura sobre la Neon compartida) y el WS no tiene autenticacion.
+config:
+  # El engine ws abre la conexion contra `target` tal cual: debe incluir /ws
+  # (el servidor solo hace upgrade en ese path; en otro, el handshake cuelga).
+  target: "ws://localhost:5000/ws"
+  processor: "./ws-processor.cjs"
+  phases:
+    - { duration: 15, arrivalRate: 2, rampTo: 10, name: "warm-up" }
+    - { duration: 30, arrivalRate: 10, rampTo: 30, name: "ramp" }
+    - { duration: 30, arrivalRate: 30, name: "sostenida" }
+  ws:
+    handshakeTimeout: 10000
+scenarios:
+  - name: "presencia + heartbeat"
+    engine: ws
+    flow:
+      - function: "setSyntheticUser"
+      - send: '{"type":"user_connected","userId":"{{ userId }}"}'
+      - loop:
+          - send: '{"type":"heartbeat"}'
+          - think: 5
+        count: 4
+      - send: '{"type":"presence_leaving"}'

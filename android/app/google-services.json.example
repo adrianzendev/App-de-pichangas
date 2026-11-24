@@ -1,0 +1,25 @@
+{
+  "_instrucciones": [
+    "Archivo de EJEMPLO: no lo usa el build. Gradle solo aplica Firebase si existe android/app/google-services.json (ver app/build.gradle).",
+    "1. Firebase Console > Configuracion del proyecto > Tus apps > app Android con paquete com.miltareas.app.",
+    "2. Descargar google-services.json y guardarlo como android/app/google-services.json (sin .example).",
+    "3. Ejecutar `npx cap sync android` y volver a compilar la app."
+  ],
+  "project_info": {
+    "project_number": "000000000000",
+    "project_id": "TU_PROYECTO",
+    "storage_bucket": "TU_PROYECTO.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:0000000000000000",
+        "android_client_info": { "package_name": "com.miltareas.app" }
+      },
+      "oauth_client": [],
+      "api_key": [{ "current_key": "TU_API_KEY" }],
+      "services": { "appinvite_service": { "other_platform_oauth_client": [] } }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,243 @@
+import type { Express, Request, Response } from "express";
+import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
+import { z } from "zod";
+import { db } from "./db";
+import { venues, matches, matchPlayers, users, insertMatchSchema } from "@shared/schema";
+
+// Igual que el esquema publico, pero al editar la fecha puede ser pasada (corregir un partido ya jugado); al crear se exige futura aparte.
+const adminMatchSchema = insertMatchSchema.extend({ startsAt: z.coerce.date() });
+
+// Panel de administracion de Pichangas. Todo cuelga de /api/admin/*: el RBAC central de routes.ts ya responde 401/403 a quien
+// no es administrador; aqui se vuelve a comprobar por si el orden de registro cambia.
+export function requireAdmin(req: Request, res: Response): boolean {
+  const user = (req as any).session?.user;
+  if (!user) { res.status(401).json({ message: "Inicia sesión para continuar" }); return false; }
+  if (user.userType !== "admin") { res.status(403).json({ message: "Acceso restringido al administrador" }); return false; }
+  return true;
+}
+
+export function registerAdminPichangas(app: Express) {
+  // Resumen: cifras clave y partidos por ciudad.
+  app.get("/api/admin/pichangas/overview", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      const now = new Date();
+      const [players] = await db.select({ n: sql<number>`count(*)::int` }).from(users).where(sql`${users.email} <> 'admin@miltareas.com'`);
+      const [venueStats] = await db
+        .select({ active: sql<number>`count(*) filter (where ${venues.isActive})::int`, pending: sql<number>`count(*) filter (where not ${venues.isActive})::int` })
+        .from(venues);
+
+      // Por partido: cupos confirmados (para ocupacion e ingreso estimado).
+      const rows = await db
+        .select({
+          id: matches.id, city: venues.city, status: matches.status, startsAt: matches.startsAt,
+          maxPlayers: matches.maxPlayers, price: matches.pricePerPlayer,
+          confirmed: sql<number>`count(${matchPlayers.id}) filter (where ${matchPlayers.status} = 'confirmed')::int`,
+          waitlist: sql<number>`count(${matchPlayers.id}) filter (where ${matchPlayers.status} = 'waitlist')::int`,
+        })
+        .from(matches)
+        .innerJoin(venues, eq(matches.venueId, venues.id))
+        .leftJoin(matchPlayers, eq(matchPlayers.matchId, matches.id))
+        .groupBy(matches.id, venues.city);
+
+      const live = rows.filter((r) => r.status !== "cancelled");
+      const upcoming = live.filter((r) => r.startsAt.getTime() >= now.getTime() && r.status !== "finished");
+      const spots = upcoming.reduce((a, r) => a + r.maxPlayers, 0);
+      const filled = upcoming.reduce((a, r) => a + Math.min(r.confirmed, r.maxPlayers), 0);
+      const revenue = live.reduce((a, r) => a + Math.min(r.confirmed, r.maxPlayers) * Number(r.price), 0);
+
+      const byCity = new Map<string, { city: string; matches: number; players: number }>();
+      for (const r of live) {
+        const c = byCity.get(r.city) ?? { city: r.city, matches: 0, players: 0 };
+        c.matches += 1;
+        c.players += Math.min(r.confirmed, r.maxPlayers);
+        byCity.set(r.city, c);
+      }
+
+      res.json({
+        players: players.n,
+        activeVenues: venueStats.active,
+        pendingVenues: venueStats.pending,
+        upcomingMatches: upcoming.length,
+        totalMatches: rows.length,
+        cancelledMatches: rows.length - live.length,
+        occupancy: spots > 0 ? Math.round((filled / spots) * 100) : 0,
+        waitlistTotal: upcoming.reduce((a, r) => a + r.waitlist, 0),
+        estimatedRevenue: Math.round(revenue),
+        byCity: Array.from(byCity.values()).sort((a, b) => b.matches - a.matches),
+      });
+    } catch (error) {
+      console.error("[GET /api/admin/pichangas/overview] error:", error);
+      res.status(500).json({ message: "No se pudo cargar el resumen" });
+    }
+  });
+
+  // Todos los partidos (cualquier estado), los proximos primero.
+  app.get("/api/admin/pichangas/matches", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      const rows = await db
+        .select({
+          match: matches, venue: venues, organizerName: users.name,
+          confirmedCount: sql<number>`coalesce(sum(1 + ${matchPlayers.guests}) filter (where ${matchPlayers.status} = 'confirmed'), 0)::int`,
+          waitlistCount: sql<number>`count(${matchPlayers.id}) filter (where ${matchPlayers.status} = 'waitlist')::int`,
+        })
+        .from(matches)
+        .innerJoin(venues, eq(matches.venueId, venues.id))
+        .innerJoin(users, eq(matches.organizerId, users.id))
+        .leftJoin(matchPlayers, eq(matchPlayers.matchId, matches.id))
+        .groupBy(matches.id, venues.id, users.id)
+        .orderBy(desc(matches.startsAt))
+        .limit(300);
+      res.json(rows.map((r) => ({ ...r.match, venue: r.venue, organizerName: r.organizerName, confirmedCount: r.confirmedCount, waitlistCount: r.waitlistCount })));
+    } catch (error) {
+      console.error("[GET /api/admin/pichangas/matches] error:", error);
+      res.status(500).json({ message: "No se pudieron cargar los partidos" });
+    }
+  });
+
+  // Crear (el admin queda como organizador; no ocupa cupo), editar y eliminar partidos.
+  app.post("/api/admin/pichangas/matches", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      const parsed = adminMatchSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ message: "Datos inválidos", issues: parsed.error.issues });
+      if (parsed.data.startsAt.getTime() <= Date.now()) return res.status(400).json({ message: "La fecha debe ser futura" });
+      const [venue] = await db.select({ id: venues.id }).from(venues).where(eq(venues.id, parsed.data.venueId));
+      if (!venue) return res.status(400).json({ message: "La cancha no existe" });
+      const [created] = await db.insert(matches).values({
+        ...parsed.data,
+        description: parsed.data.description ?? null,
+        pricePerPlayer: String(parsed.data.pricePerPlayer),
+        organizerId: (req as any).session.user.id,
+      }).returning();
+      res.status(201).json(created);
+    } catch (error) {
+      console.error("[POST /api/admin/pichangas/matches] error:", error);
+      res.status(500).json({ message: "No se pudo crear el partido" });
+    }
+  });
+
+  app.patch("/api/admin/pichangas/matches/:id", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      const parsed = adminMatchSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ message: "Datos inválidos", issues: parsed.error.issues });
+      const [venue] = await db.select({ id: venues.id }).from(venues).where(eq(venues.id, parsed.data.venueId));
+      if (!venue) return res.status(400).json({ message: "La cancha no existe" });
+      const [{ n }] = await db
+        .select({ n: sql<number>`count(*)::int` })
+        .from(matchPlayers)
+        .where(and(eq(matchPlayers.matchId, req.params.id), eq(matchPlayers.status, "confirmed")));
+      if (parsed.data.maxPlayers < n) return res.status(400).json({ message: `Ya hay ${n} jugadores confirmados: el cupo no puede ser menor` });
+      const [updated] = await db
+        .update(matches)
+        .set({ ...parsed.data, description: parsed.data.description ?? null, pricePerPlayer: String(parsed.data.pricePerPlayer) })
+        .where(eq(matches.id, req.params.id))
+        .returning();
+      if (!updated) return res.status(404).json({ message: "Partido no encontrado" });
+      res.json(updated);
+    } catch (error) {
+      console.error("[PATCH /api/admin/pichangas/matches/:id] error:", error);
+      res.status(500).json({ message: "No se pudo actualizar el partido" });
+    }
+  });
+
+  // Eliminar es definitivo: borra tambien sus jugadores y mensajes (ON DELETE CASCADE).
+  app.delete("/api/admin/pichangas/matches/:id", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      const [deleted] = await db.delete(matches).where(eq(matches.id, req.params.id)).returning({ id: matches.id });
+      if (!deleted) return res.status(404).json({ message: "Partido no encontrado" });
+      res.json({ ok: true });
+    } catch (error) {
+      console.error("[DELETE /api/admin/pichangas/matches/:id] error:", error);
+      res.status(500).json({ message: "No se pudo eliminar el partido" });
+    }
+  });
+
+  app.post("/api/admin/pichangas/matches/:id/cancel", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      const [updated] = await db
+        .update(matches)
+        .set({ status: "cancelled" })
+        .where(and(eq(matches.id, req.params.id), ne(matches.status, "finished")))
+        .returning();
+      if (!updated) return res.status(404).json({ message: "Partido no encontrado o ya terminado" });
+      res.json(updated);
+    } catch (error) {
+      console.error("[POST /api/admin/pichangas/matches/:id/cancel] error:", error);
+      res.status(500).json({ message: "No se pudo cancelar el partido" });
+    }
+  });
+
+  // Canchas (activas y pendientes de revision) con su cantidad de partidos.
+  app.get("/api/admin/pichangas/venues", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      const rows = await db
+        .select({ venue: venues, matchCount: sql<number>`count(${matches.id})::int`, creatorName: users.name })
+        .from(venues)
+        .leftJoin(matches, eq(matches.venueId, venues.id))
+        .leftJoin(users, eq(venues.createdBy, users.id))
+        .groupBy(venues.id, users.id)
+        .orderBy(asc(venues.isActive), asc(venues.city), asc(venues.district), asc(venues.name));
+      res.json(rows.map((r) => ({ ...r.venue, matchCount: r.matchCount, creatorName: r.creatorName })));
+    } catch (error) {
+      console.error("[GET /api/admin/pichangas/venues] error:", error);
+      res.status(500).json({ message: "No se pudieron cargar las canchas" });
+    }
+  });
+
+  app.patch("/api/admin/pichangas/venues/:id", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const parsed = z.object({ isActive: z.boolean() }).safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Datos inválidos" });
+    try {
+      const [updated] = await db.update(venues).set({ isActive: parsed.data.isActive }).where(eq(venues.id, req.params.id)).returning();
+      if (!updated) return res.status(404).json({ message: "Cancha no encontrada" });
+      res.json(updated);
+    } catch (error) {
+      console.error("[PATCH /api/admin/pichangas/venues/:id] error:", error);
+      res.status(500).json({ message: "No se pudo actualizar la cancha" });
+    }
+  });
+
+  // Jugadores con su actividad.
+  app.get("/api/admin/pichangas/players", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      const rows = await db
+        .select({
+          id: users.id, name: users.name, email: users.email, status: users.status, lastSeen: users.lastSeen, createdAt: users.createdAt,
+          joined: sql<number>`count(${matchPlayers.id})::int`,
+          organized: sql<number>`(select count(*)::int from ${matches} m where m.organizer_id = ${users.id})`,
+        })
+        .from(users)
+        .leftJoin(matchPlayers, eq(matchPlayers.userId, users.id))
+        .where(sql`${users.email} <> 'admin@miltareas.com'`)
+        .groupBy(users.id)
+        .orderBy(desc(sql`count(${matchPlayers.id})`), asc(users.name))
+        .limit(300);
+      res.json(rows);
+    } catch (error) {
+      console.error("[GET /api/admin/pichangas/players] error:", error);
+      res.status(500).json({ message: "No se pudieron cargar los jugadores" });
+    }
+  });
+
+  app.patch("/api/admin/pichangas/players/:id/status", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const parsed = z.object({ status: z.enum(["active", "suspended"]) }).safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Datos inválidos" });
+    try {
+      const [updated] = await db.update(users).set({ status: parsed.data.status }).where(eq(users.id, req.params.id)).returning({ id: users.id, status: users.status });
+      if (!updated) return res.status(404).json({ message: "Jugador no encontrado" });
+      res.json(updated);
+    } catch (error) {
+      console.error("[PATCH /api/admin/pichangas/players/:id/status] error:", error);
+      res.status(500).json({ message: "No se pudo actualizar al jugador" });
+    }
+  });
+}
