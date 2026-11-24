@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode, useId } from "react";
 import { useLocation } from "wouter";
 import QRCode from "qrcode";
 import {
@@ -9,13 +9,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { NightEmpty, PitchButton } from "@/components/pichangas/night-ui";
-import { SoccerBall } from "@/components/pichangas/soccer-ball";
 import { RuleList } from "@/components/pichangas/rule-list";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { PLAY_ROUTES } from "@/lib/routes";
 import {
-  FORMAT_LABEL, LEVEL_LABEL, SURFACE_LABEL, dayLabel, googleCalendarUrl, inviteMessage, mapsUrl,
+  dayLabel, googleCalendarUrl, inviteMessage, mapsUrl,
   passNumber, seatNumber, spotsLeft, time12Label, useMatch, useMatchMessages, useSendMatchMessage,
   type MatchMessage,
 } from "@/lib/pichangas";
@@ -52,7 +51,57 @@ function useCountdown(iso: string) {
   };
 }
 
-/** QR real (scannable) generado en el navegador a partir del contenido del pase. */
+// Marco de balon de futbol para el QR (vista frontal del balon clasico): cinco parches pentagonales en el borde, costuras
+// que bajan hacia el centro y se unen entre parches, y un sombreado suave. El QR cuadrado va al centro con su margen blanco,
+// asi que sigue siendo legible. Coordenadas en un lienzo de 100 x 100.
+const BALL_CENTER = 50;
+const BALL_PATCH_DIST = 45; // distancia del centro del balon al centro de cada parche
+const BALL_PATCH_R = 8.5;
+const polar = (r: number, deg: number, cx = BALL_CENTER, cy = BALL_CENTER) =>
+  [cx + r * Math.cos((deg * Math.PI) / 180), cy + r * Math.sin((deg * Math.PI) / 180)] as const;
+// Cada parche apunta con un vertice al centro del balon.
+const BALL_PATCHES = [0, 1, 2, 3, 4].map((k) => {
+  const angle = -90 + k * 72;
+  const [cx, cy] = polar(BALL_PATCH_DIST, angle);
+  const verts = [0, 1, 2, 3, 4].map((j) => polar(BALL_PATCH_R, angle + 180 + j * 72, cx, cy));
+  return { cx, cy, verts };
+});
+const dist2 = (p: readonly number[], q: readonly number[]) => (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2;
+// Costuras radiales (del vertice interior de cada parche hacia el centro) y entre parches vecinos (par de vertices mas cercano).
+const BALL_SEAMS: [readonly number[], readonly number[]][] = BALL_PATCHES.flatMap((patch, k) => {
+  const next = BALL_PATCHES[(k + 1) % BALL_PATCHES.length];
+  let best: [readonly number[], readonly number[]] = [patch.verts[0], next.verts[0]];
+  for (const v of patch.verts) for (const w of next.verts) if (dist2(v, w) < dist2(...best)) best = [v, w];
+  return [[patch.verts[0], [BALL_CENTER, BALL_CENTER]], best] as [readonly number[], readonly number[]][];
+});
+
+function BallFrame() {
+  const id = useId();
+  return (
+    <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full drop-shadow-lg" aria-hidden>
+      <defs>
+        <radialGradient id={`${id}-shade`} cx="38%" cy="32%" r="75%">
+          <stop offset="0%" stopColor="var(--gray-50)" />
+          <stop offset="70%" stopColor="var(--gray-100)" />
+          <stop offset="100%" stopColor="var(--gray-300)" />
+        </radialGradient>
+        <clipPath id={`${id}-clip`}><circle cx="50" cy="50" r="49" /></clipPath>
+      </defs>
+      <circle cx="50" cy="50" r="49" fill={`url(#${id}-shade)`} />
+      <g clipPath={`url(#${id}-clip)`} className="text-night-lowest">
+        {BALL_SEAMS.map(([p, q], i) => (
+          <line key={i} x1={p[0]} y1={p[1]} x2={q[0]} y2={q[1]} stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+        ))}
+        {BALL_PATCHES.map(({ cx, cy, verts }) => (
+          <polygon key={`${cx}-${cy}`} points={verts.map((v) => v.join(",")).join(" ")} fill="currentColor" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" />
+        ))}
+      </g>
+      <circle cx="50" cy="50" r="49" fill="none" stroke="currentColor" strokeWidth="1.2" className="text-night-highest" />
+    </svg>
+  );
+}
+
+/** QR real (scannable) generado en el navegador a partir del contenido del pase, dentro de un marco de balon. */
 function PassQr({ value }: { value: string }) {
   const [src, setSrc] = useState<string | null>(null);
   useEffect(() => {
@@ -65,10 +114,11 @@ function PassQr({ value }: { value: string }) {
   }, [value]);
 
   return (
-    <div className="flex size-44 items-center justify-center rounded-md bg-white p-2.5">
+    <div className="relative flex size-72 items-center justify-center">
+      <BallFrame />
       {src
-        ? <img src={src} alt="Código QR de tu pase" width={156} height={156} className="max-w-full" />
-        : <Ticket className="size-icon-xl text-night-lowest" aria-hidden />}
+        ? <img src={src} alt="Código QR de tu pase" width={148} height={148} className="relative max-w-full rounded-sm" />
+        : <Ticket className="relative size-icon-xl text-night-lowest" aria-hidden />}
     </div>
   );
 }
@@ -217,27 +267,17 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
     <div className="mx-auto w-full max-w-content space-y-section-gap p-4 lg:max-w-none lg:grid lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0 lg:p-0">
       <div className="space-y-section-gap">
         {/* Estado del cupo + cuenta regresiva */}
-        <section className="relative flex items-center justify-between gap-3 overflow-hidden rounded-md bg-night-container p-4 shadow-night-card" aria-label="Estado de mi cupo">
-          <div className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-pitch/10 blur-md" aria-hidden />
-          <div className="flex min-w-0 items-center gap-3">
-            <span className={cn("relative flex size-12 shrink-0 items-center justify-center rounded-full", toneClass)} aria-hidden>
-              {status.tone === "pitch" && <span className="absolute inset-0 animate-pulse-ring rounded-full bg-pitch/30" />}
-              {status.icon}
-            </span>
-            <div className="min-w-0">
-              <span className={cn("mb-1 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-caption font-bold uppercase", toneClass)}>
-                <span className="size-1.5 rounded-full bg-current" aria-hidden />
-                {status.title}
-              </span>
-              <h1 className="line-clamp-2 text-body font-bold text-night-text">{match.venue.name}</h1>
-              <p className="truncate text-caption text-night-muted">
-                {dayLabel(match.startsAt)} a las {time12Label(match.startsAt)} · {FORMAT_LABEL[match.format] ?? match.format}
-              </p>
-            </div>
+        <section className="flex items-center justify-between gap-3 rounded-md bg-night-container p-4 shadow-night-card" aria-label="Estado de mi cupo">
+          <div className="min-w-0">
+            {/* Un cupo normal (anotado y pagado) no necesita etiqueta: solo se avisa cuando el estado es distinto. */}
+            {(waitlist || cancelled || finished || isOrganizer) && (
+              <span className={cn("mb-1 inline-flex items-center rounded-full px-2 py-0.5 text-caption font-bold uppercase", toneClass)}>{status.title}</span>
+            )}
+            <h1 className="truncate text-body font-bold text-night-text">{dayLabel(match.startsAt)} · {time12Label(match.startsAt)}</h1>
           </div>
           <div className="shrink-0 pl-2 text-right">
             <span className="block text-caption font-bold uppercase text-night-muted">
-              {cancelled || finished ? "Estado" : countdown.started ? "El partido" : "Falta para el pitaso"}
+              {cancelled || finished ? "Estado" : countdown.started ? "El partido" : "Empieza en"}
             </span>
             {cancelled || finished
               ? <span className="text-label font-bold text-night-muted">{finished ? "Finalizado" : "Cancelado"}</span>
@@ -254,10 +294,6 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
             <div className="mb-4 flex w-full items-center justify-between gap-2">
               <span className="rounded-xs bg-night-high px-2.5 py-1 text-caption font-bold uppercase text-pitch">
                 {waitlist ? "Pase en espera" : `Pase Digital #${number}`}
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-aqua/15 px-2 py-1 text-caption font-bold text-aqua">
-                <SoccerBall className="size-icon-sm" />
-                {SURFACE_LABEL[match.venue.surface] ?? match.venue.surface}
               </span>
             </div>
 
@@ -327,16 +363,6 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
           <UtilityButton icon={<Share2 className="size-icon-lg" />} label="Invitar pata" onClick={share} />
           <UtilityButton icon={<ShieldCheck className="size-icon-lg" />} label="Reglamento" onClick={() => setRulesOpen(true)} />
         </section>
-
-        <div className="space-y-2 pt-1">
-          <button
-            type="button"
-            onClick={() => setLocation(PLAY_ROUTES.feed)}
-            className="flex h-11 w-full items-center justify-center rounded-md text-label font-bold text-night-muted transition-colors duration-fast hover:text-night-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch"
-          >
-            Volver a la cartelera de canchas
-          </button>
-        </div>
       </div>
 
       {/* Chat del equipo */}

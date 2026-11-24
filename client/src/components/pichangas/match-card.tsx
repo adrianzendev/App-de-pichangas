@@ -33,16 +33,17 @@ export function MatchCard({ match, paid, selected, onOpen }: MatchCardProps) {
     <article
       onClick={() => onOpen(match.id)}
       className={cn(
-        "flex cursor-pointer flex-col gap-3 rounded-md bg-night-container p-3 transition-colors duration-fast hover:bg-night-high",
+        "flex cursor-pointer flex-col overflow-hidden rounded-md bg-night-container transition-colors duration-fast hover:bg-night-high",
         selected && "ring-1 ring-night-outline",
       )}
       data-testid={`match-card-${match.id}`}
     >
-      {/* Foto de portada como una celda mas del bento: esquinas redondeadas y dentro del margen de la tarjeta. */}
-      <div className="h-28 overflow-hidden rounded-sm bg-night-high">
+      {/* Foto de portada a sangre completa: llega a los bordes de la tarjeta (sin margen). */}
+      <div className="h-32 bg-night-high">
         <CoverImage venue={match.venue} className="h-full w-full object-cover" />
       </div>
 
+      <div className="flex flex-col gap-3 p-3">
       <header className="min-w-0 px-0.5">
         <h3 className="truncate text-subheading font-bold text-night-text">{match.title}</h3>
         <p className="truncate text-caption text-night-muted">{match.venue.name} · {match.venue.district}</p>
@@ -80,6 +81,7 @@ export function MatchCard({ match, paid, selected, onOpen }: MatchCardProps) {
           {paid ? "Inscrito" : "Unirme"}
         </Button>
       </footer>
+      </div>
     </article>
   );
 }
