@@ -12,7 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { PLAY_ROUTES, ROUTES } from "@/lib/routes";
 import {
-  FORMAT_LABEL, GENDER_LABEL, LEVEL_LABEL, SURFACE_LABEL, dayLabel, priceLabel, spotsLeft,
+  SURFACE_LABEL, dayLabel, priceLabel, spotsLeft,
   timeRange12, useJoinLeave, useMatch,
 } from "@/lib/pichangas";
 
@@ -83,7 +83,10 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
   const organizerAvatar = organizer?.avatar ?? match.organizerAvatar ?? null;
   // El organizador nunca va en la plantilla: tiene su propia ficha arriba. Filas, puntos y contador cuentan solo
   // a los jugadores anotados.
-  const players = confirmed.filter((p) => p.userId !== match.organizerId);
+  // El organizador tambien ocupa un cupo: va primero en la plantilla (los numeros cuentan cupos, no personas).
+  const players = [...confirmed].sort((a, b) => Number(b.userId === match.organizerId) - Number(a.userId === match.organizerId));
+  let nextSeat = 1;
+  const seatOf = players.map((p) => { const start = nextSeat; nextSeat += 1 + p.guests; return start; });
   const left = spotsLeft(match);
   // Maximo 6 cupos por inscripcion y nunca mas de los libres.
   const maxSeats = Math.max(1, Math.min(6, left));
@@ -152,25 +155,21 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
     <div className="flex min-h-full flex-col">
       {/* Movil: una columna en este orden. Escritorio: cuadricula de 2 columnas con posiciones fijas (lg:col-start / lg:row-start). */}
       <div className="flex-1 space-y-section-gap p-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0 lg:p-0 lg:pb-6">
-        <div className="relative h-36 overflow-hidden rounded-md bg-night-high lg:col-start-1 lg:row-start-1 lg:h-72">
-          <CoverImage venue={match.venue} alt={`Cancha ${match.venue.name}`} className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-night-lowest via-night-lowest/40 to-transparent" aria-hidden />
-        </div>
-
-        <div className="space-y-section-gap lg:col-start-2 lg:row-start-1">
-        <div className="space-y-2">
+        <div className="space-y-2 lg:col-span-2 lg:row-start-1">
           <h1 className="text-heading font-extrabold uppercase text-night-text">{match.title}</h1>
           <div className="flex flex-wrap gap-1.5">
-            <Tag>{FORMAT_LABEL[match.format] ?? match.format}</Tag>
-            <Tag>{LEVEL_LABEL[match.level] ?? match.level}</Tag>
-            <Tag>{GENDER_LABEL[match.gender] ?? match.gender}</Tag>
             {left === 1 && !cancelled && <span className="rounded-full bg-crimson px-3 py-1 text-label font-bold text-crimson-on">Último cupo</span>}
             {me?.status === "confirmed" && me.paid && <Tag tone="pitch">Anotado</Tag>}
             {me?.status === "waitlist" && <Tag tone="pitch">Suplente</Tag>}
           </div>
         </div>
 
-        <section className="space-y-4 rounded-md bg-night-low p-card-pad" aria-label="Datos del partido">
+        <div className="relative h-36 overflow-hidden rounded-md bg-night-high lg:col-start-1 lg:row-start-2 lg:h-72">
+          <CoverImage venue={match.venue} alt={`Cancha ${match.venue.name}`} className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-night-lowest via-night-lowest/40 to-transparent" aria-hidden />
+        </div>
+
+        <section className="space-y-4 rounded-md bg-night-low p-card-pad lg:col-start-2 lg:row-start-2" aria-label="Datos del partido">
           <InfoRow icon={CalendarDays} title={dayLabel(match.startsAt)}>
             {new Date(match.startsAt).toLocaleDateString("es-PE", { timeZone: "America/Lima", weekday: "long", day: "numeric", month: "long" })}
           </InfoRow>
@@ -181,9 +180,8 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
             {SURFACE_LABEL[match.venue.surface] ?? match.venue.surface}
           </InfoRow>
         </section>
-        </div>
 
-        <section className="flex items-center gap-3 rounded-md bg-night-low p-card-pad lg:col-start-1 lg:row-start-3" aria-label="Organizador">
+        <section className="flex items-center gap-3 rounded-md bg-night-low p-card-pad lg:col-start-1 lg:row-start-4" aria-label="Organizador">
           <UserAvatar name={organizerName} avatar={organizerAvatar} size="md" />
           <div className="min-w-0">
             <p className="text-caption font-bold uppercase text-night-muted">Organizador</p>
@@ -191,14 +189,14 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
           </div>
         </section>
 
-        <section className="space-y-4 lg:col-start-1 lg:row-start-2" aria-label="Plantilla">
+        <section className="space-y-4 lg:col-start-1 lg:row-start-3" aria-label="Plantilla">
           <div className="flex items-baseline justify-between">
             <h2 className="text-subheading font-bold uppercase text-night-text">Plantilla</h2>
             <p className="text-label font-bold text-pitch">{match.confirmedCount} de {match.maxPlayers}</p>
           </div>
           <ul className="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
             {players.map((p, i) => (
-              <PlayerRow key={p.userId} name={p.name} avatar={p.avatar} isMe={p.userId === currentUserId} number={i + 1} action={p.guests > 0 ? <span className="shrink-0 rounded-full bg-night-highest px-2 py-0.5 text-caption font-bold text-pitch">+{p.guests}</span> : undefined} />
+              <PlayerRow key={p.userId} name={p.name} avatar={p.avatar} isMe={p.userId === currentUserId} number={seatOf[i]} index={i} action={p.userId === match.organizerId || p.guests > 0 ? <span className="flex shrink-0 gap-1">{p.userId === match.organizerId && <span className="rounded-full bg-night-highest px-2 py-0.5 text-caption font-bold text-night-muted">Organiza</span>}{p.guests > 0 && <span className="rounded-full bg-night-highest px-2 py-0.5 text-caption font-bold text-pitch">+{p.guests}</span>}</span> : undefined} />
             ))}
             {/* Cada cupo libre es igual (una columna) y, si todavia no estoy anotado, todos llevan "Separar ahora". */}
             {Array.from({ length: cancelled ? 0 : left }, (_, i) => {
@@ -206,7 +204,8 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
               return (
                 <PlayerRow
                   key={`free-${i}`}
-                  number={players.length + i + 1}
+                  number={nextSeat + i}
+                  index={players.length + i}
                   name="Lugar libre"
                   placeholder
                   highlight={canJoin}
@@ -221,7 +220,7 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
         </section>
 
         {/* Plegado por defecto: las reglas ya se leen en el pase y no deben competir con la plantilla ni con el boton de pago. */}
-        <details className="group rounded-md bg-night-low px-card-pad py-3 lg:col-start-2 lg:row-start-2 lg:self-start" aria-label="Reglas clave del encuentro">
+        <details className="group rounded-md bg-night-low px-card-pad py-3 lg:col-start-2 lg:row-start-3 lg:self-start" aria-label="Reglas clave del encuentro">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-label font-bold text-night-muted transition-colors duration-fast hover:text-night-text [&::-webkit-details-marker]:hidden">
             Reglas del encuentro
             <ChevronDown className="size-icon-md transition-transform duration-fast group-open:rotate-180" aria-hidden />
@@ -230,7 +229,7 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
         </details>
 
         {waitlist.length > 0 && (
-          <section className="space-y-3 rounded-md bg-night-low p-card-pad lg:col-start-2 lg:row-start-3" aria-label="Suplentes">
+          <section className="space-y-3 rounded-md bg-night-low p-card-pad lg:col-start-2 lg:row-start-4" aria-label="Suplentes">
             <h2 className="text-subheading font-bold uppercase text-night-text">Suplentes</h2>
             <p className="text-label text-night-muted">Entran por orden de llegada si alguien se baja.</p>
             <ul className="space-y-1">

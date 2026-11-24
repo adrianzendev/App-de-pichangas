@@ -25,7 +25,6 @@ export interface ShellItem {
 export const PLAYER_NAV: ShellItem[] = [
   { id: "feed", label: "Explorar", icon: Search, path: PLAY_ROUTES.feed },
   { id: "mine", label: "Mis pichangas", icon: CalendarCheck, path: PLAY_ROUTES.mine },
-  { id: "profile", label: "Perfil", icon: User, path: PLAY_ROUTES.profile },
 ];
 
 interface PlayerShellProps {
@@ -92,7 +91,10 @@ export function PlayerShell({ active, items = PLAYER_NAV, brand, accountActions,
                 aria-label="Mi perfil"
                 aria-current={active === "profile" ? "page" : undefined}
                 onClick={() => setLocation(PLAY_ROUTES.profile)}
-                className="flex h-12 w-full items-center gap-3 rounded-full px-3 text-left text-body font-medium text-night-text transition-colors duration-fast hover:bg-night-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch"
+                className={cn(
+                  "flex h-12 w-full items-center gap-3 rounded-full px-3 text-left text-body font-medium text-night-text transition-colors duration-fast hover:bg-night-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch",
+                  active === "profile" && "bg-night-container font-bold",
+                )}
               >
                 <UserAvatar name={me?.name ?? "Usuario"} avatar={me?.avatar ?? undefined} size="sm" />
                 <span className="min-w-0 truncate">{me?.name ?? "Usuario"}</span>

@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useLocation, useRoute } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ArrowUpDown, CalendarCheck, Search, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, ArrowUpDown, CalendarCheck, Search, SlidersHorizontal, X } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { PageLoader } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,7 +10,7 @@ import { MatchCard } from "@/components/pichangas/match-card";
 import { MatchDetailView } from "@/components/pichangas/match-detail";
 import { MatchCheckoutView } from "@/components/pichangas/match-checkout";
 import { MatchPassView } from "@/components/pichangas/match-pass";
-import { CitySelect, NightChip, NightEmpty, PitchButton, QuickPill, WelcomeBanner } from "@/components/pichangas/night-ui";
+import { CitySelect, NightEmpty, PitchButton, QuickPill, WelcomeBanner } from "@/components/pichangas/night-ui";
 import { PlayerShell } from "@/components/pichangas/player-shell";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { MQ } from "@/lib/breakpoints";
@@ -18,7 +18,7 @@ import { logout } from "@/lib/logout";
 import { cn } from "@/lib/utils";
 import { ADMIN_ROUTES, PLAY_PATTERNS, PLAY_RESERVED, PLAY_ROUTES, ROUTES, matchIdFromParam } from "@/lib/routes";
 import {
-  GENDER_OPTIONS, LEVEL_OPTIONS, SORT_OPTIONS, citiesOf, dayLabel, loadCity, saveCity, searchAndSort,
+  FORMAT_LABEL, FORMAT_OPTIONS, GENDER_LABEL, GENDER_OPTIONS, LEVEL_LABEL, LEVEL_OPTIONS, SORT_OPTIONS, citiesOf, dayLabel, loadCity, saveCity, searchAndSort,
   useMatches, useMyMatches, useVenues,
   type MatchFilters, type MatchSort, type MatchSummary,
 } from "@/lib/pichangas";
@@ -34,7 +34,15 @@ interface CurrentUser {
 // Los filtros sobreviven al abrir un partido y volver (en movil el feed se desmonta al entrar al detalle).
 let savedFilters: MatchFilters = { city: loadCity() };
 
-const rowClass = "-mx-page-h flex items-center gap-2 overflow-x-auto px-page-h scrollbar-none lg:mx-0 lg:px-0";
+/** Un grupo del panel de filtros: rotulo y sus pildoras. */
+function FilterGroup({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <p className="text-caption font-bold uppercase text-night-muted">{label}</p>
+      <div className="flex flex-wrap gap-1.5">{children}</div>
+    </div>
+  );
+}
 
 function CardsSkeleton() {
   return (
@@ -85,8 +93,17 @@ function FeedScreen({ selectedId, userId, isDesktop }: { selectedId?: string; us
     setLocation(mineById.get(id) === "confirmed" && paidById.get(id) ? PLAY_ROUTES.pass(m) : PLAY_ROUTES.match(m));
   };
 
+  const dayText = day === "today" ? "Hoy" : day === "tomorrow" ? "Mañana" : undefined;
+  const activeFilters: { id: string; label: string; clear: () => void }[] = [
+    ...(filters.district ? [{ id: "district", label: filters.district, clear: () => update({ ...filters, district: undefined }) }] : []),
+    ...(dayText ? [{ id: "day", label: dayText, clear: () => setDay(undefined) }] : []),
+    ...(filters.format ? [{ id: "format", label: FORMAT_LABEL[filters.format] ?? filters.format, clear: () => update({ ...filters, format: undefined }) }] : []),
+    ...(filters.level ? [{ id: "level", label: LEVEL_LABEL[filters.level] ?? filters.level, clear: () => update({ ...filters, level: undefined }) }] : []),
+    ...(filters.gender ? [{ id: "gender", label: GENDER_LABEL[filters.gender] ?? filters.gender, clear: () => update({ ...filters, gender: undefined }) }] : []),
+  ];
+
   const feed = (
-    <div className="space-y-section-gap px-page-h py-4 lg:px-0 lg:py-6">
+    <div className="flex flex-col gap-section-gap px-page-h py-4 lg:min-h-dvh lg:px-0 lg:py-6">
       {isDesktop && (
         <div className="flex items-center justify-between gap-3">
           <h1 className="text-heading font-bold text-night-text">Pichangas en {city}</h1>
@@ -107,7 +124,7 @@ function FeedScreen({ selectedId, userId, isDesktop }: { selectedId?: string; us
           />
           <button
             type="button"
-            aria-label="Filtros avanzados"
+            aria-label={activeFilters.length > 0 ? `Filtros (${activeFilters.length} activos)` : "Filtros"}
             aria-pressed={advanced}
             onClick={() => setAdvanced((v) => !v)}
             className={cn(
@@ -116,39 +133,56 @@ function FeedScreen({ selectedId, userId, isDesktop }: { selectedId?: string; us
             )}
           >
             <SlidersHorizontal className="size-icon-lg" aria-hidden />
+            {activeFilters.length > 0 && (
+              <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-pitch text-caption font-bold text-pitch-on" aria-hidden>{activeFilters.length}</span>
+            )}
           </button>
         </div>
 
-        <div role="group" aria-label="Distrito" className={rowClass}>
-          <NightChip active={!filters.district} onClick={() => update({ ...filters, district: undefined })}>Todos</NightChip>
-          {districts.map((d) => <NightChip key={d} onClick={() => toggle("district", d)} active={filters.district === d}>{d}</NightChip>)}
-        </div>
-
-        <div role="group" aria-label="Filtros rápidos" className={rowClass}>
-          <QuickPill active={day === "today"} onClick={() => setDay(day === "today" ? undefined : "today")}>Hoy</QuickPill>
-          <QuickPill active={day === "tomorrow"} onClick={() => setDay(day === "tomorrow" ? undefined : "tomorrow")}>Mañana</QuickPill>
-          <QuickPill active={filters.format === "futbol_7"} onClick={() => toggle("format", "futbol_7")}>Fútbol 7</QuickPill>
-          <QuickPill active={filters.format === "futbol_5"} onClick={() => toggle("format", "futbol_5")}>Fútbol 5</QuickPill>
-          <QuickPill active={filters.gender === "mixto"} onClick={() => toggle("gender", "mixto")}>Mixto</QuickPill>
-        </div>
+        {activeFilters.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5" aria-label="Filtros activos">
+            {activeFilters.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={f.clear}
+                aria-label={`Quitar filtro ${f.label}`}
+                className="flex items-center gap-1 rounded-full bg-night-highest px-2.5 py-1 text-caption font-bold text-pitch transition-colors duration-fast hover:bg-night-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch"
+              >
+                {f.label}
+                <X className="size-icon-sm" aria-hidden />
+              </button>
+            ))}
+            <button type="button" onClick={clearAll} className="px-1 text-caption font-bold text-night-muted hover:text-night-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch">Limpiar</button>
+          </div>
+        )}
 
         {advanced && (
-          <div className="space-y-2 rounded-md bg-night-container p-3" role="group" aria-label="Filtros avanzados">
-            <p className="text-caption font-bold uppercase text-night-muted">Nivel</p>
-            <div className="flex flex-wrap gap-1.5">
+          <div className="space-y-3 rounded-md bg-night-container p-3" role="group" aria-label="Filtros">
+            <FilterGroup label="Distrito">
+              <QuickPill active={!filters.district} onClick={() => update({ ...filters, district: undefined })}>Todos</QuickPill>
+              {districts.map((d) => <QuickPill key={d} active={filters.district === d} onClick={() => toggle("district", d)}>{d}</QuickPill>)}
+            </FilterGroup>
+            <FilterGroup label="Cuándo">
+              <QuickPill active={day === "today"} onClick={() => setDay(day === "today" ? undefined : "today")}>Hoy</QuickPill>
+              <QuickPill active={day === "tomorrow"} onClick={() => setDay(day === "tomorrow" ? undefined : "tomorrow")}>Mañana</QuickPill>
+            </FilterGroup>
+            <FilterGroup label="Formato">
+              {FORMAT_OPTIONS.map((o) => <QuickPill key={o.id} active={filters.format === o.id} onClick={() => toggle("format", o.id)}>{o.label}</QuickPill>)}
+            </FilterGroup>
+            <FilterGroup label="Nivel">
               {LEVEL_OPTIONS.map((o) => <QuickPill key={o.id} active={filters.level === o.id} onClick={() => toggle("level", o.id)}>{o.label}</QuickPill>)}
-            </div>
-            <p className="pt-1 text-caption font-bold uppercase text-night-muted">Quién juega</p>
-            <div className="flex flex-wrap gap-1.5">
+            </FilterGroup>
+            <FilterGroup label="Quién juega">
               {GENDER_OPTIONS.map((o) => <QuickPill key={o.id} active={filters.gender === o.id} onClick={() => toggle("gender", o.id)}>{o.label}</QuickPill>)}
-            </div>
+            </FilterGroup>
           </div>
         )}
       </div>
 
-      <WelcomeBanner city={city} headingLevel={isDesktop ? "h2" : "h1"} />
+      <WelcomeBanner headingLevel={isDesktop ? "h2" : "h1"} />
 
-      <section aria-label="Pichangas disponibles" className="space-y-3">
+      <section aria-label="Pichangas disponibles" className="flex flex-1 flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <h2 className="text-body font-extrabold uppercase text-night-text">Pichangas disponibles</h2>
@@ -171,6 +205,7 @@ function FeedScreen({ selectedId, userId, isDesktop }: { selectedId?: string; us
           <CardsSkeleton />
         ) : isError ? (
           <NightEmpty
+            fill
             icon={<Search className="size-icon-empty" />}
             title="No pudimos cargar los partidos"
             description="Revisa tu conexión e inténtalo de nuevo."
@@ -178,6 +213,7 @@ function FeedScreen({ selectedId, userId, isDesktop }: { selectedId?: string; us
           />
         ) : visible.length === 0 ? (
           <NightEmpty
+            fill
             icon={<Search className="size-icon-empty" />}
             title={hasFilters ? "No hay pichangas con esos filtros" : "Todavía no hay pichangas convocadas"}
             description={hasFilters ? "Prueba con otro distrito o quita algún filtro." : "Vuelve en un rato: se arman todos los días."}
@@ -357,7 +393,7 @@ function PayPage({ matchId, user }: { matchId: string; user: CurrentUser }) {
         </button>
         <p className="text-body font-bold uppercase text-night-text">Confirmar y pagar</p>
       </header>
-      <div className="flex-1"><MatchCheckoutView matchId={matchId} me={user} /></div>
+      <div className="flex flex-1 flex-col"><MatchCheckoutView matchId={matchId} me={user} /></div>
     </div>
   );
 }

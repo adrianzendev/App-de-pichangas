@@ -68,9 +68,9 @@ export function CoverImage({ venue, alt = "", className }: { venue: { photos?: s
 
 /**
  * Cuadro de bienvenida del feed. Mismo layout que el contenedor de estado del pase: icono circular a la izquierda,
- * badge + titulo + subtitulo apilados y un dato destacado a la derecha.
+ * titulo + subtitulo apilados. La ciudad ya se ve en el titulo y en el selector: no se repite aqui.
  */
-export function WelcomeBanner({ city, headingLevel = "h2" }: { city: string; headingLevel?: "h1" | "h2" }) {
+export function WelcomeBanner({ headingLevel = "h2" }: { headingLevel?: "h1" | "h2" }) {
   const Heading = headingLevel;
   return (
     <section aria-label="Bienvenida" className="relative flex items-center justify-between gap-3 overflow-hidden rounded-md bg-night-container p-4 shadow-night-card">
@@ -83,10 +83,6 @@ export function WelcomeBanner({ city, headingLevel = "h2" }: { city: string; hea
           <Heading className="line-clamp-2 text-body font-bold text-night-text">¡Encuentra tu pichanga de hoy!</Heading>
           <p className="line-clamp-2 text-caption text-night-muted">Cupos libres en canchas techadas con iluminación LED profesional.</p>
         </div>
-      </div>
-      <div className="shrink-0 text-right">
-        <span className="block text-caption font-bold uppercase text-night-muted">Ciudad</span>
-        <span className="text-body font-bold text-pitch">{city}</span>
       </div>
     </section>
   );
@@ -108,9 +104,9 @@ export function CitySelect({ value, cities, onChange, className }: { value: stri
 }
 
 /** Estado vacio o de error sobre fondo oscuro. */
-export function NightEmpty({ icon, title, description, action }: { icon: ReactNode; title: string; description?: string; action?: ReactNode }) {
+export function NightEmpty({ icon, title, description, action, fill }: { icon: ReactNode; title: string; description?: string; action?: ReactNode; /** Ocupa todo el alto libre de su contenedor (el mensaje queda centrado). */ fill?: boolean }) {
   return (
-    <div className="flex flex-col items-center gap-2 rounded-md bg-night-container px-6 py-10 text-center">
+    <div className={cn("flex flex-col items-center gap-2 rounded-md bg-night-container px-6 py-10 text-center", fill && "flex-1 justify-center")}>
       <span className="text-night-muted" aria-hidden>{icon}</span>
       <p className="text-body font-semibold text-night-text">{title}</p>
       {description && <p className="text-label text-night-muted">{description}</p>}

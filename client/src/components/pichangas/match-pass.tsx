@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { PLAY_ROUTES } from "@/lib/routes";
 import {
   FORMAT_LABEL, LEVEL_LABEL, SURFACE_LABEL, dayLabel, googleCalendarUrl, inviteMessage, mapsUrl,
-  passNumber, priceLabel, seatNumber, spotsLeft, teamOf, time12Label, useMatch, useMatchMessages, useSendMatchMessage,
+  passNumber, seatNumber, spotsLeft, time12Label, useMatch, useMatchMessages, useSendMatchMessage,
   type MatchMessage,
 } from "@/lib/pichangas";
 
@@ -168,7 +168,6 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
   const finished = match.status === "finished";
   const left = spotsLeft(match);
   const seat = seatNumber(match, me.id);
-  const team = teamOf(match, me.id);
   const number = passNumber(match.id, me.id);
   const confirmedPlayers = match.players.filter((p) => p.status === "confirmed");
   const waitlistCount = match.players.filter((p) => p.status === "waitlist").length;
@@ -287,20 +286,13 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
           </div>
 
           <div className="space-y-3 bg-night-low p-5">
-            <div className="grid grid-cols-2 gap-3">
+            <div>
               <TicketMeta label={isOrganizer ? "Organizador" : "Jugador"}>
                 <div className="mt-0.5 flex items-center gap-1.5">
                   <span className="truncate text-body font-bold text-night-text">{me.name}</span>
                   {seat > 0 && <span className="shrink-0 rounded-xs bg-pitch px-1.5 py-0.5 text-caption font-bold text-pitch-on">#{seat}</span>}
                 </div>
                 <span className="block text-caption text-pitch">{isOrganizer ? "Organiza la pichanga" : confirmed ? "Anotado" : "Suplente"}</span>
-              </TicketMeta>
-              <TicketMeta label="Equipo asignado">
-                <div className="mt-0.5 flex items-center gap-1.5">
-                  <span className={cn("size-3 shrink-0 rounded-full", team?.dotClass ?? "bg-night-outline")} aria-hidden />
-                  <span className="truncate text-body font-bold text-night-text">{team?.label ?? "Por asignar"}</span>
-                </div>
-                <span className="block text-caption text-night-muted">{confirmedPlayers.length} de {match.maxPlayers} confirmados</span>
               </TicketMeta>
             </div>
 
@@ -326,11 +318,6 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
                 GPS
               </a>
             </div>
-
-            <div className="flex items-center justify-between border-t border-night-high pt-3">
-              <span className="text-caption font-bold uppercase text-night-muted">Pagas por tu cupo</span>
-              <span className="text-body font-bold text-pitch">{priceLabel(match.pricePerPlayer)}</span>
-            </div>
           </div>
         </section>
 
@@ -342,14 +329,6 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
         </section>
 
         <div className="space-y-2 pt-1">
-          <button
-            type="button"
-            onClick={() => setLocation(PLAY_ROUTES.mine)}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-night-high text-body font-bold uppercase text-night-text transition-colors duration-fast hover:bg-night-highest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch"
-          >
-            <CalendarPlus className="size-icon-lg" aria-hidden />
-            Ver mis próximas pichangas
-          </button>
           <button
             type="button"
             onClick={() => setLocation(PLAY_ROUTES.feed)}
