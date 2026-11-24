@@ -94,6 +94,7 @@ export function UserAvatar({ name, avatar, size: sizeProp = "md", className = ""
 
   // Detectar si hay avatar real - acepta /uploads/, /objects/ o cualquier URL válida (http/https)
   const hasRealAvatar = avatar && (
+    avatar.startsWith('/avatars/') || // fotos de ejemplo del repo (client/public/avatars)
     avatar.startsWith('/uploads/') || 
     avatar.startsWith('/objects/') ||
     avatar.startsWith('http://') || 

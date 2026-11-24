@@ -12,13 +12,15 @@ interface UserProfileSelectorProps {
   isOpen: boolean;
   onClick: () => void;
   className?: string;
+  /** Color/estilo extra del nombre (tema oscuro del jugador); por defecto gris oscuro. */
+  nameClassName?: string;
   "data-testid"?: string;
 }
 
 // Trigger del perfil en el sidebar: una fila de menu (SIDEBAR_ROW) con avatar y, con showName, el nombre truncado.
 // Compartido entre Admin y App (via ProfileMenuButton). Sin borde, chevron, hover ni tooltip; el nombre va tambien
 // en aria-label. Cada consumidor arma su propio panel desplegable.
-export function UserProfileSelector({ avatar, name, showName, avatarSize = "xs", isOpen, onClick, className, "data-testid": testId }: UserProfileSelectorProps) {
+export function UserProfileSelector({ avatar, name, showName, avatarSize = "xs", isOpen, onClick, className, nameClassName, "data-testid": testId }: UserProfileSelectorProps) {
   return (
     <button
       type="button"
@@ -37,7 +39,7 @@ export function UserProfileSelector({ avatar, name, showName, avatarSize = "xs",
         // Avatar mayor que la columna del icono (cabecera de escritorio): fuera de SidebarSlot para que no se desborde.
         <UserAvatar name={name} avatar={avatar} size={avatarSize} />
       )}
-      {showName && <span className="min-w-0 flex-1 truncate text-left text-body font-medium text-gray-900">{name}</span>}
+      {showName && <span className={cn("min-w-0 flex-1 truncate text-left text-body font-medium text-gray-900", nameClassName)}>{name}</span>}
     </button>
   );
 }

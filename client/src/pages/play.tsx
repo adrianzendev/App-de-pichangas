@@ -281,7 +281,7 @@ function MineView() {
   const counts = { upcoming: upcoming.length, past: past.length };
 
   return (
-    <div className="space-y-section-gap px-page-h py-4 lg:px-0 lg:py-6" style={{ border: "2px solid red" }}>
+    <div className="flex min-h-dvh flex-col space-y-section-gap px-page-h py-4 lg:px-0 lg:py-6">
       <h1 className="text-heading font-bold text-night-text">Mis pichangas</h1>
       <div role="tablist" aria-label="Mis pichangas" className="grid grid-cols-2 rounded-md bg-night-container p-1">
         {MINE_TABS.map((t) => (
@@ -309,6 +309,7 @@ function MineView() {
       ) : list.length === 0 ? (
         <NightEmpty
           icon={<CalendarCheck className="size-icon-empty" />}
+          fill
           title={tab === "upcoming" ? "No tienes partidos próximos" : "Aún no jugaste ninguna pichanga"}
           description={tab === "upcoming" ? "Busca una pichanga y anótate." : undefined}
           action={tab === "upcoming" ? <PitchButton onClick={() => setLocation(PLAY_ROUTES.feed)}>Buscar partidos</PitchButton> : undefined}
@@ -449,7 +450,7 @@ export default function PlayPage() {
   if (payId) {
     return (
       <PlayerShell active="feed">
-        <div className="space-y-3 py-6">
+        <div className="flex min-h-dvh flex-col space-y-3 py-6">
           <button
             type="button"
             onClick={() => setLocation(PLAY_ROUTES.match(payId))}
@@ -458,7 +459,7 @@ export default function PlayPage() {
             <ArrowLeft className="size-icon-lg" aria-hidden />
             Volver al partido
           </button>
-          <div className="w-full">
+          <div className="flex w-full flex-1 flex-col">
             <MatchCheckoutView matchId={payId} me={user} />
           </div>
         </div>

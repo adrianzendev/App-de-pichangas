@@ -11,7 +11,7 @@ import type { AuthRole } from "@/components/auth/role-tabs";
 
 const GOOGLE_AUTH_TIMEOUT_MS = 8000;
 
-function GoogleIcon() {
+export function GoogleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
@@ -23,18 +23,19 @@ function GoogleIcon() {
 }
 
 // Separador "o" entre Google (arriba) y el formulario de correo; lo usan login y registro.
-export function AuthDivider() {
+export function AuthDivider({ night }: { night?: boolean }) {
+  const line = night ? "bg-night-highest" : "bg-gray-200";
   return (
-    <div className="flex items-center gap-3 text-caption text-gray-700" role="separator" aria-label="o">
-      <span className="h-px flex-1 bg-gray-200" />
+    <div className={night ? "flex items-center gap-3 text-caption text-night-muted" : "flex items-center gap-3 text-caption text-gray-700"} role="separator" aria-label="o">
+      <span className={`h-px flex-1 ${line}`} />
       o
-      <span className="h-px flex-1 bg-gray-200" />
+      <span className={`h-px flex-1 ${line}`} />
     </div>
   );
 }
 
 // Pestaña activa al pulsar Google: el callback la lee tras volver de OAuth (la URL de retorno no admite parametros extra).
-export function GoogleAuthButton({ role = "student" }: { role?: AuthRole }) {
+export function GoogleAuthButton({ role = "student", night }: { role?: AuthRole; night?: boolean }) {
   const [loading, setLoading] = useState(false);
 
   const handleClick = async () => {
@@ -68,6 +69,20 @@ export function GoogleAuthButton({ role = "student" }: { role?: AuthRole }) {
       setLoading(false); // en nativo el usuario sigue en el Custom Tab; si lo cierra sin terminar, el boton no debe quedar girando
     }
   };
+
+  if (night) {
+    return (
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        className="flex h-12 w-full items-center justify-center gap-2 rounded-control bg-night-high text-label font-bold text-night-text transition-colors duration-fast hover:bg-night-highest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch disabled:opacity-50"
+      >
+        {loading ? <Loader2 className="size-icon-md animate-spin" /> : <GoogleIcon />}
+        Continuar con Google
+      </button>
+    );
+  }
 
   return (
     <Button type="button" variant="outline" size="lg" onClick={handleClick} disabled={loading} className="w-full text-gray-700">

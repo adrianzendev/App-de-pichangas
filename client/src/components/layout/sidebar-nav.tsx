@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { SIDEBAR_ROW, SidebarSlot } from "@/components/ui/sidebar-row";
-import logoMiltareas from "@/assets/logo-miltareas.png";
+import logoPichangas from "@/assets/logo-pichangas.png";
 
 export interface SidebarNavItem {
   id: string;
@@ -105,7 +105,7 @@ export function SidebarNavList({ items, testIdPrefix = "nav-desktop", pill = fal
 // de Admin ahi — esa excepcion es solo sobre no usar ThreeColumnLayout
 // en el contenido central, no sobre el sidebar en si).
 export function SidebarNav({ items, profile, hideLogo, onLogoClick, pill, className, "data-testid": dataTestId }: SidebarNavProps) {
-  const logo = <img src={logoMiltareas} alt="MilTareas" width={290} height={64} className="w-auto h-7" />;
+  const logo = <img src={logoPichangas} alt="Pichangas Perú" width={69} height={48} className="w-auto h-12" />;
   return (
     <aside data-testid={dataTestId} aria-label="Navegación principal" className={cn("hidden lg:flex lg:flex-col w-64 shrink-0 lg:h-full lg:overflow-y-auto border-r border-gray-100 bg-white py-6 px-4 gap-2", className)}>
       {/* Arriba: logo, alineado con el borde de los iconos. */}

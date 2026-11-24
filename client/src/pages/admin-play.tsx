@@ -2,29 +2,26 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { CalendarDays, CircleDollarSign, Gauge, LayoutDashboard, ListChecks, MapPin, ScrollText, Users, type LucideIcon } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { EmptyState } from "@/components/ui/empty-state";
-import { FilterPills } from "@/components/ui/filter-pills";
 import { ListScreen } from "@/components/ui/list-screen";
-import { MetricCard } from "@/components/ui/metric-card";
 import { PageLoader } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  AdminActionsTd, AdminActionsTh, AdminTable, AdminTableBody, AdminTableCard, AdminTableHead, AdminTableSkeletonRows,
-  AdminTd, AdminTh, AdminTr,
-} from "@/components/ui/admin-table";
+  AdminActionsTd, AdminActionsTh, AdminBadge, AdminButton, AdminConfirm, AdminHeader, AdminMetric, AdminPanel, AdminPills, AdminSub,
+  AdminTable, AdminTableState, AdminTbody, AdminTd, AdminTh, AdminThead, AdminTr,
+} from "@/components/pichangas/admin-ui";
+import { NightEmpty, PitchButton } from "@/components/pichangas/night-ui";
 import { LOGOUT_ACTION, PlayerShell, type ShellItem } from "@/components/pichangas/player-shell";
 import { ProfileMenuButton } from "@/components/layout/profile-menu-button";
 import { toast } from "@/hooks/use-toast";
 import { ADMIN_ROUTES, PLAY_ROUTES, ROUTES } from "@/lib/routes";
 import { AdminMatchForm } from "@/components/pichangas/admin-match-form";
+import { AdminVenueForm, AdminPlayerForm } from "@/components/pichangas/admin-forms";
 import { AdminRulesView } from "@/components/pichangas/admin-rules";
 import {
-  cancelMatchRequest, createMatchRequest, deleteMatchRequest, setPlayerStatusRequest, setVenueActiveRequest, updateMatchRequest,
+  cancelMatchRequest, createMatchRequest, createPlayerRequest, createVenueRequest, deleteMatchRequest, deletePlayerRequest, deleteVenueRequest,
+  setPlayerStatusRequest, setVenueActiveRequest, updateMatchRequest, updatePlayerRequest, updateVenueRequest,
   useAdminAction, useAdminMatches, useAdminOverview, useAdminPlayers, useAdminVenues,
-  type AdminMatch, type AdminMatchInput, type AdminPlayer, type AdminVenue,
+  type AdminMatch, type AdminMatchInput, type AdminPlayer, type AdminPlayerInput, type AdminVenue, type AdminVenueInput,
 } from "@/lib/admin-pichangas";
 import { FORMAT_LABEL, SURFACE_LABEL, dayLabel, priceLabel, timeLabel } from "@/lib/pichangas";
 
@@ -42,29 +39,6 @@ const ACCOUNT_ACTIONS = [LOGOUT_ACTION];
 const soles = (n: number) => `S/ ${n.toLocaleString("es-PE")}`;
 const errorText = (e: unknown) => (e instanceof Error ? e.message : undefined);
 
-function PageHeader({ title, subtitle }: { title: string; subtitle: string }) {
-  return (
-    <header className="space-y-1">
-      <h1 className="text-heading font-bold text-gray-900">{title}</h1>
-      <p className="text-body text-gray-700">{subtitle}</p>
-    </header>
-  );
-}
-
-function TableState({ isLoading, isError, empty, columns, onRetry, children }: {
-  isLoading: boolean; isError: boolean; empty: boolean; columns: number; onRetry: () => void; children: ReactNode;
-}) {
-  if (isError) {
-    return <EmptyState centered title="No pudimos cargar los datos" description="Revisa tu conexión e inténtalo de nuevo." action={<Button onClick={onRetry}>Reintentar</Button>} />;
-  }
-  if (!isLoading && empty) return <EmptyState centered icon={ListChecks} title="No hay registros todavía" />;
-  return (
-    <AdminTableCard fill={false}>
-      {isLoading ? <AdminTable minWidth={720}><AdminTableBody><AdminTableSkeletonRows columns={columns} /></AdminTableBody></AdminTable> : children}
-    </AdminTableCard>
-  );
-}
-
 // ───────────── Resumen ─────────────
 
 function OverviewView() {
@@ -72,12 +46,12 @@ function OverviewView() {
   const { data, isLoading, isError, refetch } = useAdminOverview();
 
   if (isError) {
-    return <EmptyState centered title="No pudimos cargar el resumen" action={<Button onClick={() => refetch()}>Reintentar</Button>} />;
+    return <NightEmpty icon={<ListChecks className="size-icon-empty" />} title="No pudimos cargar el resumen" action={<PitchButton onClick={() => refetch()}>Reintentar</PitchButton>} />;
   }
   if (isLoading || !data) {
     return (
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3" aria-busy="true">
-        {Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-28 rounded-lg" />)}
+        {Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-28 rounded-md bg-night-container" />)}
       </div>
     );
   }
@@ -92,39 +66,39 @@ function OverviewView() {
   ];
 
   return (
-    <div className="space-y-section-gap">
+    <div className="flex flex-1 flex-col space-y-section-gap">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-        {kpis.map((k) => <MetricCard key={k.id} testId={`kpi-${k.id}`} title={k.title} value={k.value} icon={k.icon} subtitle={k.subtitle} />)}
+        {kpis.map((k) => <AdminMetric key={k.id} testId={`kpi-${k.id}`} title={k.title} value={k.value} icon={k.icon} subtitle={k.subtitle} />)}
       </div>
 
       {data.pendingVenues > 0 && (
-        <section className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-white p-card-pad" aria-label="Pendientes">
+        <AdminPanel className="flex flex-wrap items-center justify-between gap-3" aria-label="Pendientes">
           <div>
-            <p className="text-body font-semibold text-gray-900">
+            <p className="text-body font-semibold text-night-text">
               {data.pendingVenues === 1 ? "Hay 1 cancha esperando aprobación" : `Hay ${data.pendingVenues} canchas esperando aprobación`}
             </p>
-            <p className="text-body text-gray-700">Aparecen en la app cuando las apruebas.</p>
+            <p className="text-body text-night-muted">Aparecen en la app cuando las apruebas.</p>
           </div>
-          <Button variant="secondary" onClick={() => setLocation(ADMIN_ROUTES.venues)}>Revisar canchas</Button>
-        </section>
+          <AdminButton onClick={() => setLocation(ADMIN_ROUTES.venues)}>Revisar canchas</AdminButton>
+        </AdminPanel>
       )}
 
-      <section className="space-y-4 rounded-lg bg-white p-card-pad" aria-label="Partidos por ciudad">
-        <h2 className="text-subheading font-semibold text-gray-900">Partidos por ciudad</h2>
+      <AdminPanel className="space-y-4" aria-label="Partidos por ciudad">
+        <h2 className="text-subheading font-semibold text-night-text">Partidos por ciudad</h2>
         <ul className="space-y-3">
           {data.byCity.map((c) => (
             <li key={c.city} className="space-y-1">
               <div className="flex items-baseline justify-between gap-3">
-                <p className="text-body font-medium text-gray-900">{c.city}</p>
-                <p className="text-label text-gray-700">{c.matches} {c.matches === 1 ? "partido" : "partidos"}, {c.players} jugadores</p>
+                <p className="text-body font-medium text-night-text">{c.city}</p>
+                <p className="text-label text-night-muted">{c.matches} {c.matches === 1 ? "partido" : "partidos"}, {c.players} jugadores</p>
               </div>
-              <div className="h-2 rounded-full bg-gray-100" role="presentation">
-                <div className="h-2 rounded-full bg-green-600" style={{ width: `${(c.matches / maxMatches) * 100}%` }} />
+              <div className="h-2 rounded-full bg-night-highest" role="presentation">
+                <div className="h-2 rounded-full bg-pitch" style={{ width: `${(c.matches / maxMatches) * 100}%` }} />
               </div>
             </li>
           ))}
         </ul>
-      </section>
+      </AdminPanel>
     </div>
   );
 }
@@ -139,10 +113,10 @@ const MATCH_FILTERS = [
 ] as const;
 
 function MatchStatusBadge({ m }: { m: AdminMatch }) {
-  if (m.status === "cancelled") return <Badge variant="outline" className="border-error text-error-fg">Cancelado</Badge>;
-  if (m.status === "finished") return <Badge variant="neutral">Terminado</Badge>;
-  if (m.status === "full") return <Badge variant="info">Completo</Badge>;
-  return <Badge variant="success">Abierto</Badge>;
+  if (m.status === "cancelled") return <AdminBadge tone="danger">Cancelado</AdminBadge>;
+  if (m.status === "finished") return <AdminBadge tone="neutral">Terminado</AdminBadge>;
+  if (m.status === "full") return <AdminBadge tone="info">Completo</AdminBadge>;
+  return <AdminBadge tone="success">Abierto</AdminBadge>;
 }
 
 function MatchesView() {
@@ -191,47 +165,47 @@ function MatchesView() {
   };
 
   return (
-    <div className="space-y-section-gap">
+    <div className="flex flex-1 flex-col space-y-section-gap">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <FilterPills options={MATCH_FILTERS} value={filter} onChange={setFilter} />
-        <Button onClick={() => setForm(null)} data-testid="admin-match-new">Nuevo partido</Button>
+        <AdminPills options={MATCH_FILTERS} value={filter} onChange={setFilter} />
+        <AdminButton tone="pitch" onClick={() => setForm(null)} data-testid="admin-match-new">Nuevo partido</AdminButton>
       </div>
-      <TableState isLoading={isLoading} isError={isError} empty={rows.length === 0} columns={7} onRetry={() => refetch()}>
+      <AdminTableState isLoading={isLoading} isError={isError} empty={rows.length === 0} columns={7} onRetry={() => refetch()}>
         <AdminTable minWidth={960}>
-          <AdminTableHead>
+          <AdminThead>
             <tr><AdminTh>Partido</AdminTh><AdminTh>Cancha</AdminTh><AdminTh>Organiza</AdminTh><AdminTh align="center">Cupos</AdminTh><AdminTh align="right">Cuota</AdminTh><AdminTh>Estado</AdminTh><AdminActionsTh /></tr>
-          </AdminTableHead>
-          <AdminTableBody>
+          </AdminThead>
+          <AdminTbody>
             {rows.map((m) => {
               const canCancel = m.status === "open" || m.status === "full";
               return (
                 <AdminTr key={m.id} data-testid={`admin-match-${m.id}`}>
-                  <AdminTd variant="primary">
+                  <AdminTd tone="primary">
                     {m.title}
-                    <span className="block text-caption font-normal text-gray-700">{dayLabel(m.startsAt)} {timeLabel(m.startsAt)}, {FORMAT_LABEL[m.format] ?? m.format}</span>
+                    <AdminSub>{dayLabel(m.startsAt)} {timeLabel(m.startsAt)}, {FORMAT_LABEL[m.format] ?? m.format}</AdminSub>
                   </AdminTd>
-                  <AdminTd variant="secondary">{m.venue.name}<span className="block text-caption">{m.venue.district}, {m.venue.city}</span></AdminTd>
-                  <AdminTd variant="secondary">{m.organizerName}</AdminTd>
-                  <AdminTd align="center" variant="secondary">
+                  <AdminTd tone="secondary">{m.venue.name}<AdminSub>{m.venue.district}, {m.venue.city}</AdminSub></AdminTd>
+                  <AdminTd tone="secondary">{m.organizerName}</AdminTd>
+                  <AdminTd align="center" tone="secondary">
                     {m.confirmedCount}/{m.maxPlayers}
-                    {m.waitlistCount > 0 && <span className="block text-caption">+{m.waitlistCount} suplentes</span>}
+                    {m.waitlistCount > 0 && <AdminSub>+{m.waitlistCount} suplentes</AdminSub>}
                   </AdminTd>
-                  <AdminTd align="right" variant="secondary">{priceLabel(m.pricePerPlayer)}</AdminTd>
+                  <AdminTd align="right" tone="secondary">{priceLabel(m.pricePerPlayer)}</AdminTd>
                   <AdminTd><MatchStatusBadge m={m} /></AdminTd>
-                  <AdminActionsTd endsWithIcon={false}>
+                  <AdminActionsTd>
                     <div className="flex justify-end gap-2">
-                      <Button size="sm" variant="outline" onClick={() => setForm(m)}>Editar</Button>
-                      {canCancel && <Button size="sm" variant="outline" onClick={() => setTarget(m)}>Cancelar</Button>}
-                      <Button size="sm" variant="destructive-outline" onClick={() => setToDelete(m)}>Eliminar</Button>
+                      <AdminButton compact onClick={() => setForm(m)}>Editar</AdminButton>
+                      {canCancel && <AdminButton compact onClick={() => setTarget(m)}>Cancelar</AdminButton>}
+                      <AdminButton compact tone="danger" onClick={() => setToDelete(m)}>Eliminar</AdminButton>
                     </div>
                   </AdminActionsTd>
                 </AdminTr>
               );
             })}
-          </AdminTableBody>
+          </AdminTbody>
         </AdminTable>
-      </TableState>
-      <ConfirmDialog
+      </AdminTableState>
+      <AdminConfirm
         open={!!target}
         onOpenChange={(o) => !o && setTarget(null)}
         title="¿Cancelar este partido?"
@@ -241,7 +215,7 @@ function MatchesView() {
         destructive
         onConfirm={confirmCancel}
       />
-      <ConfirmDialog
+      <AdminConfirm
         open={!!toDelete}
         onOpenChange={(o) => !o && setToDelete(null)}
         title="¿Eliminar este partido?"
@@ -268,6 +242,12 @@ function MatchesView() {
 function VenuesView() {
   const { data = [], isLoading, isError, refetch } = useAdminVenues();
   const toggle = useAdminAction(setVenueActiveRequest);
+  const create = useAdminAction(createVenueRequest);
+  const update = useAdminAction(updateVenueRequest);
+  const remove = useAdminAction(deleteVenueRequest);
+  // form: undefined = cerrado, null = cancha nueva, AdminVenue = editando.
+  const [form, setForm] = useState<AdminVenue | null | undefined>(undefined);
+  const [toDelete, setToDelete] = useState<AdminVenue | null>(null);
 
   const setActive = (v: AdminVenue, isActive: boolean) =>
     toggle.mutate({ id: v.id, isActive }, {
@@ -275,31 +255,58 @@ function VenuesView() {
       onError: (e) => toast({ variant: "destructive", title: "No pudimos actualizar la cancha", description: errorText(e) }),
     });
 
+  const save = (input: AdminVenueInput) => {
+    const done = (title: string) => () => { toast({ title, description: input.name, variant: "success" }); setForm(undefined); };
+    const fail = (title: string) => (e: unknown) => toast({ variant: "destructive", title, description: errorText(e) });
+    if (form) update.mutate({ id: form.id, data: input }, { onSuccess: done("Cancha actualizada"), onError: fail("No pudimos guardar la cancha") });
+    else create.mutate(input, { onSuccess: done("Cancha creada"), onError: fail("No pudimos crear la cancha") });
+  };
+
   return (
-    <TableState isLoading={isLoading} isError={isError} empty={data.length === 0} columns={7} onRetry={() => refetch()}>
-      <AdminTable minWidth={900}>
-        <AdminTableHead>
-          <tr><AdminTh>Cancha</AdminTh><AdminTh>Ubicación</AdminTh><AdminTh>Superficie</AdminTh><AdminTh align="right">Por hora</AdminTh><AdminTh align="center">Partidos</AdminTh><AdminTh>Estado</AdminTh><AdminActionsTh /></tr>
-        </AdminTableHead>
-        <AdminTableBody>
-          {data.map((v) => (
-            <AdminTr key={v.id} data-testid={`admin-venue-${v.id}`}>
-              <AdminTd variant="primary">{v.name}{v.address && <span className="block text-caption font-normal text-gray-700">{v.address}</span>}</AdminTd>
-              <AdminTd variant="secondary">{v.district}<span className="block text-caption">{v.city}</span></AdminTd>
-              <AdminTd variant="secondary">{SURFACE_LABEL[v.surface] ?? v.surface}</AdminTd>
-              <AdminTd align="right" variant="secondary">{v.pricePerHour ? priceLabel(v.pricePerHour) : "—"}</AdminTd>
-              <AdminTd align="center" variant="secondary">{v.matchCount}</AdminTd>
-              <AdminTd>{v.isActive ? <Badge variant="success">Activa</Badge> : <Badge variant="info">En revisión</Badge>}</AdminTd>
-              <AdminActionsTd endsWithIcon={false}>
-                {v.isActive
-                  ? <Button size="sm" variant="outline" onClick={() => setActive(v, false)}>Desactivar</Button>
-                  : <Button size="sm" onClick={() => setActive(v, true)}>Aprobar</Button>}
-              </AdminActionsTd>
-            </AdminTr>
-          ))}
-        </AdminTableBody>
-      </AdminTable>
-    </TableState>
+    <div className="flex flex-1 flex-col space-y-section-gap">
+      <div className="flex justify-end"><AdminButton tone="pitch" onClick={() => setForm(null)} data-testid="admin-venue-new">Nueva cancha</AdminButton></div>
+      <AdminTableState isLoading={isLoading} isError={isError} empty={data.length === 0} columns={7} onRetry={() => refetch()}>
+        <AdminTable minWidth={960}>
+          <AdminThead>
+            <tr><AdminTh>Cancha</AdminTh><AdminTh>Ubicación</AdminTh><AdminTh>Superficie</AdminTh><AdminTh align="right">Por hora</AdminTh><AdminTh align="center">Partidos</AdminTh><AdminTh>Estado</AdminTh><AdminActionsTh /></tr>
+          </AdminThead>
+          <AdminTbody>
+            {data.map((v) => (
+              <AdminTr key={v.id} data-testid={`admin-venue-${v.id}`}>
+                <AdminTd tone="primary">{v.name}{v.address && <AdminSub>{v.address}</AdminSub>}</AdminTd>
+                <AdminTd tone="secondary">{v.district}<AdminSub>{v.city}</AdminSub></AdminTd>
+                <AdminTd tone="secondary">{SURFACE_LABEL[v.surface] ?? v.surface}</AdminTd>
+                <AdminTd align="right" tone="secondary">{v.pricePerHour ? priceLabel(v.pricePerHour) : "—"}</AdminTd>
+                <AdminTd align="center" tone="secondary">{v.matchCount}</AdminTd>
+                <AdminTd>{v.isActive ? <AdminBadge tone="success">Activa</AdminBadge> : <AdminBadge tone="info">En revisión</AdminBadge>}</AdminTd>
+                <AdminActionsTd>
+                  <AdminButton compact onClick={() => setForm(v)}>Editar</AdminButton>
+                  {v.isActive
+                    ? <AdminButton compact onClick={() => setActive(v, false)}>Desactivar</AdminButton>
+                    : <AdminButton compact tone="pitch" onClick={() => setActive(v, true)}>Aprobar</AdminButton>}
+                  <AdminButton compact tone="danger" onClick={() => setToDelete(v)}>Eliminar</AdminButton>
+                </AdminActionsTd>
+              </AdminTr>
+            ))}
+          </AdminTbody>
+        </AdminTable>
+      </AdminTableState>
+      <AdminVenueForm open={form !== undefined} venue={form ?? null} saving={create.isPending || update.isPending} onClose={() => setForm(undefined)} onSubmit={save} />
+      <AdminConfirm
+        open={!!toDelete}
+        onOpenChange={(o) => !o && setToDelete(null)}
+        title="¿Eliminar esta cancha?"
+        description={toDelete ? (toDelete.matchCount > 0
+          ? `${toDelete.name} tiene ${toDelete.matchCount} partido(s): no se puede eliminar. Elimina esos partidos primero o desactívala.`
+          : `${toDelete.name}. Se borra para siempre.`) : undefined}
+        confirmLabel="Eliminar cancha"
+        destructive
+        onConfirm={() => toDelete && remove.mutate(toDelete.id, {
+          onSuccess: () => toast({ title: "Cancha eliminada", description: toDelete.name }),
+          onError: (e) => toast({ variant: "destructive", title: "No pudimos eliminar la cancha", description: errorText(e) }),
+        })}
+      />
+    </div>
   );
 }
 
@@ -318,6 +325,12 @@ function PlayersView() {
   const { data = [], isLoading, isError, refetch } = useAdminPlayers();
   const [target, setTarget] = useState<AdminPlayer | null>(null);
   const setStatus = useAdminAction(setPlayerStatusRequest);
+  const create = useAdminAction(createPlayerRequest);
+  const update = useAdminAction(updatePlayerRequest);
+  const remove = useAdminAction(deletePlayerRequest);
+  // form: undefined = cerrado, null = jugador nuevo, AdminPlayer = editando.
+  const [form, setForm] = useState<AdminPlayer | null | undefined>(undefined);
+  const [toDelete, setToDelete] = useState<AdminPlayer | null>(null);
 
   const apply = (p: AdminPlayer, status: "active" | "suspended") =>
     setStatus.mutate({ id: p.id, status }, {
@@ -325,45 +338,67 @@ function PlayersView() {
       onError: (e) => toast({ variant: "destructive", title: "No pudimos actualizar al jugador", description: errorText(e) }),
     });
 
+  const save = (input: AdminPlayerInput) => {
+    const done = (title: string) => () => { toast({ title, description: input.name, variant: "success" }); setForm(undefined); };
+    const fail = (title: string) => (e: unknown) => toast({ variant: "destructive", title, description: errorText(e) });
+    if (form) update.mutate({ id: form.id, data: input }, { onSuccess: done("Jugador actualizado"), onError: fail("No pudimos guardar al jugador") });
+    else create.mutate(input, { onSuccess: done("Jugador creado"), onError: fail("No pudimos crear al jugador") });
+  };
+
   return (
-    <>
-      <TableState isLoading={isLoading} isError={isError} empty={data.length === 0} columns={6} onRetry={() => refetch()}>
-        <AdminTable minWidth={820}>
-          <AdminTableHead>
+    <div className="flex flex-1 flex-col space-y-section-gap">
+      <div className="flex justify-end"><AdminButton tone="pitch" onClick={() => setForm(null)} data-testid="admin-player-new">Nuevo jugador</AdminButton></div>
+      <AdminTableState isLoading={isLoading} isError={isError} empty={data.length === 0} columns={6} onRetry={() => refetch()}>
+        <AdminTable minWidth={960}>
+          <AdminThead>
             <tr><AdminTh>Jugador</AdminTh><AdminTh align="center">Anotado en</AdminTh><AdminTh align="center">Organizó</AdminTh><AdminTh>Última vez</AdminTh><AdminTh>Estado</AdminTh><AdminActionsTh /></tr>
-          </AdminTableHead>
-          <AdminTableBody>
+          </AdminThead>
+          <AdminTbody>
             {data.map((p) => {
               const suspended = p.status === "suspended";
               return (
                 <AdminTr key={p.id} data-testid={`admin-player-${p.id}`}>
-                  <AdminTd variant="primary">{p.name}<span className="block text-caption font-normal text-gray-700">{p.email}</span></AdminTd>
-                  <AdminTd align="center" variant="secondary">{p.joined}</AdminTd>
-                  <AdminTd align="center" variant="secondary">{p.organized}</AdminTd>
-                  <AdminTd variant="secondary">{lastSeenLabel(p.lastSeen)}</AdminTd>
-                  <AdminTd>{suspended ? <Badge variant="outline" className="border-error text-error-fg">Suspendido</Badge> : <Badge variant="success">Activo</Badge>}</AdminTd>
-                  <AdminActionsTd endsWithIcon={false}>
+                  <AdminTd tone="primary">{p.name}<AdminSub>{p.email}</AdminSub></AdminTd>
+                  <AdminTd align="center" tone="secondary">{p.joined}</AdminTd>
+                  <AdminTd align="center" tone="secondary">{p.organized}</AdminTd>
+                  <AdminTd tone="secondary">{lastSeenLabel(p.lastSeen)}</AdminTd>
+                  <AdminTd>{suspended ? <AdminBadge tone="danger">Suspendido</AdminBadge> : <AdminBadge tone="success">Activo</AdminBadge>}</AdminTd>
+                  <AdminActionsTd>
+                    <AdminButton compact onClick={() => setForm(p)}>Editar</AdminButton>
                     {suspended
-                      ? <Button size="sm" variant="outline" onClick={() => apply(p, "active")}>Reactivar</Button>
-                      : <Button size="sm" variant="destructive-outline" onClick={() => setTarget(p)}>Suspender</Button>}
+                      ? <AdminButton compact tone="pitch" onClick={() => apply(p, "active")}>Reactivar</AdminButton>
+                      : <AdminButton compact onClick={() => setTarget(p)}>Suspender</AdminButton>}
+                    <AdminButton compact tone="danger" onClick={() => setToDelete(p)}>Eliminar</AdminButton>
                   </AdminActionsTd>
                 </AdminTr>
               );
             })}
-          </AdminTableBody>
+          </AdminTbody>
         </AdminTable>
-      </TableState>
-      <ConfirmDialog
+      </AdminTableState>
+      <AdminPlayerForm open={form !== undefined} player={form ?? null} saving={create.isPending || update.isPending} onClose={() => setForm(undefined)} onSubmit={save} />
+      <AdminConfirm
         open={!!target}
         onOpenChange={(o) => !o && setTarget(null)}
         title="¿Suspender a este jugador?"
         description={target ? `${target.name} no podrá anotarse a partidos hasta que lo reactives.` : undefined}
         confirmLabel="Suspender"
-        cancelLabel="Volver"
         destructive
         onConfirm={() => target && apply(target, "suspended")}
       />
-    </>
+      <AdminConfirm
+        open={!!toDelete}
+        onOpenChange={(o) => !o && setToDelete(null)}
+        title="¿Eliminar a este jugador?"
+        description={toDelete ? `${toDelete.name}. Se borra la cuenta para siempre, con sus inscripciones y los partidos que organizó. Si solo quieres bloquearlo, usa Suspender.` : undefined}
+        confirmLabel="Eliminar jugador"
+        destructive
+        onConfirm={() => toDelete && remove.mutate(toDelete.id, {
+          onSuccess: () => toast({ title: "Jugador eliminado", description: toDelete.name }),
+          onError: (e) => toast({ variant: "destructive", title: "No pudimos eliminar al jugador", description: errorText(e) }),
+        })}
+      />
+    </div>
   );
 }
 
@@ -372,9 +407,9 @@ function PlayersView() {
 const SECTIONS = {
   overview: { title: "Panel", subtitle: "Resumen de la plataforma.", View: OverviewView },
   matches: { title: "Partidos", subtitle: "Todos los partidos convocados.", View: MatchesView },
-  venues: { title: "Canchas", subtitle: "Aprueba las canchas nuevas y desactiva las que ya no sirven.", View: VenuesView },
-  players: { title: "Jugadores", subtitle: "Actividad de cada cuenta.", View: PlayersView },
-  rules: { title: "Reglas", subtitle: "Las reglas del encuentro que ven los jugadores en cada partido y en su pase.", View: () => <AdminRulesView TableState={TableState} /> },
+  venues: { title: "Canchas", subtitle: "Crea, edita y aprueba las canchas donde se juegan los partidos.", View: VenuesView },
+  players: { title: "Jugadores", subtitle: "Crea, edita y administra las cuentas de los jugadores.", View: PlayersView },
+  rules: { title: "Reglas", subtitle: "Las reglas del encuentro que ven los jugadores en cada partido y en su pase.", View: () => <AdminRulesView /> },
 } as const;
 type SectionId = keyof typeof SECTIONS;
 
@@ -397,13 +432,13 @@ export default function AdminPlayPage() {
 
   return (
     <PlayerShell active={active} items={NAV} brand="Administración" accountActions={ACCOUNT_ACTIONS}>
-      <ListScreen>
+      <ListScreen className="flex min-h-dvh flex-col">
         <div className="flex items-start justify-between gap-3">
-          <PageHeader title={title} subtitle={subtitle} />
+          <AdminHeader title={title} subtitle={subtitle} />
           {/* En movil no hay menu lateral: la cuenta (con Cerrar sesion) va como avatar en la cabecera. */}
           <ProfileMenuButton align="right" placement="below" actions={ACCOUNT_ACTIONS} className="shrink-0 lg:hidden" />
         </div>
-        <View />
+        <div className="flex flex-1 flex-col"><View /></div>
       </ListScreen>
     </PlayerShell>
   );

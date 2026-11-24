@@ -1,14 +1,9 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { ArrowDown, ArrowUp } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { EnumSelect } from "@/components/ui/enum-select";
-import { FormDialog } from "@/components/ui/form-dialog";
-import { Input } from "@/components/ui/input";
-import { OutlinedControl } from "@/components/ui/outlined-field";
-import { Textarea } from "@/components/ui/textarea";
-import { AdminActionsTd, AdminActionsTh, AdminTable, AdminTableBody, AdminTableHead, AdminTd, AdminTh, AdminTr } from "@/components/ui/admin-table";
+import {
+  AdminActionsTd, AdminActionsTh, AdminBadge, AdminButton, AdminConfirm, AdminField, AdminFormDialog, AdminInput, AdminSelect, AdminSub,
+  AdminTable, AdminTableState, AdminTbody, AdminTd, AdminTextarea, AdminTh, AdminThead, AdminTr,
+} from "@/components/pichangas/admin-ui";
 import { toast } from "@/hooks/use-toast";
 import {
   createRuleRequest, deleteRuleRequest, moveRuleRequest, updateRuleRequest, useAdminAction, useAdminRules,
@@ -36,7 +31,7 @@ function RuleForm({ rule, open, saving, onClose, onSubmit }: {
   const badDesc = f.description.trim().length < 3;
   const submit = () => { setTried(true); if (!badTitle && !badDesc) onSubmit({ ...f, title: f.title.trim(), description: f.description.trim() }); };
   return (
-    <FormDialog
+    <AdminFormDialog
       open={open}
       onOpenChange={(o) => !o && onClose()}
       title={rule ? "Editar regla" : "Nueva regla"}
@@ -45,30 +40,28 @@ function RuleForm({ rule, open, saving, onClose, onSubmit }: {
       submitLabel={saving ? "Guardando…" : "Guardar"}
       submitDisabled={saving}
     >
-      <OutlinedControl label="Título" htmlFor="ru-title">
-        <Input id="ru-title" value={f.title} maxLength={80} aria-invalid={tried && badTitle} onChange={(e) => setF({ ...f, title: e.target.value })} />
-        {tried && badTitle && <p className="mt-1 text-caption text-error-fg">Mínimo 3 caracteres.</p>}
-      </OutlinedControl>
-      <OutlinedControl label="Descripción" htmlFor="ru-desc">
-        <Textarea id="ru-desc" rows={3} maxLength={300} value={f.description} aria-invalid={tried && badDesc} onChange={(e) => setF({ ...f, description: e.target.value })} />
-        <p className="mt-1 text-caption text-gray-700">Usa {"{hora}"} para mostrar la hora de inicio de cada partido.</p>
-        {tried && badDesc && <p className="mt-1 text-caption text-error-fg">Mínimo 3 caracteres.</p>}
-      </OutlinedControl>
-      <OutlinedControl label="Ícono" htmlFor="ru-icon">
-        <EnumSelect id="ru-icon" options={ICON_OPTIONS} value={f.icon} onValueChange={(v) => setF({ ...f, icon: v })} />
-      </OutlinedControl>
-      <label className="flex items-center gap-2 text-body text-gray-900">
-        <input type="checkbox" checked={f.isActive} onChange={(e) => setF({ ...f, isActive: e.target.checked })} />
+      <AdminField label="Título" htmlFor="ru-title">
+        <AdminInput id="ru-title" value={f.title} maxLength={80} aria-invalid={tried && badTitle} onChange={(e) => setF({ ...f, title: e.target.value })} />
+        {tried && badTitle && <p className="mt-1 text-caption font-bold text-crimson">Mínimo 3 caracteres.</p>}
+      </AdminField>
+      <AdminField label="Descripción" htmlFor="ru-desc">
+        <AdminTextarea id="ru-desc" rows={3} maxLength={300} value={f.description} aria-invalid={tried && badDesc} onChange={(e) => setF({ ...f, description: e.target.value })} />
+        <p className="mt-1 text-caption text-night-muted">Usa {"{hora}"} para mostrar la hora de inicio de cada partido.</p>
+        {tried && badDesc && <p className="mt-1 text-caption font-bold text-crimson">Mínimo 3 caracteres.</p>}
+      </AdminField>
+      <AdminField label="Ícono" htmlFor="ru-icon">
+        <AdminSelect id="ru-icon" options={ICON_OPTIONS} value={f.icon} onChange={(e) => setF({ ...f, icon: e.target.value })} />
+      </AdminField>
+      <label className="flex items-center gap-2 text-body text-night-text">
+        <input type="checkbox" className="accent-pitch" checked={f.isActive} onChange={(e) => setF({ ...f, isActive: e.target.checked })} />
         Visible para los jugadores
       </label>
-    </FormDialog>
+    </AdminFormDialog>
   );
 }
 
-interface TableStateProps { isLoading: boolean; isError: boolean; empty: boolean; columns: number; onRetry: () => void; children: ReactNode }
-
 // Sección "Reglas" del panel: lo que se muestra como reglas del encuentro en el detalle y el pase de todos los partidos.
-export function AdminRulesView({ TableState }: { TableState: (p: TableStateProps) => JSX.Element }) {
+export function AdminRulesView() {
   const { data = [], isLoading, isError, refetch } = useAdminRules();
   const create = useAdminAction(createRuleRequest);
   const update = useAdminAction(updateRuleRequest);
@@ -87,41 +80,40 @@ export function AdminRulesView({ TableState }: { TableState: (p: TableStateProps
   };
 
   return (
-    <div className="space-y-section-gap">
-      <div className="flex justify-end"><Button onClick={() => setForm(null)}>Nueva regla</Button></div>
-      <TableState isLoading={isLoading} isError={isError} empty={data.length === 0} columns={4} onRetry={() => refetch()}>
+    <div className="flex flex-1 flex-col space-y-section-gap">
+      <div className="flex justify-end"><AdminButton tone="pitch" onClick={() => setForm(null)}>Nueva regla</AdminButton></div>
+      <AdminTableState isLoading={isLoading} isError={isError} empty={data.length === 0} columns={4} onRetry={() => refetch()}>
         <AdminTable minWidth={760}>
-          <AdminTableHead><tr><AdminTh>Regla</AdminTh><AdminTh>Estado</AdminTh><AdminTh align="center">Orden</AdminTh><AdminActionsTh /></tr></AdminTableHead>
-          <AdminTableBody>
+          <AdminThead><tr><AdminTh>Regla</AdminTh><AdminTh>Estado</AdminTh><AdminTh align="center">Orden</AdminTh><AdminActionsTh /></tr></AdminThead>
+          <AdminTbody>
             {data.map((r, i) => (
               <AdminTr key={r.id}>
-                <AdminTd variant="primary">{r.title}<span className="block text-caption font-normal text-gray-700">{r.description}</span></AdminTd>
-                <AdminTd>{r.isActive ? <Badge variant="success">Visible</Badge> : <Badge variant="neutral">Oculta</Badge>}</AdminTd>
+                <AdminTd tone="primary">{r.title}<AdminSub>{r.description}</AdminSub></AdminTd>
+                <AdminTd>{r.isActive ? <AdminBadge tone="success">Visible</AdminBadge> : <AdminBadge tone="neutral">Oculta</AdminBadge>}</AdminTd>
                 <AdminTd align="center">
                   <div className="flex justify-center gap-1">
-                    <Button size="sm" variant="outline" aria-label="Subir" disabled={i === 0} onClick={() => move.mutate({ id: r.id, direction: "up" })}><ArrowUp className="size-icon-md" /></Button>
-                    <Button size="sm" variant="outline" aria-label="Bajar" disabled={i === data.length - 1} onClick={() => move.mutate({ id: r.id, direction: "down" })}><ArrowDown className="size-icon-md" /></Button>
+                    <AdminButton compact aria-label="Subir" disabled={i === 0} onClick={() => move.mutate({ id: r.id, direction: "up" })}><ArrowUp className="size-icon-md" /></AdminButton>
+                    <AdminButton compact aria-label="Bajar" disabled={i === data.length - 1} onClick={() => move.mutate({ id: r.id, direction: "down" })}><ArrowDown className="size-icon-md" /></AdminButton>
                   </div>
                 </AdminTd>
-                <AdminActionsTd endsWithIcon={false}>
+                <AdminActionsTd>
                   <div className="flex justify-end gap-2">
-                    <Button size="sm" variant="outline" onClick={() => setForm(r)}>Editar</Button>
-                    <Button size="sm" variant="destructive-outline" onClick={() => setToDelete(r)}>Eliminar</Button>
+                    <AdminButton compact onClick={() => setForm(r)}>Editar</AdminButton>
+                    <AdminButton compact tone="danger" onClick={() => setToDelete(r)}>Eliminar</AdminButton>
                   </div>
                 </AdminActionsTd>
               </AdminTr>
             ))}
-          </AdminTableBody>
+          </AdminTbody>
         </AdminTable>
-      </TableState>
+      </AdminTableState>
       <RuleForm rule={form ?? null} open={form !== undefined} saving={create.isPending || update.isPending} onClose={() => setForm(undefined)} onSubmit={save} />
-      <ConfirmDialog
+      <AdminConfirm
         open={!!toDelete}
         onOpenChange={(o) => !o && setToDelete(null)}
         title="¿Eliminar esta regla?"
         description={toDelete ? `${toDelete.title}. Deja de mostrarse en todos los partidos. Si solo quieres ocultarla un tiempo, edítala y desmarca "Visible".` : undefined}
         confirmLabel="Eliminar regla"
-        cancelLabel="Volver"
         destructive
         onConfirm={() => toDelete && remove.mutate(toDelete.id, {
           onSuccess: () => toast({ title: "Regla eliminada", description: toDelete.title }),

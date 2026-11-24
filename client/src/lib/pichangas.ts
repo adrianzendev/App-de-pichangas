@@ -12,6 +12,7 @@ export interface Venue {
   address: string | null;
   surface: string;
   pricePerHour: string | null;
+  phone?: string | null;
   /** Coordenadas (se usan para el boton GPS del pase); null = solo hay direccion. */
   latitude?: string | null;
   longitude?: string | null;

@@ -18,10 +18,14 @@ const buttonVariants = cva(
         ghost: "hover:bg-gray-100 text-gray-700",
         outline: "border border-field bg-white hover:bg-gray-50 text-gray-900",
         link: "text-green-600 underline-offset-4 hover:text-green-700 hover:underline",
+        // Tema Pichanga Black (jugador, /play): verde electrico sobre fondo oscuro. Radio md (12px), igual que PitchButton, las tarjetas y las filas.
+        pitch: "rounded-md bg-pitch font-bold text-pitch-on hover:bg-pitch-strong focus-visible:ring-pitch focus-visible:ring-offset-night-container",
       },
       size: {
         default: "h-11 px-5 py-3",
         xs: "h-10 px-3",
+        // Accion dentro de una fila de lista (p. ej. "Separar ahora" en la plantilla): 32px, texto de 12px.
+        compact: "h-8 px-3 text-caption",
         sm: "h-10 px-4 py-2",
         touch: "h-10 px-3",
         lg: "h-12 px-6 py-3",

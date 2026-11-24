@@ -133,10 +133,10 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
     ) : null;
   } else {
     cta = (
-      <div className="space-y-2">
+      <div className="space-y-2 lg:flex lg:flex-1 lg:items-center lg:gap-6 lg:space-y-0">
         {left > 1 && (
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-label font-bold text-night-muted">Cupos (tú y tus acompañantes)</span>
+          <div className="flex items-center justify-between gap-3 lg:shrink-0">
+            <span className="text-label font-bold text-night-muted">Cupos (tú y acompañantes)</span>
             <div className="flex items-center gap-1" role="group" aria-label="Cupos a inscribir">
               <button type="button" aria-label="Quitar un cupo" disabled={seatCount <= 1} onClick={() => setSeats(seatCount - 1)} className="flex size-9 items-center justify-center rounded-full bg-night-highest text-night-text transition-colors duration-fast hover:bg-night-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch disabled:opacity-40"><Minus className="size-icon-md" aria-hidden /></button>
               <span className="w-8 text-center text-body font-bold text-night-text tabular-nums" aria-live="polite">{seatCount}</span>
@@ -144,7 +144,7 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
             </div>
           </div>
         )}
-        <PitchButton className="w-full uppercase" disabled={busy} onClick={requestJoin}>
+        <PitchButton className="w-full uppercase lg:flex-1" disabled={busy} onClick={requestJoin}>
           {left > 0 ? (seatCount > 1 ? `Inscribirme con ${seatCount - 1} ${seatCount === 2 ? "acompañante" : "acompañantes"}` : "Inscribirme") : "Inscribirme de suplente"}
         </PitchButton>
       </div>
@@ -250,8 +250,8 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
 
       {/* Accion principal fija al fondo: superficie propia (night-high, mas clara que el fondo) para que no se funda con la pagina; sin sombra. El boton se estira a todo el ancho, alineado con el contenido. */}
       <div className="sticky bottom-0 bg-night-high p-4 lg:p-6">
-        <div className="w-full">
-          <div className="mb-3 flex items-baseline justify-between">
+        <div className="w-full lg:flex lg:items-center lg:gap-6">
+          <div className="mb-3 flex items-baseline justify-between lg:mb-0 lg:shrink-0 lg:flex-col lg:items-start lg:gap-0.5">
             <span className="text-caption font-bold uppercase text-night-muted">Total a pagar</span>
             <span className="text-subheading font-extrabold text-pitch">{priceLabel(match.pricePerPlayer)} <span className="text-caption font-bold text-night-muted">/ persona</span></span>
           </div>

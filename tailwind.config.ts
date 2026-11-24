@@ -64,6 +64,16 @@ export default {
       "bubble-own": tok("--chat-bubble-own"),
       "bubble-other": tok("--chat-bubble-other"),
       scrim: tok("--scrim"),
+      /* Pichanga Black (tema oscuro del jugador) */
+      night: {
+        DEFAULT: tok("--night"), lowest: tok("--night-lowest"), low: tok("--night-low"), container: tok("--night-container"),
+        high: tok("--night-high"), highest: tok("--night-highest"), text: tok("--night-text"), muted: tok("--night-muted"), outline: tok("--night-outline"),
+      },
+      pitch: { DEFAULT: tok("--pitch"), strong: tok("--pitch-strong"), on: tok("--on-pitch") },
+      aqua: tok("--aqua"),
+      orchid: tok("--orchid"),
+      yape: tok("--yape"),
+      crimson: { DEFAULT: tok("--crimson"), on: tok("--on-crimson"), container: tok("--crimson-container") },
       file: { pdf: tok("--file-pdf"), word: tok("--file-word"), excel: tok("--file-excel"), ppt: tok("--file-ppt"), default: tok("--file-default") },
       card: { DEFAULT: tok("--card"), foreground: tok("--card-foreground") },
       popover: { DEFAULT: tok("--popover"), foreground: tok("--popover-foreground") },
@@ -145,6 +155,10 @@ export default {
       'xl':    'var(--shadow-xl)',
       'float': 'var(--shadow-float)',
       'modal': 'var(--shadow-modal)',
+      'night-card': 'var(--shadow-night-card)',
+      'night-bar': 'var(--shadow-night-bar)',
+      'night-nav': 'var(--shadow-night-nav)',
+      'glow': 'var(--shadow-glow)',
     },
 
     /* Spacing: escala CERRADA (theme, no extend). Solo existen estos valores; si falta uno, se crea en index.css y aqui. */
@@ -431,6 +445,7 @@ export default {
       sans: ['var(--font-family)'],
       display: ['var(--font-family)'],
       mono: ['var(--font-mono)'],
+      satoshi: ['var(--font-satoshi)'],
     },
     /* Breakpoints: salen de --bp-* en index.css (via breakpoints.ts); los media queries no aceptan var(). */
     screens: {

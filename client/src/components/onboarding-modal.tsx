@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CountrySelect } from "@/components/ui/country-select";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import logoMiltareas from "@/assets/logo-miltareas.png";
+import logoPichangas from "@/assets/logo-pichangas.png";
 import type { UserWithType } from "@shared/schema";
 import { useCountries } from "@/hooks/use-countries";
 import { usePhonePrefix } from "@/hooks/use-phone-prefix";
@@ -70,7 +70,7 @@ export default function OnboardingModal({ currentUser }: Props) {
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
         <div className="text-center space-y-2">
-          <img src={logoMiltareas} alt="MilTareas" width={290} height={64} className="w-auto h-7 mx-auto" />
+          <img src={logoPichangas} alt="Pichangas Perú" width={92} height={64} className="w-auto h-16 mx-auto" />
           <DialogTitle className="text-heading font-bold text-gray-900">¡Bienvenido a MilTareas!</DialogTitle>
           <DialogDescription className="text-label text-gray-700">
             Completa tu perfil para continuar. Solo toma un momento.

@@ -24,9 +24,11 @@ interface ProfileMenuButtonProps {
   avatarSize?: AvatarSize;
   /** Con align="left": el trigger es una pildora que se ajusta al contenido, como las filas de `SidebarNav pill`. */
   pill?: boolean;
+  /** Estilo extra del nombre junto al avatar (p. ej. texto claro sobre fondo oscuro). */
+  nameClassName?: string;
 }
 
-export function ProfileMenuButton({ className = "", align = "right", placement = "above", actions: customActions, showName, avatarSize, pill }: ProfileMenuButtonProps) {
+export function ProfileMenuButton({ className = "", align = "right", placement = "above", actions: customActions, showName, avatarSize, pill, nameClassName }: ProfileMenuButtonProps) {
   const isDesktop = useMediaQuery(MQ.lg);
   const [, setLocation] = useLocation();
   const [open, setOpen] = useState(false);
@@ -63,6 +65,7 @@ export function ProfileMenuButton({ className = "", align = "right", placement =
         name={displayName}
         avatar={user?.avatar}
         showName={showName ?? align === "left"}
+        nameClassName={nameClassName}
         avatarSize={avatarSize}
         className={align === "left" ? (pill ? "w-fit max-w-full rounded-full py-3 pl-3 pr-6 hover:bg-gray-50" : "w-full") : undefined}
         isOpen={open}
@@ -80,7 +83,7 @@ export function ProfileMenuButton({ className = "", align = "right", placement =
             aria-label="Cuenta"
             className={cn(
               "absolute z-toast rounded-card border border-border bg-white p-2 shadow-float",
-              align === "left" ? (placement === "above" ? "bottom-full left-0 right-0 mb-2" : "top-full left-0 right-0 mt-2") : "right-0 top-full mt-2 w-popover-menu"
+              align === "left" ? (placement === "above" ? "bottom-full left-0 right-0 mb-2 min-w-popover-menu" : "top-full left-0 right-0 mt-2 min-w-popover-menu") : "right-0 top-full mt-2 w-popover-menu"
             )}
           >
             <div className="flex items-center gap-3 px-3 pb-4 pt-3">

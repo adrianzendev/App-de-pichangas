@@ -190,6 +190,14 @@ app.use((req, res, next) => {
     } catch (error) {
       console.log("Database already seeded or error occurred");
     }
+    // Pichangas: usuarios, canchas y partidos de prueba (solo desarrollo, idempotente).
+    try {
+      const { seedMockPichangas } = await import("./mock-pichangas");
+      await seedMockPichangas();
+      console.log("✅ Mock de pichangas listo (usuarios @pichangas.test, canchas y partidos)");
+    } catch (error) {
+      console.error("[MOCK] No se pudo crear el mock de pichangas:", error);
+    }
   }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT

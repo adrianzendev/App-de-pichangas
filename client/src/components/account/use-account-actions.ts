@@ -57,7 +57,7 @@ export function useAccountActions() {
   return {
     user,
     displayName: getDisplayName(user?.name),
-    roleLabel: ROLE_LABELS[userType ?? ""] ?? "Alumno",
+    roleLabel: ROLE_LABELS[userType ?? ""] ?? "Jugador",
     actions,
   };
 }

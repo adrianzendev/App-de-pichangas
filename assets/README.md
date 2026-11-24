@@ -4,7 +4,7 @@
 
 ## Estado
 `icon-master.png` (1024×1024) es el icono real de la marca y es lo único que se versiona aquí; el resto se genera.
-`client/public/icon-512.svg` es un marcador de posición (una «m» en Arial sobre `#22c55e`): **no es el logo**. No guardar
+No guardar
 el maestro dentro de `client/src`: Vite lo empaquetaría con la web.
 
 Para el icono adaptativo de Android lo ideal es además un `icon-foreground-master.png` con solo la hoja y la «m» sobre

@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "./db";
-import { venues, matches, matchPlayers, users, insertMatchSchema } from "@shared/schema";
+import { venues, matches, matchPlayers, users, insertMatchSchema, insertVenueSchema } from "@shared/schema";
 
 // Igual que el esquema publico, pero al editar la fecha puede ser pasada (corregir un partido ya jugado); al crear se exige futura aparte.
 const adminMatchSchema = insertMatchSchema.extend({ startsAt: z.coerce.date() });
@@ -190,17 +190,48 @@ export function registerAdminPichangas(app: Express) {
     }
   });
 
+  // Crear, editar y eliminar canchas. El PATCH acepta solo { isActive } (aprobar/desactivar) o la cancha completa.
+  app.post("/api/admin/pichangas/venues", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const parsed = insertVenueSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Datos inválidos", issues: parsed.error.issues });
+    try {
+      const [created] = await db.insert(venues).values({ ...parsed.data, isActive: true, createdBy: (req as any).session.user.id }).returning();
+      res.status(201).json(created);
+    } catch (error) {
+      console.error("[POST /api/admin/pichangas/venues] error:", error);
+      res.status(500).json({ message: "No se pudo crear la cancha" });
+    }
+  });
+
   app.patch("/api/admin/pichangas/venues/:id", async (req, res) => {
     if (!requireAdmin(req, res)) return;
-    const parsed = z.object({ isActive: z.boolean() }).safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ message: "Datos inválidos" });
+    const onlyActive = z.object({ isActive: z.boolean() }).safeParse(req.body);
+    const full = onlyActive.success ? null : insertVenueSchema.safeParse(req.body);
+    if (!onlyActive.success && !full?.success) return res.status(400).json({ message: "Datos inválidos" });
     try {
-      const [updated] = await db.update(venues).set({ isActive: parsed.data.isActive }).where(eq(venues.id, req.params.id)).returning();
+      const changes = onlyActive.success ? { isActive: onlyActive.data.isActive } : full!.data!;
+      const [updated] = await db.update(venues).set(changes).where(eq(venues.id, req.params.id)).returning();
       if (!updated) return res.status(404).json({ message: "Cancha no encontrada" });
       res.json(updated);
     } catch (error) {
       console.error("[PATCH /api/admin/pichangas/venues/:id] error:", error);
       res.status(500).json({ message: "No se pudo actualizar la cancha" });
+    }
+  });
+
+  // Una cancha con partidos no se elimina (se desactiva): los partidos dependen de ella.
+  app.delete("/api/admin/pichangas/venues/:id", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      const [{ n }] = await db.select({ n: sql<number>`count(*)::int` }).from(matches).where(eq(matches.venueId, req.params.id));
+      if (n > 0) return res.status(409).json({ message: `Tiene ${n} partido(s). Elimínalos primero o desactiva la cancha.` });
+      const [deleted] = await db.delete(venues).where(eq(venues.id, req.params.id)).returning({ id: venues.id });
+      if (!deleted) return res.status(404).json({ message: "Cancha no encontrada" });
+      res.json({ ok: true });
+    } catch (error) {
+      console.error("[DELETE /api/admin/pichangas/venues/:id] error:", error);
+      res.status(500).json({ message: "No se pudo eliminar la cancha" });
     }
   });
 
@@ -210,7 +241,7 @@ export function registerAdminPichangas(app: Express) {
     try {
       const rows = await db
         .select({
-          id: users.id, name: users.name, email: users.email, status: users.status, lastSeen: users.lastSeen, createdAt: users.createdAt,
+          id: users.id, name: users.name, email: users.email, whatsapp: users.whatsapp, status: users.status, lastSeen: users.lastSeen, createdAt: users.createdAt,
           joined: sql<number>`count(${matchPlayers.id})::int`,
           organized: sql<number>`(select count(*)::int from ${matches} m where m.organizer_id = ${users.id})`,
         })
@@ -238,6 +269,60 @@ export function registerAdminPichangas(app: Express) {
     } catch (error) {
       console.error("[PATCH /api/admin/pichangas/players/:id/status] error:", error);
       res.status(500).json({ message: "No se pudo actualizar al jugador" });
+    }
+  });
+
+  // Crear, editar y eliminar jugadores. Sin contrasena: la cuenta se activa despues por enlace.
+  const playerSchema = z.object({
+    name: z.string().trim().min(2).max(80),
+    email: z.string().trim().toLowerCase().email().max(120),
+    whatsapp: z.string().trim().max(20).optional().nullable().transform((v) => v || null),
+  });
+  const isUniqueViolation = (e: unknown) => (e as { code?: string })?.code === "23505";
+
+  app.post("/api/admin/pichangas/players", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const parsed = playerSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Datos inválidos", issues: parsed.error.issues });
+    try {
+      const [created] = await db.insert(users).values({ ...parsed.data, status: "active" }).returning({ id: users.id });
+      res.status(201).json(created);
+    } catch (error) {
+      if (isUniqueViolation(error)) return res.status(409).json({ message: "Ya existe una cuenta con ese correo" });
+      console.error("[POST /api/admin/pichangas/players] error:", error);
+      res.status(500).json({ message: "No se pudo crear al jugador" });
+    }
+  });
+
+  app.patch("/api/admin/pichangas/players/:id", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const parsed = playerSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Datos inválidos", issues: parsed.error.issues });
+    try {
+      const [updated] = await db.update(users).set(parsed.data).where(eq(users.id, req.params.id)).returning({ id: users.id });
+      if (!updated) return res.status(404).json({ message: "Jugador no encontrado" });
+      res.json(updated);
+    } catch (error) {
+      if (isUniqueViolation(error)) return res.status(409).json({ message: "Ya existe una cuenta con ese correo" });
+      console.error("[PATCH /api/admin/pichangas/players/:id] error:", error);
+      res.status(500).json({ message: "No se pudo actualizar al jugador" });
+    }
+  });
+
+  // Elimina la cuenta con sus inscripciones y partidos organizados (cascada). Si tiene datos de otras secciones de la app, la BD lo impide.
+  app.delete("/api/admin/pichangas/players/:id", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    if (req.params.id === (req as any).session.user.id) return res.status(400).json({ message: "No puedes eliminar tu propia cuenta" });
+    try {
+      const [target] = await db.select({ email: users.email }).from(users).where(eq(users.id, req.params.id));
+      if (!target) return res.status(404).json({ message: "Jugador no encontrado" });
+      if (target.email === "admin@miltareas.com") return res.status(400).json({ message: "No se puede eliminar al administrador" });
+      await db.delete(users).where(eq(users.id, req.params.id));
+      res.json({ ok: true });
+    } catch (error) {
+      if ((error as { code?: string })?.code === "23503") return res.status(409).json({ message: "Esta cuenta tiene datos asociados. Suspéndela en su lugar." });
+      console.error("[DELETE /api/admin/pichangas/players/:id] error:", error);
+      res.status(500).json({ message: "No se pudo eliminar al jugador" });
     }
   });
 }

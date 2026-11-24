@@ -53,6 +53,15 @@
    1. TOKENS DE DISEÑO - VARIABLES CSS
    ============================================================ */
 
+/* Satoshi (variable, 300-900): solo para el tema Pichanga Black. Licencia ITF Free Font License (Fontshare). */
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Variable.woff2') format('woff2');
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* === 1.1 TIPOGRAFÍA === */
   --font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -227,6 +236,32 @@
   --chat-doc-width: 320px;              /* tarjeta de documento/PDF */
   --chat-pdf-cover-height: 9rem;        /* portada del PDF (144px) */
   --scrim: hsl(0, 0%, 0%);              /* velo: usar con opacidad (bg-scrim/50) sobre imagenes, visores y citas */
+
+  /* ---- PICHANGA BLACK: tema oscuro del jugador (/play). Excepcion acotada a esa zona: aqui SI hay degradados y brillo verde
+     (diseño "Pichanga Nocturna" de Stitch). Las pantallas de Mil Tareas siguen sin ellos. Usar solo desde PlayerShell. ---- */
+  --night: #0b1326;                     /* fondo de la app */
+  --night-lowest: #060e20;              /* barra inferior, campo de busqueda interno, cancha tactica */
+  --night-low: #131b2e;                 /* cajas internas de una tarjeta */
+  --night-container: #171f33;           /* tarjetas */
+  --night-high: #222a3d;                /* chips, campos, superficies elevadas */
+  --night-highest: #2d3449;             /* chips activos suaves, barras de progreso vacias */
+  --night-text: #dae2fd;                /* texto principal (>=4.5:1 sobre --night) */
+  --night-muted: #bacbb9;               /* texto secundario (>=4.5:1 sobre --night-container) */
+  --night-outline: #859585;             /* texto terciario, solo tamaños >=12px sobre --night */
+  --pitch: #75ff9e;                     /* verde electrico: acciones, estados activos, cifras clave */
+  --pitch-strong: #00e676;              /* relleno del segmento activo */
+  --on-pitch: #003918;                  /* texto sobre --pitch (>=4.5:1) */
+  --aqua: #59fafe;                      /* datos en tiempo real, Plin, ubicacion */
+  --orchid: #f7acff;                    /* Yape, suplentes, calificacion */
+  --yape: #742284;                      /* fondo de marca Yape */
+  --crimson: #ffb4ab;                   /* urgencia: ultimo cupo, pago pendiente */
+  --on-crimson: #690005;                /* texto sobre --crimson */
+  --crimson-container: #93000a;
+  --shadow-night-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-night-bar: 0 4px 24px rgba(0, 0, 0, 0.45);
+  --shadow-night-nav: 0 -8px 32px rgba(0, 0, 0, 0.55);
+  --shadow-glow: 0 0 20px rgba(0, 230, 118, 0.25);
+  --font-satoshi: 'Satoshi', var(--font-family);
   --file-pdf: var(--coral-700);         /* insignias por tipo de archivo (texto blanco >=4.5:1) */
   --file-word: var(--blue-700);
   --file-excel: var(--green-700);

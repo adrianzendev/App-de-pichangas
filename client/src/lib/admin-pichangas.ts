@@ -31,6 +31,7 @@ export interface AdminPlayer {
   id: string;
   name: string;
   email: string;
+  whatsapp: string | null;
   status: string | null;
   lastSeen: string | null;
   createdAt: string | null;
@@ -80,6 +81,23 @@ export const deleteMatchRequest = (id: string) => apiRequest("DELETE", `/api/adm
 export const cancelMatchRequest = (id: string) => apiRequest("POST", `/api/admin/pichangas/matches/${id}/cancel`);
 export const setVenueActiveRequest = ({ id, isActive }: { id: string; isActive: boolean }) =>
   apiRequest("PATCH", `/api/admin/pichangas/venues/${id}`, { isActive });
+export interface AdminVenueInput {
+  name: string;
+  district: string;
+  city: string;
+  address: string | null;
+  surface: string;
+  pricePerHour: number | null;
+  phone: string | null;
+}
+export const createVenueRequest = (data: AdminVenueInput) => apiRequest("POST", "/api/admin/pichangas/venues", data);
+export const updateVenueRequest = ({ id, data }: { id: string; data: AdminVenueInput }) => apiRequest("PATCH", `/api/admin/pichangas/venues/${id}`, data);
+export const deleteVenueRequest = (id: string) => apiRequest("DELETE", `/api/admin/pichangas/venues/${id}`);
+
+export interface AdminPlayerInput { name: string; email: string; whatsapp: string | null }
+export const createPlayerRequest = (data: AdminPlayerInput) => apiRequest("POST", "/api/admin/pichangas/players", data);
+export const updatePlayerRequest = ({ id, data }: { id: string; data: AdminPlayerInput }) => apiRequest("PATCH", `/api/admin/pichangas/players/${id}`, data);
+export const deletePlayerRequest = (id: string) => apiRequest("DELETE", `/api/admin/pichangas/players/${id}`);
 export const setPlayerStatusRequest = ({ id, status }: { id: string; status: "active" | "suspended" }) =>
   apiRequest("PATCH", `/api/admin/pichangas/players/${id}/status`, { status });
 

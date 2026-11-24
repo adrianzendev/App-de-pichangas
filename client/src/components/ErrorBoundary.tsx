@@ -1,6 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { TriangleAlert } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { AdminButton } from '@/components/pichangas/admin-ui';
 
 interface Props {
   children: ReactNode;
@@ -85,14 +85,8 @@ export class ErrorBoundary extends Component<Props, State> {
               )}
 
               <div className="flex justify-center gap-3">
-                <Button variant="pitch" onClick={this.handleRetry}>Reintentar</Button>
-                <Button
-                  variant="outline"
-                  className="border-night-highest bg-transparent text-night-text hover:bg-night-high"
-                  onClick={() => window.location.reload()}
-                >
-                  Recargar página
-                </Button>
+                <AdminButton tone="pitch" onClick={this.handleRetry}>Reintentar</AdminButton>
+                <AdminButton onClick={() => window.location.reload()}>Recargar página</AdminButton>
               </div>
             </div>
           </div>
