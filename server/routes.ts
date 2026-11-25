@@ -46,7 +46,7 @@ import { universitySchema } from "@shared/profile-validation";
 import { ERROR_LOG_LEVELS, ERROR_LOG_STATUSES } from "@shared/schema";
 import { sideEffectsEnabled } from "./side-effects";
 import { registerSuperadmin } from "./superadmin";
-import { registerPichangas } from "./pichangas";
+import { registerPichangas, releaseExpiredHolds } from "./pichangas";
 import { registerAdminPichangas } from "./admin-pichangas";
 import { registerPichangaRules } from "./pichanga-rules";
 import { IMPERSONATION_MAX_MS } from "./superadmin-rules";
@@ -67,7 +67,12 @@ async function logActivity(userId: string, action: string, detail?: string, req?
 // Session-based authentication only (removed global variable for security)
 
 // Configure multer for file uploads
-const uploadStorage = multer.diskStorage({
+// Subidas: en Vercel el disco es de solo lectura, asi que multer guarda en memoria (file.buffer); fuera de Vercel sigue en disco.
+const IS_VERCEL = Boolean(process.env.VERCEL);
+const fileBytes = (f: Express.Multer.File): Buffer => f.buffer ?? fs.readFileSync(f.path);
+const discardFile = (f: Express.Multer.File) => { if (f.path) { try { fs.unlinkSync(f.path); } catch { /* ya no existe */ } } };
+
+const uploadStorage = IS_VERCEL ? multer.memoryStorage() : multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(process.cwd(), 'uploads');
     if (!fs.existsSync(uploadDir)) {
@@ -97,7 +102,7 @@ const upload = multer({
 });
 
 // Task file upload storage configuration
-const taskUploadStorage = multer.diskStorage({
+const taskUploadStorage = IS_VERCEL ? multer.memoryStorage() : multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(process.cwd(), 'uploads');
     if (!fs.existsSync(uploadDir)) {
@@ -151,7 +156,7 @@ const taskUpload = multer({
 });
 
 // Configure multer for payment receipt uploads
-const paymentReceiptStorage = multer.diskStorage({
+const paymentReceiptStorage = IS_VERCEL ? multer.memoryStorage() : multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(process.cwd(), 'uploads', 'payments');
     if (!fs.existsSync(uploadDir)) {
@@ -1311,13 +1316,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const uploadPromises = files.map(async (file) => {
         try {
-          const fileBuffer = fs.readFileSync(file.path);
+          const fileBuffer = fileBytes(file);
           const objectPath = await objectStorageService.uploadObjectEntity(
             fileBuffer,
             file.mimetype || 'application/octet-stream'
           );
           console.log(`📁 [TASK_UPLOAD] ✅ Uploaded to Object Storage: ${objectPath}`);
-          try { fs.unlinkSync(file.path); } catch (e) {}
+          try { discardFile(file); } catch (e) {}
           return {
             originalName: file.originalname,
             filename: objectPath,
@@ -1326,7 +1331,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
         } catch (objStorageError) {
           console.error("📁 [TASK_UPLOAD] ❌ Object Storage upload failed:", objStorageError);
-          try { fs.unlinkSync(file.path); } catch (e) {}
+          try { discardFile(file); } catch (e) {}
           throw new Error(`Error al subir el archivo "${file.originalname}". Por favor intenta de nuevo.`);
         }
       });
@@ -2647,7 +2652,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Upload to Object Storage for persistent storage
       try {
-        const rawBuffer = fs.readFileSync(file.path);
+        const rawBuffer = fileBytes(file);
         const fileBuffer = await sharp(rawBuffer)
           .resize(400, 400, { fit: 'cover', position: 'center' })
           .jpeg({ quality: 85 })
@@ -2656,10 +2661,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`[TUTOR_PHOTO_UPLOAD] ✅ Uploaded to Object Storage: ${avatarPath} (optimized ${rawBuffer.length} → ${fileBuffer.length} bytes)`);
         
         // Clean up local temp file
-        fs.unlinkSync(file.path);
+        discardFile(file);
       } catch (objStorageError) {
         console.error("[TUTOR_PHOTO_UPLOAD] ❌ Object Storage upload failed:", objStorageError);
-        try { fs.unlinkSync(file.path); } catch (e) {}
+        try { discardFile(file); } catch (e) {}
         return res.status(500).json({ message: "Error al subir la foto. Por favor intenta de nuevo." });
       }
 
@@ -3760,7 +3765,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           console.log(`[PHOTO_UPLOAD] 🔄 Uploading to Object Storage...`);
           
-          const rawBuffer = fs.readFileSync(req.file.path);
+          const rawBuffer = fileBytes(req.file);
           console.log(`[PHOTO_UPLOAD] 📦 File buffer size: ${rawBuffer.length} bytes`);
           const fileBuffer = await sharp(rawBuffer)
             .resize(400, 400, { fit: 'cover', position: 'center' })
@@ -3774,10 +3779,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`[PHOTO_UPLOAD] ✅ Uploaded to Object Storage: ${objectPath}`);
           
           // Clean up local temp file
-          fs.unlinkSync(req.file.path);
+          discardFile(req.file);
         } catch (objStorageError) {
           console.error("[PHOTO_UPLOAD] ❌ Object Storage upload failed:", objStorageError);
-          try { fs.unlinkSync(req.file.path); } catch (e) {}
+          try { discardFile(req.file); } catch (e) {}
           return res.status(500).json({ message: "Error al subir la foto. Por favor intenta de nuevo." });
         }
       } else {
@@ -4347,7 +4352,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Configure multer for chat files (different from profile uploads)
   const chatUpload = multer({
-    storage: multer.diskStorage({
+    storage: IS_VERCEL ? multer.memoryStorage() : multer.diskStorage({
       destination: (req, file, cb) => {
         const uploadDir = path.join(process.cwd(), 'uploads', 'chat');
         if (!fs.existsSync(uploadDir)) {
@@ -4518,7 +4523,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const dims: Array<{ w: number; h: number } | null> = [];
             attachmentPaths = await Promise.all(req.files.map(async (file, idx) => {
               try {
-                const fileBuffer = fs.readFileSync(file.path);
+                const fileBuffer = fileBytes(file);
                 // Dimensiones de la imagen (con EXIF orientation 5-8 ancho y alto se intercambian);
                 // null si no es imagen o sharp no la entiende: el cliente usa su caja provisional.
                 dims[idx] = null;
@@ -4536,10 +4541,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   file.mimetype || 'application/octet-stream'
                 );
                 console.log(`[CHAT_FILE_UPLOAD] ✅ Uploaded to Object Storage: ${objectPath}`);
-                fs.unlinkSync(file.path);
+                discardFile(file);
                 return objectPath;
               } catch (objStorageError) {
-                try { fs.unlinkSync(file.path); } catch (e) {}
+                try { discardFile(file); } catch (e) {}
                 throw Object.assign(objStorageError as Error, { originalname: file.originalname });
               }
             }));
@@ -4792,30 +4797,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // una accion de este pedido puntual, y solo puede haber un asignado.
       const taskForPayment = await storage.getTaskBasic(taskId);
       if (taskForPayment?.assignedTutorId && taskForPayment.assignedTutorId !== tutorId) {
-        try { fs.unlinkSync(req.file.path); } catch (e) {}
+        try { discardFile(req.file); } catch (e) {}
         return res.status(400).json({ message: "Este pedido ya tiene un tutor asignado.", error: "TASK_ALREADY_ASSIGNED" });
       }
       // Cierre del pedido tambien bloquea, aunque assignedTutorId haya
       // quedado null (datos legacy) — no se contrata en un pedido cerrado.
       const taskClosedStatuses = ['completed', 'cancelled', 'expired'];
       if (taskForPayment && taskClosedStatuses.includes(taskForPayment.status)) {
-        try { fs.unlinkSync(req.file.path); } catch (e) {}
+        try { discardFile(req.file); } catch (e) {}
         return res.status(400).json({ message: "Este pedido ya esta cerrado.", error: "TASK_CLOSED" });
       }
 
       // Upload receipt to Object Storage for persistence
       let receiptUrl: string;
       try {
-        const fileBuffer = fs.readFileSync(req.file.path);
+        const fileBuffer = fileBytes(req.file);
         receiptUrl = await objectStorageService.uploadObjectEntity(
           fileBuffer,
           req.file.mimetype || 'image/jpeg'
         );
         console.log(`[PAYMENT_RECEIPT_UPLOAD] ✅ Uploaded to Object Storage: ${receiptUrl}`);
-        fs.unlinkSync(req.file.path);
+        discardFile(req.file);
       } catch (objStorageError) {
         console.error("[PAYMENT_RECEIPT_UPLOAD] ❌ Object Storage upload failed:", objStorageError);
-        try { fs.unlinkSync(req.file.path); } catch (e) {}
+        try { discardFile(req.file); } catch (e) {}
         return res.status(500).json({ message: "Error al subir el comprobante. Por favor intenta de nuevo." });
       }
 
@@ -5672,7 +5677,7 @@ Adjunto el comprobante para la verificación de la transferencia.`;
 
   // Auto-publish reviews: run immediately on startup, then every hour
   (async () => {
-    if (!sideEffectsEnabled) return;
+    if (!sideEffectsEnabled || IS_VERCEL) return; // en Vercel lo hace el cron (/api/cron/jobs)
     try {
       const count = await storage.publishDueReviews();
       if (count > 0) {
@@ -5696,7 +5701,7 @@ Adjunto el comprobante para la verificación de la transferencia.`;
 
   // Background job: expire overdue tasks — runs every 30 min, skipped when no users online
   (async () => {
-    if (!sideEffectsEnabled) return;
+    if (!sideEffectsEnabled || IS_VERCEL) return; // en Vercel lo hace el cron (/api/cron/jobs)
     try {
       const count = await storage.updateExpiredTasks();
       if (count > 0) console.log(`[STARTUP] Expired ${count} overdue tasks`);
@@ -5725,8 +5730,29 @@ Adjunto el comprobante para la verificación de la transferencia.`;
       console.error('[DEADLINE_REMINDERS] Error:', error);
     }
   };
-  void runDeadlineReminders();
-  setInterval(runDeadlineReminders, 3 * 60 * 60 * 1000);
+  if (!IS_VERCEL) {
+    void runDeadlineReminders();
+    setInterval(runDeadlineReminders, 3 * 60 * 60 * 1000);
+  }
+
+  // Tareas programadas en Vercel (cron): no hay un proceso encendido que ejecute los setInterval de arriba. Vercel llama a este GET
+  // con "Authorization: Bearer <CRON_SECRET>". Sin CRON_SECRET configurado el endpoint queda cerrado (503).
+  app.get("/api/cron/jobs", async (req, res) => {
+    const secret = process.env.CRON_SECRET;
+    if (!secret) return res.status(503).json({ message: "CRON_SECRET no configurado" });
+    if (req.headers.authorization !== `Bearer ${secret}`) return res.status(401).json({ message: "No autorizado" });
+    const result: Record<string, string> = {};
+    const run = async (name: string, fn: () => Promise<unknown>) => {
+      try { result[name] = String((await fn()) ?? "ok"); } catch (error) { console.error(`[CRON] ${name}:`, error); result[name] = "error"; }
+    };
+    await run("reservas_vencidas", () => releaseExpiredHolds());
+    if (sideEffectsEnabled) {
+      await run("resenas_publicadas", () => storage.publishDueReviews());
+      await run("pedidos_vencidos", () => storage.updateExpiredTasks());
+      await run("avisos_vencimiento", () => sendDeadlineReminders());
+    }
+    res.json({ ok: true, ...result });
+  });
 
   // TEST ENDPOINT: Send real-time message to test WebSocket  
   app.post("/api/test-message", async (req, res) => {

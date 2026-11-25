@@ -39,6 +39,9 @@ let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 let heartbeatInterval: ReturnType<typeof setInterval> | null = null;
 let reconnectAttempts = 0;
 let isConnecting = false;
+let everOpened = false;
+const MAX_INITIAL_FAILURES = 5;
+const WS_DISABLED = import.meta.env.VITE_DISABLE_WS === "1";
 const listeners = new Set<() => void>();
 let pongTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -86,6 +89,8 @@ function startHeartbeat() {
 function scheduleReconnect() {
   if (reconnectTimeout) clearTimeout(reconnectTimeout);
   if (!currentUserId) return;
+  // Si nunca llego a abrir y ya fallo 5 veces seguidas, el socket no existe (p.ej. Vercel): dejar de insistir.
+  if (!everOpened && reconnectAttempts >= MAX_INITIAL_FAILURES) return;
 
   const attempts = reconnectAttempts;
   const delay = Math.min(1000 * Math.pow(1.5, attempts), 10000);
@@ -99,7 +104,7 @@ function scheduleReconnect() {
 }
 
 function connectWebSocket() {
-  if (!currentUserId || isConnecting) return;
+  if (WS_DISABLED || !currentUserId || isConnecting) return;
   if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
 
   isConnecting = true;
@@ -128,6 +133,7 @@ function connectWebSocket() {
       clearTimeout(connectTimer);
       isConnecting = false;
       isConnected = true;
+      everOpened = true;
       reconnectAttempts = 0;
       emitChange();
 
@@ -219,6 +225,7 @@ function teardown() {
   isConnected = false;
   currentUserId = undefined;
   reconnectAttempts = 0;
+  everOpened = false;
   emitChange();
 }
 

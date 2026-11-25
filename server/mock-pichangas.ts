@@ -1,6 +1,7 @@
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "./db";
 import { users, venues, matches, matchPlayers } from "@shared/schema";
+import { MOCK_HOST_EMAILS } from "@shared/mock-hosts";
 import { MAIN_ADMIN_EMAIL } from "@shared/admin";
 
 /**
@@ -112,6 +113,12 @@ export async function seedMockPichangas(): Promise<void> {
     .where(inArray(users.email, MOCK_USERS.map((u) => u.email)));
   const byEmail = new Map(mockRows.map((r) => [r.email, r.id]));
   const uid = (name: string) => byEmail.get(`${name}${MOCK_EMAIL_DOMAIN}`)!;
+
+  // Anfitriones de ejemplo: con el perfil de host pueden crear partidos desde /play/host. La tabla se crea aqui por si el seed
+  // corre antes que el arranque de pichangas.ts (ahi tambien se crea, de forma idempotente).
+  await db.execute(sql`CREATE TABLE IF NOT EXISTS player_profiles (user_id varchar PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, age integer, position text, updated_at timestamp DEFAULT now())`);
+  await db.execute(sql`ALTER TABLE player_profiles ADD COLUMN IF NOT EXISTS is_host boolean NOT NULL DEFAULT false`);
+  await db.execute(sql`INSERT INTO player_profiles (user_id, is_host) SELECT id, true FROM users WHERE email IN (${sql.join(MOCK_HOST_EMAILS.map((e) => sql`${e}`), sql`, `)}) ON CONFLICT (user_id) DO UPDATE SET is_host = true`);
 
   // 2. Canchas.
   const existingVenues = await db.select({ id: venues.id, name: venues.name }).from(venues);

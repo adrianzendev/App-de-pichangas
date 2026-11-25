@@ -1,6 +1,6 @@
 import { Switch, Route, Router as WouterRouter, useLocation, useParams } from "wouter";
 import { aroundNav } from "@/lib/page-transition";
-import { AUTH_ROUTES, LEGACY_ROUTES, PLAY_PATTERNS, ROUTES, ROUTE_PATTERNS } from "@/lib/routes";
+import { AUTH_ROUTES, LEGACY_ROUTES, PLAY_PATTERNS, PLAY_ROUTES, ROUTES, ROUTE_PATTERNS } from "@/lib/routes";
 import { queryClient, persister } from "./lib/queryClient";
 import { useQuery, defaultShouldDehydrateQuery } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
@@ -72,6 +72,8 @@ function Router() {
       <Route path="/play" component={Play} />
       <Route path="/play/mine" component={Play} />
       <Route path="/play/profile" component={Play} />
+      <Route path={PLAY_ROUTES.host} component={Play} />
+      <Route path={PLAY_ROUTES.hostNew} component={Play} />
         <Route path={PLAY_PATTERNS.pass} component={Play} />
         <Route path={PLAY_PATTERNS.pay} component={Play} />
         <Route path={PLAY_PATTERNS.match} component={Play} />

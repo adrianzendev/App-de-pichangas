@@ -50,6 +50,7 @@ export function registerAdminPichangas(app: Express) {
           const url = await new ObjectStorageService().uploadObjectEntity(buffer, "image/jpeg");
           return res.json({ url });
         }
+        if (process.env.VERCEL) return res.status(503).json({ message: "Falta configurar el almacenamiento de objetos (R2) para subir portadas" });
         const dir = path.join(process.cwd(), "uploads", "pichangas");
         fs.mkdirSync(dir, { recursive: true });
         const name = `${randomUUID()}.jpg`;

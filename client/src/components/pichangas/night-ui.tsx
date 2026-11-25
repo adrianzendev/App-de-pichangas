@@ -106,7 +106,7 @@ export function WelcomeBanner({ headingLevel = "h2" }: { headingLevel?: "h1" | "
         />
         <div className="min-w-0">
           <Heading className="line-clamp-2 text-body font-bold text-night-text">¡Encuentra tu pichanga de hoy!</Heading>
-          <p className="line-clamp-2 text-caption text-night-muted">Cupos libres en canchas techadas con iluminación LED profesional.</p>
+          <p className="line-clamp-2 text-caption text-night-muted">Encuentra pichangas en tu localidad y separa tu cupo.</p>
         </div>
       </div>
     </motion.section>

@@ -78,6 +78,8 @@ export const PLAY_ROUTES = {
   profile: "/play/profile",
   /** Perfil de host: mis partidos organizados y crear uno nuevo. */
   host: "/play/host",
+  /** Crear un partido (pagina, no dialogo). */
+  hostNew: "/play/host/new",
   match: (m: MatchRef) => `/play/${matchSlug(m)}`,
   /** Pase digital + chat del equipo: la pantalla que se abre despues de anotarse. */
   pass: (m: MatchRef) => `/play/${matchSlug(m)}/pass`,

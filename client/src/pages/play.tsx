@@ -14,6 +14,7 @@ import { MatchPassView } from "@/components/pichangas/match-pass";
 import { CitySelect, NightEmpty, NightMenu, PitchButton, QuickPill, WelcomeBanner } from "@/components/pichangas/night-ui";
 import { NightBackLink, NightIconButton, NightInput, NightLinkButton, NightTabs } from "@/components/pichangas/night-controls";
 import { PlayerShell } from "@/components/pichangas/player-shell";
+import { HostMatchPage } from "@/components/pichangas/host-match-page";
 import { HostView } from "@/components/pichangas/host-view";
 import { ProfileForm } from "@/components/pichangas/profile-form";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -416,6 +417,9 @@ export default function PlayPage() {
 
   if (location.startsWith(PLAY_ROUTES.mine)) {
     return <PlayerShell active="mine"><MineView /></PlayerShell>;
+  }
+  if (location.startsWith(PLAY_ROUTES.hostNew)) {
+    return <PlayerShell active="host"><HostMatchPage /></PlayerShell>;
   }
   if (location.startsWith(PLAY_ROUTES.host)) {
     return <PlayerShell active="host"><HostView userId={user.id} /></PlayerShell>;

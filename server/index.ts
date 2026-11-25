@@ -9,6 +9,7 @@ import { retryOnDeadConnection, queryTimeoutContext, DB_TIMEOUTS, keepWarm, mark
 import { CachedPgStore } from "./session-store";
 import { errorCapture, errorHandler, installProcessErrorLogging } from "./middleware/error-logger";
 import { logSideEffectsStatus } from "./side-effects";
+import { IS_VERCEL, RUN_MIGRATIONS } from "./runtime";
 import { universityAcronymBackfillSql, universityExtraSql, universitySeedSql } from "./university-seed";
 
 // Extend session data type
@@ -30,7 +31,6 @@ installProcessErrorLogging();
 logSideEffectsStatus();
 // En Vercel el servidor corre como funcion sin estado (api/index.ts): no abre un puerto, no hay WebSockets
 // (la presencia en linea queda apagada) y los archivos del cliente los sirve la CDN, no Express.
-const IS_VERCEL = Boolean(process.env.VERCEL);
 const app = express();
 
 // Trust proxy for production (Replit uses reverse proxy)
@@ -50,15 +50,17 @@ app.use(express.urlencoded({ extended: false }));
 // es 10000, muy corto para el ritmo real de un usuario navegando/chateando.
 const sessionPool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  max: 10,
-  idleTimeoutMillis: 60000,
+  // En Vercel cada instancia serverless crea su pool: pocos clientes y cierre rapido para no multiplicar conexiones.
+  max: IS_VERCEL ? 3 : 10,
+  idleTimeoutMillis: IS_VERCEL ? 10_000 : 60000,
   connectionTimeoutMillis: 3000,
 });
 // Sin listener, el error de un cliente idle muerto es un 'error' no manejado (tumba el proceso).
 // El pool ya expulsa ese cliente antes de emitir el evento (ver comentario en server/db.ts).
 sessionPool.on('error', (err: any) => console.error('[SESSION_POOL] idle client error:', err.code ?? '', err.message));
 retryOnDeadConnection(sessionPool, DB_TIMEOUTS.SESSION_QUERY_TIMEOUT_MS);
-keepWarm(sessionPool, 4);
+// En Vercel no: el temporizador no corre con la funcion congelada y abriria conexiones de mas.
+if (!IS_VERCEL) keepWarm(sessionPool, 4);
 
 // Todo handler de /api/chat/* corre con timeout corto de BD (db.ts lo lee de este
 // contexto): conexion muerta detectada y reintentada en 2.5 s, no en 6 s.
@@ -137,7 +139,8 @@ app.use((req, res, next) => {
 export const ready = (async () => {
   // Safe idempotent migrations — add missing columns that may not exist in older prod DBs.
   // Un solo viaje a la base (pg ejecuta varias sentencias sin parametros en un query()).
-  try {
+  // En Vercel solo con RUN_MIGRATIONS=1 (ver server/runtime.ts).
+  if (RUN_MIGRATIONS) try {
     await sessionPool.query(`
       ALTER TABLE tasks ADD COLUMN IF NOT EXISTS invited_tutor_ids text[] DEFAULT '{}'::text[];
       ALTER TABLE tasks ADD COLUMN IF NOT EXISTS attachment_names text[] DEFAULT '{}'::text[];

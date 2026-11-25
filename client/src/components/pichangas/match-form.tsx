@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { Button } from "@/components/ui/button";
 import { AdminField, AdminFormDialog, AdminInput, AdminSelect, AdminTextarea } from "@/components/pichangas/admin-ui";
 import { MatchCoverField } from "@/components/pichangas/match-cover-field";
+import { PitchButton } from "@/components/pichangas/night-ui";
 import { FORMAT_LABEL, GENDER_LABEL, LEVEL_LABEL } from "@/lib/pichangas";
 import type { AdminMatch, AdminMatchInput, AdminVenue } from "@/lib/admin-pichangas";
 
@@ -31,22 +33,13 @@ const fromMatch = (m: AdminMatch): FormState => ({
   maxPlayers: String(m.maxPlayers), pricePerPlayer: String(Number(m.pricePerPlayer)), photos: m.photos ?? [],
 });
 
-interface MatchFormProps {
-  open: boolean;
-  /** null = crear un partido nuevo. */
-  match: AdminMatch | null;
-  /** Canchas elegibles (el admin ve tambien las inactivas; el host solo las activas). */
-  venues: Pick<AdminVenue, "id" | "name" | "district" | "city" | "isActive">[];
-  saving: boolean;
-  onClose: () => void;
-  onSubmit: (data: AdminMatchInput) => void;
-}
+type VenueOption = Pick<AdminVenue, "id" | "name" | "district" | "city" | "isActive">;
 
-// Formulario de partido (crear y editar): lo usan el panel admin y el perfil de host.
-export function MatchForm({ open, match, venues, saving, onClose, onSubmit }: MatchFormProps) {
+/** Estado y validacion del formulario de partido. `active` = la pantalla esta abierta (al abrirla se reinicia con el partido dado). */
+function useMatchForm(match: AdminMatch | null, active: boolean) {
   const [f, setF] = useState<FormState>(EMPTY);
   const [tried, setTried] = useState(false);
-  useEffect(() => { if (open) { setF(match ? fromMatch(match) : EMPTY); setTried(false); } }, [open, match]);
+  useEffect(() => { if (active) { setF(match ? fromMatch(match) : EMPTY); setTried(false); } }, [active, match]);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => setF((s) => ({ ...s, [k]: v }));
   const max = Number(f.maxPlayers);
@@ -60,34 +53,29 @@ export function MatchForm({ open, match, venues, saving, onClose, onSubmit }: Ma
     maxPlayers: !(Number.isInteger(max) && max >= 4 && max <= 30),
     pricePerPlayer: !(price >= 0 && price <= 500),
   };
-  const invalid = Object.values(errors).some(Boolean);
   const err = (k: keyof typeof errors) => tried && errors[k];
 
-  const submit = () => {
+  /** Valida; con errores los muestra y devuelve null. */
+  const build = (): AdminMatchInput | null => {
     setTried(true);
-    if (invalid) return;
-    onSubmit({
+    if (Object.values(errors).some(Boolean)) return null;
+    return {
       venueId: f.venueId, title: f.title.trim(), description: f.description.trim() || null,
       startsAt: limaInputToIso(f.startsAt), durationMinutes: duration, format: f.format, level: f.level,
       gender: f.gender, maxPlayers: max, pricePerPlayer: price, photos: f.photos,
-    });
+    };
   };
+  return { f, set, err, build };
+}
 
+/** Campos del partido: una sola fuente para el dialogo del admin y la pagina del host. */
+function MatchFields({ form, venues, match }: { form: ReturnType<typeof useMatchForm>; venues: VenueOption[]; match: AdminMatch | null }) {
+  const { f, set, err } = form;
   const venueOptions = venues
     .filter((v) => v.isActive || v.id === match?.venue.id)
     .map((v) => ({ value: v.id, label: `${v.name} (${v.district}, ${v.city})` }));
-
   return (
-    <AdminFormDialog
-      open={open}
-      onOpenChange={(o) => !o && onClose()}
-      title={match ? "Editar partido" : "Nuevo partido"}
-      testId="admin-match-form"
-      onCancel={onClose}
-      onSubmit={submit}
-      submitLabel={saving ? "Guardando…" : match ? "Guardar cambios" : "Crear partido"}
-      submitDisabled={saving}
-    >
+    <>
       <AdminField label="Título" htmlFor="am-title">
         <AdminInput id="am-title" value={f.title} maxLength={100} aria-invalid={err("title")} onChange={(e) => set("title", e.target.value)} />
         {err("title") && <p className="mt-1 text-caption font-bold text-crimson">Mínimo 3 caracteres.</p>}
@@ -120,6 +108,63 @@ export function MatchForm({ open, match, venues, saving, onClose, onSubmit }: Ma
       <AdminField label="Descripción (opcional)" htmlFor="am-desc">
         <AdminTextarea id="am-desc" rows={3} maxLength={500} value={f.description} onChange={(e) => set("description", e.target.value)} />
       </AdminField>
+    </>
+  );
+}
+
+interface MatchFormProps {
+  open: boolean;
+  /** null = crear un partido nuevo. */
+  match: AdminMatch | null;
+  /** Canchas elegibles (el admin ve tambien las inactivas; el host solo las activas). */
+  venues: VenueOption[];
+  saving: boolean;
+  onClose: () => void;
+  onSubmit: (data: AdminMatchInput) => void;
+}
+
+/** Formulario de partido en dialogo: lo usa el panel admin (crear y editar). */
+export function MatchForm({ open, match, venues, saving, onClose, onSubmit }: MatchFormProps) {
+  const form = useMatchForm(match, open);
+  const submit = () => { const data = form.build(); if (data) onSubmit(data); };
+  return (
+    <AdminFormDialog
+      open={open}
+      onOpenChange={(o) => !o && onClose()}
+      title={match ? "Editar partido" : "Nuevo partido"}
+      testId="admin-match-form"
+      onCancel={onClose}
+      onSubmit={submit}
+      submitLabel={saving ? "Guardando…" : match ? "Guardar cambios" : "Crear partido"}
+      submitDisabled={saving}
+    >
+      <MatchFields form={form} venues={venues} match={match} />
     </AdminFormDialog>
+  );
+}
+
+/** Formulario de partido como pagina completa: lo usa el host (/play/host/new). */
+export function MatchFormPage({ match = null, venues, saving, submitLabel, onCancel, onSubmit }: {
+  match?: AdminMatch | null;
+  venues: VenueOption[];
+  saving: boolean;
+  submitLabel: string;
+  onCancel: () => void;
+  onSubmit: (data: AdminMatchInput) => void;
+}) {
+  const form = useMatchForm(match, true);
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    const data = form.build();
+    if (data) onSubmit(data);
+  };
+  return (
+    <form onSubmit={submit} className="mx-auto w-full max-w-2xl space-y-field-gap" aria-label="Datos del partido" data-testid="match-form-page">
+      <MatchFields form={form} venues={venues} match={match} />
+      <div className="flex gap-2 pt-2">
+        <Button type="button" variant="night-secondary" size="lg" className="flex-1 uppercase" onClick={onCancel}>Cancelar</Button>
+        <PitchButton type="submit" className="flex-1 uppercase" disabled={saving}>{saving ? "Guardando…" : submitLabel}</PitchButton>
+      </div>
+    </form>
   );
 }

@@ -2,6 +2,7 @@ import type { Express, Request, Response } from "express";
 import { and, asc, eq, gte, inArray, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "./db";
+import { IS_VERCEL, RUN_MIGRATIONS } from "./runtime";
 import {
   venues, matches, matchPlayers, matchMessages, users, playerProfiles,
   PLAYER_POSITIONS, PLAYER_AGE_MIN, PLAYER_AGE_MAX,
@@ -143,12 +144,15 @@ export async function releaseExpiredHolds() {
 }
 
 export function registerPichangas(app: Express) {
-  void ensureGuestsColumn();
-  void ensureConfirmedAtColumn();
+  if (RUN_MIGRATIONS) {
+    void ensureGuestsColumn();
+    void ensureConfirmedAtColumn();
+    void ensurePlayerProfilesTable();
+    void ensureMatchPhotosColumn();
+  }
   // Las reservas vencidas tambien se liberan solas, sin esperar a que alguien abra la pantalla.
-  setInterval(() => void releaseExpiredHolds(), 60_000).unref();
-  void ensurePlayerProfilesTable();
-  void ensureMatchPhotosColumn();
+  // En Vercel no hay proceso vivo: releaseExpiredHolds ya se llama al leer partidos.
+  if (!IS_VERCEL) setInterval(() => void releaseExpiredHolds(), 60_000).unref();
 
   // Perfil de jugador: edad y posicion (ambos opcionales). El nombre se edita con PUT /api/user/current.
   app.get("/api/player/profile", async (req, res) => {

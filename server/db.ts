@@ -4,6 +4,7 @@ import ws from "ws";
 import { AsyncLocalStorage } from "node:async_hooks";
 import * as schema from "@shared/schema";
 import { sideEffectsEnabled } from "./side-effects";
+import { IS_VERCEL } from "./runtime";
 
 neonConfig.webSocketConstructor = ws;
 
@@ -21,8 +22,9 @@ if (!process.env.DATABASE_URL) {
 // para siempre (default 0); con el, el pool destruye el stream y falla.
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  max: 10,
-  idleTimeoutMillis: 60000,
+  // En Vercel cada instancia serverless crea su pool: pocos clientes y cierre rapido para no multiplicar conexiones.
+  max: IS_VERCEL ? 3 : 10,
+  idleTimeoutMillis: IS_VERCEL ? 10_000 : 60000,
   connectionTimeoutMillis: 5000,
 });
 // Neon cierra conexiones ociosas ("Connection terminated unexpectedly",
@@ -116,4 +118,5 @@ export function keepWarm(p: { query: (...a: any[]) => Promise<any> }, n: number)
   void ping(); // una vez al arrancar
   setInterval(() => { if (Date.now() - lastActivity < ACTIVE_WINDOW_MS) void ping(); }, 30_000).unref();
 }
-keepWarm(pool, 4);
+// En Vercel no: el temporizador no corre con la funcion congelada y abriria conexiones de mas.
+if (!IS_VERCEL) keepWarm(pool, 4);

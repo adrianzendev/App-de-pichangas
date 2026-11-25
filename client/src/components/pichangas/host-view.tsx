@@ -6,13 +6,11 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MatchCard } from "@/components/pichangas/match-card";
-import { MatchForm } from "@/components/pichangas/match-form";
 import { NightEmpty, PitchButton } from "@/components/pichangas/night-ui";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { toast } from "@/hooks/use-toast";
 import { PLAY_ROUTES } from "@/lib/routes";
-import { useMyMatches, usePlayerProfile, useVenues, type MatchSummary } from "@/lib/pichangas";
-import type { AdminMatchInput } from "@/lib/admin-pichangas";
+import { useMyMatches, usePlayerProfile, type MatchSummary } from "@/lib/pichangas";
 
 const refreshMatches = () => queryClient.invalidateQueries({ predicate: (q) => String(q.queryKey[0]).startsWith("/api/matches") });
 
@@ -21,15 +19,8 @@ export function HostView({ userId }: { userId: string }) {
   const [, setLocation] = useLocation();
   const { data: profile, isLoading: loadingProfile } = usePlayerProfile();
   const { data: mine = [], isLoading, isError, refetch } = useMyMatches();
-  const { data: venues = [] } = useVenues();
-  const [creating, setCreating] = useState(false);
   const [toCancel, setToCancel] = useState<MatchSummary | null>(null);
 
-  const create = useMutation({
-    mutationFn: async (data: AdminMatchInput) => (await apiRequest("POST", "/api/matches", data)).json(),
-    onSuccess: () => { void refreshMatches(); setCreating(false); toast({ title: "Partido creado", variant: "success" }); },
-    onError: (e) => toast({ variant: "destructive", title: "No pudimos crear el partido", description: e instanceof Error ? e.message : undefined }),
-  });
   const cancel = useMutation({
     mutationFn: async (id: string) => (await apiRequest("POST", `/api/matches/${id}/cancel`)).json(),
     onSuccess: () => { void refreshMatches(); toast({ title: "Partido cancelado" }); },
@@ -60,7 +51,7 @@ export function HostView({ userId }: { userId: string }) {
     <div className="space-y-section-gap px-page-h py-4 lg:px-0 lg:py-6">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-heading font-bold text-night-text">Organizar</h1>
-        <PitchButton onClick={() => setCreating(true)}>
+        <PitchButton onClick={() => setLocation(PLAY_ROUTES.hostNew)}>
           <CalendarPlus className="size-icon-lg" aria-hidden />
           Crear partido
         </PitchButton>
@@ -87,14 +78,6 @@ export function HostView({ userId }: { userId: string }) {
         </div>
       )}
 
-      <MatchForm
-        open={creating}
-        match={null}
-        venues={venues.map((v) => ({ ...v, isActive: true }))}
-        saving={create.isPending}
-        onClose={() => setCreating(false)}
-        onSubmit={(data) => create.mutate(data)}
-      />
 
       <ConfirmDialog
         open={!!toCancel}

@@ -3,6 +3,7 @@ import { surfaceClass } from "@/components/pichangas/surface";
 import type { LucideIcon } from "lucide-react";
 import { ListChecks } from "lucide-react";
 import { NightInput } from "@/components/pichangas/night-controls";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -192,12 +193,25 @@ export function AdminTextarea({ className, ...props }: TextareaHTMLAttributes<HT
   return <textarea className={cn(CONTROL, "py-3", className)} {...props} />;
 }
 
-export function AdminSelect({ options, placeholder, className, ...props }: SelectHTMLAttributes<HTMLSelectElement> & { options: { value: string; label: string }[]; placeholder?: string }) {
+/** Desplegable del panel y del host: el Select de shadcn (no el <select> nativo). Conserva la API de un <select>: `onChange(e)` con `e.target.value`. */
+export function AdminSelect({ options, placeholder, value, onChange, id, disabled, className }: {
+  options: { value: string; label: string }[];
+  placeholder?: string;
+  value?: string;
+  onChange?: (event: { target: { value: string } }) => void;
+  id?: string;
+  disabled?: boolean;
+  className?: string;
+}) {
   return (
-    <select className={cn(CONTROL, "h-11", className)} {...props}>
-      {placeholder && <option value="">{placeholder}</option>}
-      {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-    </select>
+    <Select value={value || undefined} onValueChange={(v) => onChange?.({ target: { value: v } })} disabled={disabled}>
+      <SelectTrigger id={id} className={cn("h-field w-full rounded-control border-night-highest bg-night-lowest px-4 text-base text-night-text", className)}>
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+      </SelectContent>
+    </Select>
   );
 }
 

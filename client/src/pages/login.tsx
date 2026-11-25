@@ -1,3 +1,4 @@
+import { MOCK_HOST_EMAILS } from "@shared/mock-hosts";
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -111,7 +112,10 @@ export default function LoginPage() {
   const byPin = (list: User[]) => [...list].sort((a, b) => pinRank(a) - pinRank(b));
 
   // Jugadores falsos del seed de desarrollo (server/mock-pichangas.ts): entrada rapida sin contrasena.
-  const players = users.filter((u: User) => u.email.endsWith('@pichangas.test'));
+  const mockUsers = users.filter((u: User) => u.email.endsWith('@pichangas.test'));
+  // Los anfitriones (organizan partidos y pueden crear los suyos) van en su propio grupo.
+  const hosts = mockUsers.filter((u: User) => (MOCK_HOST_EMAILS as readonly string[]).includes(u.email));
+  const players = mockUsers.filter((u: User) => !hosts.includes(u));
   const admin = byPin(users.filter((u: User) => u.userType === 'admin'));
 
   const [showPassword, setShowPassword] = useState(false);
@@ -183,7 +187,7 @@ export default function LoginPage() {
       {/* Acceso rapido: solo en desarrollo. */}
       {import.meta.env.DEV && (
         <div className="space-y-3">
-          {[{ title: 'Jugadores de prueba', users: players }, { title: 'Administración', users: admin }].filter((g) => g.users.length > 0).map((g) => (
+          {[{ title: 'Anfitriones de prueba (organizan partidos)', users: hosts }, { title: 'Jugadores de prueba', users: players }, { title: 'Administración', users: admin }].filter((g) => g.users.length > 0).map((g) => (
             <div key={g.title}>
               <p className="mb-2 text-caption font-bold uppercase text-night-muted">{g.title}</p>
               <div className="grid grid-cols-2 gap-2">
