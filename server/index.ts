@@ -68,8 +68,11 @@ app.use('/api/chat', (_req, _res, next) => queryTimeoutContext.run(DB_TIMEOUTS.C
 
 // Se comparte con el upgrade de /ws (presence-system.ts) para autenticar el
 // WebSocket con la misma cookie de sesion.
+// Sin valor por defecto en produccion: un secreto escrito en el codigo permitiria falsificar sesiones.
+const sessionSecret = process.env.SESSION_SECRET || (isProduction ? '' : 'dev-only-session-secret');
+if (!sessionSecret) throw new Error('SESSION_SECRET no esta configurado');
 const sessionMiddleware = session({
-  secret: process.env.SESSION_SECRET || 'miltareas-secret-key-2025',
+  secret: sessionSecret,
   resave: false, // Don't resave unchanged sessions
   saveUninitialized: false, // Don't save empty sessions
   store: new CachedPgStore({
