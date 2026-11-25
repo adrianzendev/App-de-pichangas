@@ -455,6 +455,14 @@ llegan al servidor como error: el cliente los reporta con `reportAttachmentFailu
 `POST /api/client-errors/attachment` y quedan como `warning` con metodo `CLIENTE`, nombre/peso del archivo y usuario (columna Usuario
 del panel). Motivos y texto en `shared/attachment-failure.ts`. Los 5xx del envio no se reportan desde el cliente (ya los registra el servidor). Pruebas: `npx tsx --test tests/error-logger.test.ts`.
 
+## Despliegue en Vercel
+
+Guia completa y variables: `docs/DESPLIEGUE_VERCEL.md` y `.env.example`. Resumen: `vercel.json` ejecuta `scripts/build-vercel.mjs`, que arma `.vercel/output`
+(cliente estatico + el servidor de Express empaquetado con esbuild como funcion, entrada `server/vercel-handler.ts`). Con `VERCEL` definido el servidor
+no abre puerto ni WebSockets (sin presencia en linea), las tareas programadas van por `/api/cron/jobs` (exige `CRON_SECRET`), el disco es de solo
+lectura (las subidas exigen R2) y las migraciones de arranque solo corren con `RUN_MIGRATIONS=1`. No construir en Windows para `--prebuilt`: sharp trae
+binarios nativos de Linux. Nunca versionar cookies, `uploads/` ni `.env`: el repositorio es publico.
+
 ## Levantar servidor local (Windows / Git Bash)
 
 `npm run dev` funciona en Windows. El script es

@@ -1,11 +1,8 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
-import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
 import { nanoid } from "nanoid";
-
-const viteLogger = createLogger();
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -22,9 +19,14 @@ export function log(message: string, source = "express") {
 // y el servidor de produccion carga tailwindcss/tailwind.config.ts al arrancar (y se cae). La ruta va en una
 // variable para que esbuild no la resuelva: en produccion este import nunca se ejecuta.
 const VITE_CONFIG_PATH = "../vite.config";
+// Igual con el propio paquete `vite`: solo hace falta en desarrollo, asi que se carga aqui y no al importar el modulo. Con un import
+// estatico el empaquetado de produccion y el de Vercel arrastran vite entero (y sus plugins nativos) al servidor.
+const VITE_PACKAGE = "vite";
 
 export async function setupVite(app: Express, server: Server, port: number) {
   const { default: viteConfig } = await import(/* @vite-ignore */ VITE_CONFIG_PATH);
+  const { createServer: createViteServer, createLogger } = await import(/* @vite-ignore */ VITE_PACKAGE);
+  const viteLogger = createLogger();
   const serverOptions = {
     middlewareMode: true,
     // clientPort explicito: setupVite corre antes de server.listen(), asi
@@ -40,7 +42,7 @@ export async function setupVite(app: Express, server: Server, port: number) {
     configFile: false,
     customLogger: {
       ...viteLogger,
-      error: (msg, options) => {
+      error: (msg: string, options?: unknown) => {
         viteLogger.error(msg, options);
         process.exit(1);
       },

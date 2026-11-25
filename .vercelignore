@@ -17,3 +17,12 @@ session_check.txt
 debug_*.txt
 dev-server.log
 /*.png
+# Secretos y artefactos locales: nunca se suben a Vercel (las variables se configuran en el panel o con vercel env)
+.env
+.env.*
+dist
+.claude
+*.log
+coverage
+playwright-report
+test-results
