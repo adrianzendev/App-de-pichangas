@@ -43,15 +43,21 @@ export function ProfileForm({ user }: { user: { id: string; name: string; email:
 
   // Telefono: opcional; solo digitos; entre 7 y 15 contando el prefijo del pais.
   const dial = countries.find((c) => c.code === country)?.phoneCode ?? "";
-  const phone = number.trim() === "" ? "" : `${dial}${number.replace(/D/g, "")}`;
-  const phoneDigits = phone.replace(/D/g, "");
-  const phoneError = number.trim() !== "" && (!/^[ds-]+$/.test(number.trim()) || phoneDigits.length < 7 || phoneDigits.length > 15)
+  const phone = number.trim() === "" ? "" : `${dial}${number.replace(/\D/g, "")}`;
+  const phoneDigits = phone.replace(/\D/g, "");
+  const phoneError = number.trim() !== "" && (!/^[\d\s-]+$/.test(number.trim()) || phoneDigits.length < 7 || phoneDigits.length > 15)
     ? "Escribe un teléfono válido (7 a 15 dígitos)."
     : null;
   const ageNumber = age.trim() === "" ? null : Number(age);
   const emailChanged = email.trim().toLowerCase() !== user.email.toLowerCase();
-  const emailError = emailChanged && !/^[^s@]+@[^s@]+.[^s@]+$/.test(email.trim()) ? "Escribe un correo válido." : null;
+  const emailError = emailChanged && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? "Escribe un correo válido." : null;
   const passwordError = emailChanged && !currentPassword ? "Escribe tu contraseña actual para cambiar el correo." : null;
+  const dirty =
+    name.trim() !== user.name ||
+    emailChanged ||
+    phone !== (user.whatsapp ?? "") ||
+    ageNumber !== (profile?.age ?? null) ||
+    position !== (profile?.position ?? null);
   const nameError = name.trim() === "" ? "Escribe tu nombre." : null;
   const ageError = ageNumber !== null && (!Number.isInteger(ageNumber) || ageNumber < PLAYER_AGE_MIN || ageNumber > PLAYER_AGE_MAX)
     ? `La edad debe estar entre ${PLAYER_AGE_MIN} y ${PLAYER_AGE_MAX}.`
@@ -137,7 +143,7 @@ export function ProfileForm({ user }: { user: { id: string; name: string; email:
         </Select>
       </div>
 
-      <PitchButton type="submit" className="w-full" disabled={save.isPending || isLoading}>
+      <PitchButton type="submit" className="w-full" disabled={save.isPending || isLoading || !dirty}>
         {save.isPending ? "Guardando…" : "Guardar cambios"}
       </PitchButton>
     </form>
