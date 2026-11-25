@@ -373,7 +373,7 @@ export default function PublishSection() {
                   <FormItem>
                     <div className="relative">
                       <button type="button" onClick={() => setShowDatePicker(true)}
-                      className={cn(`w-full h-field px-4 rounded-control flex items-center gap-3 text-left text-base transition-colors focus-visible:outline-none focus-visible:border-green-600 focus-visible:ring-2 focus-visible:ring-green-100 ${fieldState.error ? `border border-solid ${FIELD_ERROR} ${watchedValues.deadline ? 'text-gray-900 font-medium' : FIELD_PLACEHOLDER}` : watchedValues.deadline ? `border border-solid ${FIELD_COMPLETE} text-gray-900 font-medium` : showErrors ? `border border-solid ${FIELD_ERROR} ${FIELD_PLACEHOLDER}` : `border border-solid border-field ${FIELD_PLACEHOLDER} hover:bg-gray-50`}`)}>
+                      className={cn(`w-full h-field px-4 rounded-control flex items-center gap-3 text-left text-base transition-colors focus-visible:outline-none focus-visible:border-primary-600 focus-visible:ring-2 focus-visible:ring-primary-100 ${fieldState.error ? `border border-solid ${FIELD_ERROR} ${watchedValues.deadline ? 'text-gray-900 font-medium' : FIELD_PLACEHOLDER}` : watchedValues.deadline ? `border border-solid ${FIELD_COMPLETE} text-gray-900 font-medium` : showErrors ? `border border-solid ${FIELD_ERROR} ${FIELD_PLACEHOLDER}` : `border border-solid border-field ${FIELD_PLACEHOLDER} hover:bg-gray-50`}`)}>
                       <Calendar className="size-icon-lg shrink-0 text-gray-700" />
                       {watchedValues.deadline ? formatDeadline(watchedValues.deadline) : 'Elige un plazo o una fecha y hora'}
                                           </button>
@@ -566,13 +566,13 @@ export default function PublishSection() {
                 <div className="space-y-2">
                 <div className="relative">
                   <div
-                    className={uploadedFiles.length === 0 ? 'rounded-control' : `rounded-control transition-colors ${getFieldStatusForProgress('files') === 'complete' ? `border border-solid ${FIELD_COMPLETE}` : isDragOver ? 'border border-dashed border-green-600 bg-gray-100' : showErrors ? `border border-solid ${FIELD_ERROR}` : 'border border-solid border-field'}`}
+                    className={uploadedFiles.length === 0 ? 'rounded-control' : `rounded-control transition-colors ${getFieldStatusForProgress('files') === 'complete' ? `border border-solid ${FIELD_COMPLETE}` : isDragOver ? 'border border-dashed border-primary-600 bg-gray-100' : showErrors ? `border border-solid ${FIELD_ERROR}` : 'border border-solid border-field'}`}
                     onDragOver={e => { e.preventDefault(); setIsDragOver(true); }}
                     onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsDragOver(false); }}
                     onDrop={e => { e.preventDefault(); setIsDragOver(false); processFiles(Array.from(e.dataTransfer.files)); }}
                   >
                     {uploadedFiles.length === 0 ? (
-                      <AttachField onClick={openFileMenu} className={isDragOver ? 'border-green-600 bg-gray-100' : showErrors ? `border-solid ${FIELD_ERROR}` : undefined}>
+                      <AttachField onClick={openFileMenu} className={isDragOver ? 'border-primary-600 bg-gray-100' : showErrors ? `border-solid ${FIELD_ERROR}` : undefined}>
                         Arrastra o haz clic para adjuntar
                       </AttachField>
                     ) : (
@@ -591,20 +591,20 @@ export default function PublishSection() {
                               </Tooltip>
                               <p className="text-caption text-gray-700">
                                 {fileMetaText(fileExtension(file.name), file.size)}
-                                {file.status === 'uploading' && <span className="text-green-600 ml-1">Subiendo… {file.progress}%</span>}
+                                {file.status === 'uploading' && <span className="text-primary-600 ml-1">Subiendo… {file.progress}%</span>}
                                 {file.status === 'error' && (
                                   <>
                                     <span className="text-error-fg ml-1">{file.errorMessage || 'Error'}</span>
                                     {!file.rejected && (
                                     <button type="button" onClick={() => { const f = fileObjectsRef.current.get(file.id); if (f) retryUpload(file.id, f); }}
-                                      className="ml-1 text-green-600 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded">Reintentar</button>
+                                      className="ml-1 text-primary-600 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded">Reintentar</button>
                                     )}
                                   </>
                                 )}
                               </p>
                             </div>
-                            {file.status === 'done' && <Check className="size-icon-md text-green-600 shrink-0" aria-label="Subido" />}
-                            {file.status === 'uploading' && <Spinner size="sm" className="text-green-600 shrink-0" />}
+                            {file.status === 'done' && <Check className="size-icon-md text-primary-600 shrink-0" aria-label="Subido" />}
+                            {file.status === 'uploading' && <Spinner size="sm" className="text-primary-600 shrink-0" />}
                             {file.status === 'error' && <AlertCircle className="size-icon-md text-error-fg shrink-0" aria-label="Error" />}
                             <DeleteIconButton type="button" aria-label="Quitar archivo"
                               onClick={() => { setUploadedFiles(prev => prev.filter(f => f.id !== file.id)); fileObjectsRef.current.delete(file.id); }}
@@ -612,7 +612,7 @@ export default function PublishSection() {
                           </div>
                         ))}
                         <button type="button" onClick={openFileMenu}
-                          className="w-full flex items-center gap-3 p-2 rounded-row text-body font-medium text-green-600 hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                          className="w-full flex items-center gap-3 p-2 rounded-row text-body font-medium text-primary-600 hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                           <span className="size-thumb shrink-0 rounded-thumb border border-dashed border-field flex items-center justify-center"><Plus className="size-icon-lg" /></span>
                           Añadir archivo
                         </button>
@@ -642,7 +642,7 @@ export default function PublishSection() {
                 )} />
                 ) : (
                   <button type="button" onClick={() => setShowNotes(true)} data-testid="button-add-notes"
-                    className={`flex h-field w-full items-center gap-3 rounded-control border border-solid border-field px-4 text-left ${FIELD_PLACEHOLDER} transition-colors hover:bg-gray-50 focus-visible:border-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-100`}>
+                    className={`flex h-field w-full items-center gap-3 rounded-control border border-solid border-field px-4 text-left ${FIELD_PLACEHOLDER} transition-colors hover:bg-gray-50 focus-visible:border-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-100`}>
                     <Plus className="size-icon-lg shrink-0 text-gray-700" aria-hidden />
                     Notas adicionales (opcional)
                   </button>
@@ -741,7 +741,7 @@ export default function PublishSection() {
                       type="button"
                       aria-pressed={invitedTutorUserIds.length === 0}
                       onClick={() => { setInvitedTutorUserIds([]); setInvitedTutorNames({}); setScreen(null); }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-control mb-3 transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${invitedTutorUserIds.length === 0 ? 'border-green-600 bg-white text-gray-900' : 'border-field bg-white text-gray-700 hover:bg-gray-50'}`}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-control mb-3 transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${invitedTutorUserIds.length === 0 ? 'border-primary-600 bg-white text-gray-900' : 'border-field bg-white text-gray-700 hover:bg-gray-50'}`}
                     >
                       <div className="size-icon-circle rounded-full bg-gray-200 flex items-center justify-center shrink-0">
                         <X className="size-icon-md text-gray-700" />
@@ -768,12 +768,12 @@ export default function PublishSection() {
                                   setInvitedTutorNames(prev => ({ ...prev, [tutor.user_id]: tutor.name }));
                                 }
                               }}
-                              className={`w-full flex items-center gap-3 px-4 py-3 rounded-control transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${isSelected ? 'border-green-600 bg-white' : 'border-field bg-white hover:bg-gray-50'}`}
+                              className={`w-full flex items-center gap-3 px-4 py-3 rounded-control transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${isSelected ? 'border-primary-600 bg-white' : 'border-field bg-white hover:bg-gray-50'}`}
                             >
                               <TutorIdentity name={tutor.name} avatar={tutor.avatar} profession={tutor.profession} avatarSize="sm" />
                               <RatingStars compact value={parseFloat(tutor.rating || '0')} size="sm" className="shrink-0" />
                               {isSelected && (
-                                <Check className="size-icon-md text-green-600 shrink-0" />
+                                <Check className="size-icon-md text-primary-600 shrink-0" />
                               )}
                             </button>
                           );

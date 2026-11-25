@@ -24,7 +24,7 @@ export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputPro
         <button
           type="button"
           onClick={() => setShow((s) => !s)}
-          className="absolute right-1 top-1/2 flex h-touch w-touch -translate-y-1/2 items-center justify-center rounded-md text-gray-700 transition-colors hover:text-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="absolute right-1 top-1/2 flex h-touch w-touch -translate-y-1/2 items-center justify-center rounded-md text-gray-700 transition-colors hover:text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label={show ? "Ocultar contraseña" : "Mostrar contraseña"}
           data-testid={toggleTestId}
         >

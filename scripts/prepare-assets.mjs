@@ -2,13 +2,13 @@
 //   assets/icon-master.png  (cuadrado, minimo 1024x1024; o assets/icon-master.svg)
 //   assets/icon-foreground-master.png  (opcional: solo la marca con fondo transparente, para el icono adaptativo de Android)
 // Genera en assets/: icon-only.png, icon-foreground.png, icon-background.png, splash.png.
-// Despues: npx @capacitor/assets generate --iconBackgroundColor "#4DAC7B" --splashBackgroundColor "#F5F5F5"
+// Despues: npx @capacitor/assets generate --iconBackgroundColor "#8B2FE0" --splashBackgroundColor "#F5F5F5"
 import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 
 const dir = path.resolve("assets");
-const BRAND_GREEN = "#4DAC7B"; // theme_color de la app (solo si el icono maestro tiene transparencia en la esquina)
+const BRAND_GREEN = "#8B2FE0"; // theme_color de la app (solo si el icono maestro tiene transparencia en la esquina)
 const SPLASH_BG = "#F5F5F5"; // background_color de la app
 const ICON = 1024;
 const SPLASH = 2732;

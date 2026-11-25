@@ -30,7 +30,7 @@ export function FileSourceDialog({ open, onOpenChange, anchor, align = "end", on
           <button key={label} type="button" role="menuitem"
             onClick={() => { onPick(source); onOpenChange(false); }}
             className="flex min-h-11 w-full items-center gap-3 rounded-row px-3 py-2 text-left text-body font-semibold text-gray-900 transition-colors hover:bg-gray-50 active:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-            <Icon className="size-icon-lg text-green-600" />
+            <Icon className="size-icon-lg text-primary-600" />
             {label}
           </button>
         ))}

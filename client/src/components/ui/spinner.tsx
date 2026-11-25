@@ -9,7 +9,7 @@ const SIZES = {
 
 interface SpinnerProps {
   size?: keyof typeof SIZES;
-  /** Color via texto: `text-white`, `text-green-500`. Por defecto hereda `currentColor`. */
+  /** Color via texto: `text-white`, `text-primary-500`. Por defecto hereda `currentColor`. */
   className?: string;
 }
 
@@ -28,7 +28,7 @@ export function Spinner({ size = "md", className }: SpinnerProps) {
 export function PageLoader({ inline = false }: { inline?: boolean }) {
   return (
     <div className={inline ? "bg-white flex items-center justify-center py-32" : "min-h-screen bg-white flex items-center justify-center"}>
-      <Spinner size="lg" className="text-primary" />
+      <Spinner size="lg" className="text-pitch" />
     </div>
   );
 }

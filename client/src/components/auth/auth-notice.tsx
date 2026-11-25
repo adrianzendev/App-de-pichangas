@@ -22,8 +22,8 @@ export function AuthNotice({ icon: Icon, title, pageTitle, children, hint, actio
   return (
     <div className="flex flex-col items-center gap-6 text-center">
       {Icon && (
-        <div className="flex size-avatar-lg items-center justify-center rounded-full bg-green-100">
-          <Icon className="size-icon-xl text-green-600" />
+        <div className="flex size-avatar-lg items-center justify-center rounded-full bg-primary-100">
+          <Icon className="size-icon-xl text-primary-600" />
         </div>
       )}
       <div className="flex flex-col gap-1">

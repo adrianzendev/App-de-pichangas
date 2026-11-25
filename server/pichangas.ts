@@ -124,8 +124,8 @@ export async function releaseExpiredHolds() {
       .where(and(
         eq(matchPlayers.status, "confirmed"),
         sql`${matchPlayers.paid} IS NOT TRUE`,
-        sql`${matchPlayers.confirmedAt} IS NOT NULL`,
-        sql`${matchPlayers.confirmedAt} < now() - (${HOLD_MINUTES} * interval '1 minute')`,
+        // Una reserva sin pagar siempre vence: sin confirmed_at (filas viejas o de prueba) corre desde que se anoto.
+        sql`coalesce(${matchPlayers.confirmedAt}, ${matchPlayers.joinedAt}) < now() - (${HOLD_MINUTES} * interval '1 minute')`,
         sql`${matchPlayers.userId} <> (select ${matches.organizerId} from ${matches} where ${matches.id} = ${matchPlayers.matchId})`,
         sql`(select ${matches.startsAt} from ${matches} where ${matches.id} = ${matchPlayers.matchId}) > now()`,
       ))
@@ -174,11 +174,10 @@ export function registerPichangas(app: Express) {
       const parsed = z.object({
         age: z.number().int().min(PLAYER_AGE_MIN, `La edad mínima es ${PLAYER_AGE_MIN}`).max(PLAYER_AGE_MAX, `La edad máxima es ${PLAYER_AGE_MAX}`).nullable(),
         position: z.enum(PLAYER_POSITIONS).nullable(),
-        isHost: z.boolean().optional(),
       }).safeParse(req.body ?? {});
       if (!parsed.success) return res.status(400).json({ message: parsed.error.issues[0]?.message ?? "Datos inválidos" });
-      // isHost solo se toca si viene en la peticion (el formulario de edad y posicion no lo borra).
-      const values = { age: parsed.data.age, position: parsed.data.position, ...(parsed.data.isHost !== undefined && { isHost: parsed.data.isHost }), updatedAt: new Date() };
+      // isHost NO se acepta aqui: solo el administrador asigna el rol de host (un jugador no puede promoverse).
+      const values = { age: parsed.data.age, position: parsed.data.position, updatedAt: new Date() };
       const [saved] = await db.insert(playerProfiles).values({ userId, ...values }).onConflictDoUpdate({ target: playerProfiles.userId, set: values }).returning({ isHost: playerProfiles.isHost });
       res.json({ age: values.age, position: values.position, isHost: saved?.isHost ?? false });
     } catch (error) {
@@ -309,7 +308,7 @@ export function registerPichangas(app: Express) {
         // Cupo reservado sin pagar: hasta cuando se puede pagar antes de perderlo.
         players: players.map(({ confirmedAt, ...p }) => ({
           ...p,
-          holdExpiresAt: p.status === "confirmed" && !p.paid && p.userId !== row.match.organizerId && confirmedAt ? new Date(confirmedAt.getTime() + HOLD_MS).toISOString() : null,
+          holdExpiresAt: p.status === "confirmed" && !p.paid && p.userId !== row.match.organizerId && (confirmedAt ?? p.joinedAt) ? new Date((confirmedAt ?? p.joinedAt)!.getTime() + HOLD_MS).toISOString() : null,
         })),
         confirmedCount: players.filter((p) => p.status === "confirmed" && p.userId !== row.match.organizerId).reduce((n, p) => n + 1 + p.guests, 0),
       });

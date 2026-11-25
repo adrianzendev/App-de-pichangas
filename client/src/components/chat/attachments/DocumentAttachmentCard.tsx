@@ -71,7 +71,7 @@ export function DocumentAttachmentCard({
             </div>
           )}
           {downloaded && !isCurrentUser && (
-            <span className="text-caption text-green-600 flex items-center gap-0.5">
+            <span className="text-caption text-primary-600 flex items-center gap-0.5">
               <Check className="size-icon-sm" /> Descargado
             </span>
           )}

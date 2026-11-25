@@ -5,7 +5,7 @@ import { ROUTES } from "@/lib/routes";
 export function LegalLinks({ night }: { night?: boolean }) {
   const link = night
     ? "font-medium text-pitch hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch rounded-sm"
-    : "font-medium text-green-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm";
+    : "font-medium text-primary-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm";
   return (
     <p className={night ? "text-center text-caption text-night-muted" : "text-center text-caption text-gray-700"} data-testid="legal-links">
       Al continuar aceptas los{" "}

@@ -64,7 +64,7 @@ export default function Header({
                   onClick={onTogglePush}
                   disabled={pushLoading}
                   title={pushSubscribed ? "Notificaciones push activas" : "Activar notificaciones push"}
-                  className={pushSubscribed ? "text-green-700" : undefined}
+                  className={pushSubscribed ? "text-primary-700" : undefined}
                 >
                   {pushLoading ? (
                     <Spinner size="md" className="block" />

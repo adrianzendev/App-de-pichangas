@@ -10,14 +10,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-green-600 text-white hover:bg-green-700",
-        secondary: "bg-white text-green-600 border border-green-600 hover:bg-gray-50",
+        default: "bg-primary-600 text-white hover:bg-primary-700",
+        secondary: "bg-white text-primary-600 border border-primary-600 hover:bg-gray-50",
         destructive: "bg-coral-700 text-white hover:bg-coral-900",
         // Accion peligrosa secundaria (Eliminar cuenta, Eliminar en un detalle): sin relleno en reposo; al pasar el cursor, fondo rojo suave.
         "destructive-outline": "border border-error text-error-fg hover:bg-error-bg",
         ghost: "hover:bg-gray-100 text-gray-700",
         outline: "border border-field bg-white hover:bg-gray-50 text-gray-900",
-        link: "text-green-600 underline-offset-4 hover:text-green-700 hover:underline",
+        link: "text-primary-600 underline-offset-4 hover:text-primary-700 hover:underline",
         // Tema Pichanga Black (jugador, /play): verde electrico sobre fondo oscuro. Radio md (12px), igual que PitchButton, las tarjetas y las filas.
         pitch: "rounded-full bg-pitch font-bold text-pitch-on hover:bg-pitch-strong focus-visible:ring-pitch focus-visible:ring-offset-night-container",
         // Tema Pichanga Black, accion secundaria: solo borde y texto en el acento (sin relleno). Sin relleno tampoco al estar activo: con aria-pressed el borde se engrosa (1px extra por dentro, sin mover el diseño) y lleva check.

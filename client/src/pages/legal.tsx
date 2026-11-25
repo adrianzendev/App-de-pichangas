@@ -39,7 +39,7 @@ function Contact() {
   return (
     <p>
       Escríbenos por WhatsApp al{" "}
-      <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="font-semibold text-green-600 hover:underline">
+      <a href={SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="font-semibold text-primary-600 hover:underline">
         {SUPPORT_PHONE_LABEL}
       </a>
       .

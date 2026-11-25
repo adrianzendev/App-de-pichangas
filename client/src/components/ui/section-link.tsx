@@ -13,7 +13,7 @@ export function SectionLink({ onClick, children, "data-testid": testId }: Sectio
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center gap-1 rounded-md text-body font-semibold text-green-600 hover:text-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      className="flex items-center gap-1 rounded-md text-body font-semibold text-primary-600 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       data-testid={testId}
     >
       {children}

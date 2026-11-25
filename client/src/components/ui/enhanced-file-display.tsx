@@ -176,7 +176,7 @@ export function EnhancedFileDisplay({ files, names, sizes, title = "Archivos adj
                     size="icon"
                     onClick={() => handleDownload(file, friendlyName)}
                     aria-label={`Descargar ${friendlyName}`}
-                    className="text-green-600"
+                    className="text-primary-600"
                     title="Descargar"
                   >
                     <Download className="w-4 h-4" />

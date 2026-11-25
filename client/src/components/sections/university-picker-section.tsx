@@ -126,7 +126,7 @@ export default function UniversityPickerSection() {
                     {o.acronym && <span className="ml-2 text-label font-normal text-gray-700">{o.acronym}</span>}
                     {o.status === "pending" && <span className="ml-2 text-label font-normal text-gray-700">(en revisión)</span>}
                   </span>
-                  {active && <Check aria-hidden className="size-icon-lg shrink-0 text-green-600" />}
+                  {active && <Check aria-hidden className="size-icon-lg shrink-0 text-primary-600" />}
                 </button>
               </li>
             );

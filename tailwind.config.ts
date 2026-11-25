@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss";
 import plugin from "tailwindcss/plugin";
 import { bp } from "./breakpoints";
 
-/* Color desde una CSS var CON soporte de opacidad (bg-green-500/10, bg-muted/50).
+/* Color desde una CSS var CON soporte de opacidad (bg-primary-500/10, bg-muted/50).
    Un string "var(--x)" no deja a Tailwind inyectar alpha y la clase /NN no genera CSS;
    con funcion, el alpha se aplica via color-mix. */
 const tok = (name: string) =>
@@ -11,7 +11,7 @@ const tok = (name: string) =>
       ? `var(${name})`
       : `color-mix(in srgb, var(${name}) calc(${opacityValue} * 100%), transparent)`;
 
-/* Escala numerica: scale('--green', [100, 500]) -> { 100: tok('--green-100'), 500: ... } */
+/* Escala numerica: scale('--primary', [100, 500]) -> { 100: tok('--primary-100'), 500: ... } */
 const scale = (prefix: string, steps: number[]) =>
   Object.fromEntries(steps.map((s) => [s, tok(`${prefix}-${s}`)]));
 
@@ -41,11 +41,10 @@ export default {
       white: tok("--white"),
       black: tok("--black"),
       /* Brand tokens */
-      "primary-dark": tok("--color-primary-dark"),   /* green-600: texto blanco >=4.5:1 */
-      "primary-hover": tok("--color-primary-hover"), /* green-700 */
-      "primary-light": tok("--green-400"),
+      "primary-dark": tok("--color-primary-dark"),   /* primary-600: texto blanco >=4.5:1 */
+      "primary-hover": tok("--color-primary-hover"), /* primary-700 */
+      "primary-light": tok("--primary-400"),
       "primary-text": tok("--color-primary-text"),   /* texto verde sobre superficies claras */
-      green: scale("--green", [50, 100, 200, 300, 400, 500, 600, 700, 800, 900]),
       gray: scale("--gray", [0, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900]),
       /* Escalas de estado */
       blue: scale("--blue", [100, 500, 700]),

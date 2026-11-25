@@ -35,7 +35,7 @@ export function ScanRow({ title, description, noun, result, isPending, buttonLab
         <p className="text-subheading font-semibold text-gray-900">{title}</p>
         <p className="text-caption text-gray-700">{description}</p>
         {result && (
-          <p className="text-caption text-green-700 font-semibold mt-1 flex items-center gap-1">
+          <p className="text-caption text-primary-700 font-semibold mt-1 flex items-center gap-1">
             <Check className="size-icon-sm" /> {scanSummary(result, noun)}
           </p>
         )}

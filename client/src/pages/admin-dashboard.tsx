@@ -145,12 +145,12 @@ const TASK_STATUS_OPTIONS: { value: string; label: string }[] = [
 ];
 
 const ACTION_LABELS: Record<string, { label: string; color: string }> = {
-  register: { label: 'Registro', color: 'bg-green-50 text-green-700' },
+  register: { label: 'Registro', color: 'bg-primary-50 text-primary-700' },
   login: { label: 'Inicio sesión', color: 'bg-gray-100 text-gray-700' },
   logout: { label: 'Cerró sesión', color: 'bg-gray-100 text-gray-700' },
-  publish_task: { label: 'Publicó pedido', color: 'bg-green-50 text-green-700' },
+  publish_task: { label: 'Publicó pedido', color: 'bg-primary-50 text-primary-700' },
   send_message: { label: 'Mensaje', color: 'bg-gray-100 text-gray-700' },
-  payment: { label: 'Pago', color: 'bg-green-50 text-green-700' },
+  payment: { label: 'Pago', color: 'bg-primary-50 text-primary-700' },
   upload_file: { label: 'Subió archivo', color: 'bg-gray-100 text-gray-700' },
   edit_profile: { label: 'Editó perfil', color: 'bg-gray-100 text-gray-700' },
 };
@@ -1116,7 +1116,7 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <Spinner size="lg" className="mx-auto text-green-600" />
+          <Spinner size="lg" className="mx-auto text-primary-600" />
           <p className="mt-2 text-gray-700">Verificando acceso…</p>
         </div>
       </div>
@@ -1323,7 +1323,7 @@ export default function AdminDashboard() {
                   onClick={() => pushSubscribed ? pushUnsubscribe() : pushSubscribe()}
                   disabled={pushLoading}
                   title={pushSubscribed ? "Notificaciones push activas — clic para desactivar" : "Activar notificaciones push en este dispositivo"}
-                  className={pushSubscribed ? "relative text-green-700" : "relative"}
+                  className={pushSubscribed ? "relative text-primary-700" : "relative"}
                 >
                   {pushLoading ? (
                     <Spinner size="md" className="block" />
@@ -1398,10 +1398,10 @@ export default function AdminDashboard() {
                   }
 
                   const statusConfig: Record<string, { label: string; dot: string }> = {
-                    active:      { label: "Buscando",    dot: "bg-green-600" },
+                    active:      { label: "Buscando",    dot: "bg-primary-600" },
                     in_progress: { label: "En progreso", dot: "bg-info" },
                     in_review:   { label: "En revisión", dot: "bg-warning" },
-                    completed:   { label: "Terminada",   dot: "bg-green-600" },
+                    completed:   { label: "Terminada",   dot: "bg-primary-600" },
                     cancelled:   { label: "Cancelada",   dot: "bg-gray-300" },
                     expired:     { label: "Vencida",     dot: "bg-gray-300" },
                   };
@@ -1429,7 +1429,7 @@ export default function AdminDashboard() {
                                   <Button
                                     variant="ghost"
                                     size="touch"
-                                    className="-ml-3 justify-start max-w-full text-gray-900 hover:text-green-600"
+                                    className="-ml-3 justify-start max-w-full text-gray-900 hover:text-primary-600"
                                     title={t.title}
                                     onClick={() => setViewingTask(t)}
                                   >
@@ -1531,7 +1531,7 @@ export default function AdminDashboard() {
                 {/* Totals + toggles row */}
                 <div className="flex flex-wrap gap-3 mb-4">
                   <Chip active={showStudents} onClick={() => setShowStudents(v => !v)}>
-                    <span className="size-presence-sm rounded-full bg-green-500 ring-2 ring-white" aria-hidden />
+                    <span className="size-presence-sm rounded-full bg-primary-500 ring-2 ring-white" aria-hidden />
                     Alumnos
                     <span className="font-semibold">{connStats?.reduce((s, r) => s + r.students, 0) ?? 0}</span>
                   </Chip>
@@ -2079,7 +2079,7 @@ export default function AdminDashboard() {
                                 <Button
                                   variant="ghost"
                                   size="touch"
-                                  className="-ml-3 justify-start text-gray-900 hover:text-green-600"
+                                  className="-ml-3 justify-start text-gray-900 hover:text-primary-600"
                                   data-testid={`text-task-title-${t.id}`}
                                   onClick={() => setViewingTask(t)}
                                   title={t.title}
@@ -2240,7 +2240,7 @@ export default function AdminDashboard() {
                                     if (remaining.isExpired) {
                                       return <span className="block text-caption text-error-fg">Vencido</span>;
                                     }
-                                    return <span className="block text-caption text-green-600">{remaining.text}</span>;
+                                    return <span className="block text-caption text-primary-600">{remaining.text}</span>;
                                   })()}
                                 </div>
                               ) : '-'}
@@ -2428,7 +2428,7 @@ export default function AdminDashboard() {
                             />
                             <Button
                               size="xs"
-                              className="bg-green-600 hover:bg-green-700 text-white"
+                              className="bg-primary-600 hover:bg-primary-700 text-white"
                               disabled={!repairEmail.trim() || repairTutorMutation.isPending}
                               onClick={() => repairTutorMutation.mutate({ tutorId: ot.id, email: repairEmail.trim() })}
                             >
@@ -3271,13 +3271,13 @@ export default function AdminDashboard() {
                   {/* Whitelist */}
                   <div className="bg-white rounded-lg border border-field p-6">
                     <div className="flex items-center gap-2 mb-3">
-                      <div className="size-icon-sm rounded-full bg-green-600" />
+                      <div className="size-icon-sm rounded-full bg-primary-600" />
                       <h3 className="text-subheading font-semibold text-gray-900">Lista blanca</h3>
                       <span className="text-caption text-gray-700">(nunca generan alerta)</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {filterRules?.filter(r => r.type === 'whitelist').map(rule => (
-                        <Badge key={rule.id} variant="outline" className="gap-1 border-green-600 text-green-700">
+                        <Badge key={rule.id} variant="outline" className="gap-1 border-primary-600 text-primary-700">
                           {rule.value}
                           {rule.description && <span>({rule.description})</span>}
                           <Button variant="ghost" size="icon-sm"
@@ -3381,7 +3381,7 @@ export default function AdminDashboard() {
                       href={getFileUrl(selectedPayment.receiptUrl)} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-body text-green-600 hover:underline hidden"
+                      className="text-body text-primary-600 hover:underline hidden"
                     >
                       Ver comprobante
                     </a>
@@ -3392,7 +3392,7 @@ export default function AdminDashboard() {
                 {selectedPayment.status === 'pending' && (
                   <>
                     <Button
-                      className="flex-1 min-w-btn-sm bg-green-600 hover:bg-green-700"
+                      className="flex-1 min-w-btn-sm bg-primary-600 hover:bg-primary-700"
                       data-testid="button-modal-approve"
                       disabled={updateVerificationMutation.isPending}
                       onClick={() => {
@@ -3645,7 +3645,7 @@ export default function AdminDashboard() {
             <div className="flex gap-2 pt-2">
               <Button variant="ghost" className="flex-1" onClick={() => setShowCreatePayment(false)}>Cancelar</Button>
               <Button
-                className="flex-1 bg-green-600 hover:bg-green-700"
+                className="flex-1 bg-primary-600 hover:bg-primary-700"
                 data-testid="button-confirm-create-payment"
                 disabled={createManualPaymentMutation.isPending || !createPaymentForm.taskId || !createPaymentForm.amount || !createPaymentForm.tutorId || !createPaymentForm.studentId}
                 onClick={() => createManualPaymentMutation.mutate(createPaymentForm)}
@@ -3678,7 +3678,7 @@ export default function AdminDashboard() {
         onSubmit={() => createCourseMutation.mutate(newCourseForm)}
         submitLabel={<>{createCourseMutation.isPending ? 'Creando…' : 'Crear curso'}</>}
         submitDisabled={createCourseMutation.isPending || !newCourseForm.name}
-        submitClassName="bg-green-600 hover:bg-green-700 text-white"
+        submitClassName="bg-primary-600 hover:bg-primary-700 text-white"
       >
         <OutlinedControl htmlFor="course-name" label={<>Nombre <span aria-hidden className="text-error-fg">*</span></>}>
           <Input
@@ -3701,7 +3701,7 @@ export default function AdminDashboard() {
           onSubmit={() => updateCourseMutation.mutate({ id: editingCourse.id, name: editingCourse.name })}
           submitLabel={<>{updateCourseMutation.isPending ? 'Guardando…' : 'Guardar'}</>}
           submitDisabled={updateCourseMutation.isPending || !editingCourse.name}
-          submitClassName="bg-green-600 hover:bg-green-700 text-white"
+          submitClassName="bg-primary-600 hover:bg-primary-700 text-white"
         >
           <OutlinedControl htmlFor="edit-course-name" label={<>Nombre <span aria-hidden className="text-error-fg">*</span></>}>
             <Input
@@ -3728,7 +3728,7 @@ export default function AdminDashboard() {
             onSubmit={() => createAreaMutation.mutate({ ...newAreaForm, category: newAreaForm.category || 'General' })}
             submitLabel={<>{createAreaMutation.isPending ? 'Creando…' : 'Crear carrera'}</>}
             submitDisabled={createAreaMutation.isPending || !newAreaForm.name.trim() || isDuplicateArea}
-            submitClassName="bg-green-600 hover:bg-green-700 text-white"
+            submitClassName="bg-primary-600 hover:bg-primary-700 text-white"
           >
             <OutlinedControl htmlFor="area-name" label={<>Nombre <span aria-hidden className="text-error-fg">*</span></>}>
               <Input
@@ -3760,7 +3760,7 @@ export default function AdminDashboard() {
           onSubmit={() => updateServiceMutation.mutate({ id: editingService.id, name: editingService.name })}
           submitLabel={<>{updateServiceMutation.isPending ? 'Guardando…' : 'Guardar'}</>}
           submitDisabled={updateServiceMutation.isPending || !editingService.name}
-          submitClassName="bg-green-600 hover:bg-green-700 text-white"
+          submitClassName="bg-primary-600 hover:bg-primary-700 text-white"
         >
           <OutlinedControl htmlFor="edit-service-name" label={<>Nombre <span aria-hidden className="text-error-fg">*</span></>}>
             <Input
@@ -3784,7 +3784,7 @@ export default function AdminDashboard() {
           onSubmit={() => updateAreaMutation.mutate({ id: editingArea.id, name: editingArea.name, category: editingArea.category })}
           submitLabel={<>{updateAreaMutation.isPending ? 'Guardando…' : 'Guardar'}</>}
           submitDisabled={updateAreaMutation.isPending || !editingArea.name}
-          submitClassName="bg-green-600 hover:bg-green-700 text-white"
+          submitClassName="bg-primary-600 hover:bg-primary-700 text-white"
         >
           <OutlinedControl htmlFor="edit-area-name" label={<>Nombre <span aria-hidden className="text-error-fg">*</span></>}>
             <Input
@@ -3815,7 +3815,7 @@ export default function AdminDashboard() {
         onSubmit={() => createServiceMutation.mutate(newServiceForm)}
         submitLabel={<>{createServiceMutation.isPending ? 'Creando…' : 'Crear servicio'}</>}
         submitDisabled={createServiceMutation.isPending || !newServiceForm.name}
-        submitClassName="bg-green-600 hover:bg-green-700 text-white"
+        submitClassName="bg-primary-600 hover:bg-primary-700 text-white"
       >
         <OutlinedControl htmlFor="service-name" label={<>Nombre <span aria-hidden className="text-error-fg">*</span></>}>
           <Input
@@ -3837,7 +3837,7 @@ export default function AdminDashboard() {
         onSubmit={() => createCountryMutation.mutate(newCountryForm)}
         submitLabel={<>{createCountryMutation.isPending ? 'Creando…' : 'Crear país'}</>}
         submitDisabled={createCountryMutation.isPending || !newCountryForm.code || !newCountryForm.name}
-        submitClassName="bg-green-600 hover:bg-green-700 text-white"
+        submitClassName="bg-primary-600 hover:bg-primary-700 text-white"
       >
         <OutlinedControl htmlFor="country-code" label={<>Código ISO de país <span aria-hidden className="text-error-fg">*</span></>}>
           <Input
@@ -3876,7 +3876,7 @@ export default function AdminDashboard() {
         onSubmit={() => createBankAccountMutation.mutate(newBankAccountForm)}
         submitLabel={<>{createBankAccountMutation.isPending ? 'Creando…' : 'Crear cuenta'}</>}
         submitDisabled={createBankAccountMutation.isPending || !newBankAccountForm.bankName || !newBankAccountForm.accountHolder || !newBankAccountForm.accountNumber}
-        submitClassName="bg-green-600 hover:bg-green-700 text-white"
+        submitClassName="bg-primary-600 hover:bg-primary-700 text-white"
       >
         <OutlinedControl htmlFor="bank-country" label={<>País <span aria-hidden className="text-error-fg">*</span></>}>
           <CountrySelect
@@ -3932,7 +3932,7 @@ export default function AdminDashboard() {
         onSubmit={() => createCountrySettingMutation.mutate(newCountrySettingForm)}
         submitLabel={<>{createCountrySettingMutation.isPending ? 'Creando…' : 'Crear configuración'}</>}
         submitDisabled={createCountrySettingMutation.isPending || !newCountrySettingForm.countryCode || !newCountrySettingForm.countryName || !newCountrySettingForm.currency}
-        submitClassName="bg-green-600 hover:bg-green-700 text-white"
+        submitClassName="bg-primary-600 hover:bg-primary-700 text-white"
       >
         <div className="grid grid-cols-2 gap-4">
           <OutlinedControl htmlFor="cs-code" label="Código ISO de país">
@@ -3995,7 +3995,7 @@ export default function AdminDashboard() {
           }}
           submitLabel={<>{updateCountrySettingMutation.isPending ? 'Guardando…' : 'Guardar cambios'}</>}
           submitDisabled={updateCountrySettingMutation.isPending}
-          submitClassName="bg-green-600 hover:bg-green-700 text-white"
+          submitClassName="bg-primary-600 hover:bg-primary-700 text-white"
         >
           <div className="grid grid-cols-2 gap-4">
             <OutlinedControl htmlFor="edit-cs-code" label="Código ISO de país">
@@ -4050,7 +4050,7 @@ export default function AdminDashboard() {
           onSubmit={() => updateCountryMutation.mutate({ id: editingCountry.id, code: editingCountry.code, name: editingCountry.name, phoneCode: editingCountry.phoneCode })}
           submitLabel={<>{updateCountryMutation.isPending ? 'Guardando…' : 'Guardar'}</>}
           submitDisabled={updateCountryMutation.isPending || !editingCountry.code || !editingCountry.name}
-          submitClassName="bg-green-600 hover:bg-green-700 text-white"
+          submitClassName="bg-primary-600 hover:bg-primary-700 text-white"
         >
           <OutlinedControl htmlFor="edit-country-code" label={<>Código ISO de país <span aria-hidden className="text-error-fg">*</span></>}>
             <Input
@@ -4098,7 +4098,7 @@ export default function AdminDashboard() {
           })}
           submitLabel={<>{updateBankAccountMutation.isPending ? 'Guardando…' : 'Guardar'}</>}
           submitDisabled={updateBankAccountMutation.isPending || !editingBankAccount.bankName || !editingBankAccount.accountHolder || !editingBankAccount.accountNumber}
-          submitClassName="bg-green-600 hover:bg-green-700 text-white"
+          submitClassName="bg-primary-600 hover:bg-primary-700 text-white"
         >
           <OutlinedControl htmlFor="edit-bank-name" label={<>Banco <span aria-hidden className="text-error-fg">*</span></>}>
             <Input
@@ -4355,7 +4355,7 @@ export default function AdminDashboard() {
                   Cancelar
                 </Button>
                 <Button
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                  className="flex-1 bg-primary-600 hover:bg-primary-700 text-white"
                   disabled={!republishDeadline || republishTaskMutation.isPending}
                   onClick={() => republishTaskMutation.mutate({ taskId: republishDialog.taskId, deadline: republishDeadline })}
                 >
@@ -4454,7 +4454,7 @@ function TaskCandidatesContent({
             />
             <div className="flex-1 min-w-0">
               <p className="text-body text-gray-900 truncate">{c.tutor?.name ?? "Tutor"}</p>
-              <p className="text-caption text-green-700">
+              <p className="text-caption text-primary-700">
                 {c.proposedPrice
                   ? formatPriceGrouped(parseFloat(c.proposedPrice), currency)
                   : "Sin precio"}

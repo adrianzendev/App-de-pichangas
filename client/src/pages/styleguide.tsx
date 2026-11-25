@@ -34,7 +34,7 @@ const ALL_STATUSES: BackendHiringStatus[] = [
 
 // Solo nombres: el valor se lee en runtime con getComputedStyle (ver Swatch), asi esta tabla no se
 // desfasa de client/src/index.css (fuente de verdad).
-const GREEN_TOKENS = [100, 200, 300, 400, 500, 600, 700, 800, 900].map((n) => `--green-${n}`);
+const GREEN_TOKENS = [100, 200, 300, 400, 500, 600, 700, 800, 900].map((n) => `--primary-${n}`);
 const GRAY_TOKENS = [100, 200, 300, 400, 500, 600, 700, 800, 900].map((n) => `--gray-${n}`);
 
 const RADIUS_TOKENS = [
@@ -213,7 +213,7 @@ export default function Styleguide() {
           <div className="flex flex-wrap gap-4">
             {RADIUS_TOKENS.map(([name, value]) => (
               <div key={name} className="text-center">
-                <div className="w-16 h-16 bg-green-100 border border-green-300" style={{ borderRadius: value.split(" ")[0] }} />
+                <div className="w-16 h-16 bg-primary-100 border border-primary-300" style={{ borderRadius: value.split(" ")[0] }} />
                 <p className="text-xs text-gray-500 mt-1">{name}</p>
                 <p className="text-xs font-mono text-gray-900">{value}</p>
               </div>
@@ -226,7 +226,7 @@ export default function Styleguide() {
             {SPACING_TOKENS.map(([name, value]) => (
               <div key={name} className="flex items-center gap-3">
                 <span className="text-xs text-gray-500 w-16 shrink-0">space-{name}</span>
-                <div className="h-3 bg-green-500 rounded-sm" style={{ width: value }} />
+                <div className="h-3 bg-primary-500 rounded-sm" style={{ width: value }} />
                 <span className="text-xs font-mono text-gray-900">{value}</span>
               </div>
             ))}
@@ -471,7 +471,7 @@ export default function Styleguide() {
                 <AdminTr>
                   <AdminTd className="text-sm font-medium text-gray-900">María Torres</AdminTd>
                   <AdminTd className="text-sm text-gray-700">maria@demo.com</AdminTd>
-                  <AdminTd><span className="text-xs px-2 py-1 rounded-full font-medium bg-green-500/10 text-green-700">Activo</span></AdminTd>
+                  <AdminTd><span className="text-xs px-2 py-1 rounded-full font-medium bg-primary-500/10 text-primary-700">Activo</span></AdminTd>
                 </AdminTr>
                 <AdminTr>
                   <AdminTd className="text-sm font-medium text-gray-900">Carlos Ruiz</AdminTd>

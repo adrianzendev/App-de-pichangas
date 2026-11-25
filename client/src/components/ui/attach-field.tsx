@@ -17,7 +17,7 @@ interface AttachFieldProps {
 export function AttachField({ children, onClick, htmlFor, className }: AttachFieldProps) {
   const content = (
     <>
-      <ImagePlus className="size-icon-lg shrink-0 text-green-600" aria-hidden />
+      <ImagePlus className="size-icon-lg shrink-0 text-primary-600" aria-hidden />
       <span className="text-body font-medium text-gray-900">{children}</span>
     </>
   );

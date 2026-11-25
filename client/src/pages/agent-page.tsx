@@ -19,7 +19,7 @@ import type { TaskWithCandidates, User as UserType } from "@shared/schema";
 import { EmptyState } from "@/components/ui/empty-state";
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  active:           { label: "Buscando...",   color: "bg-green-100 text-green-700" },
+  active:           { label: "Buscando...",   color: "bg-primary-100 text-primary-700" },
   in_progress:      { label: "En progreso",   color: "bg-blue-100 text-blue-700" },
   payment_pending:  { label: "Pago pendiente",color: "bg-gray-100 text-gray-700" },
   payment_rejected: { label: "Pago rechazado",color: "bg-gray-100 text-gray-700" },
@@ -127,7 +127,7 @@ export default function AgentPage() {
             onClick={() => setActiveTab("pedidos")}
             className={`flex items-center gap-2 px-4 py-3 text-label font-medium border-b-2 transition-colors ${
               activeTab === "pedidos"
-                ? "border-primary text-green-600"
+                ? "border-primary text-primary-600"
                 : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
@@ -138,7 +138,7 @@ export default function AgentPage() {
             onClick={() => setActiveTab("agregar")}
             className={`flex items-center gap-2 px-4 py-3 text-label font-medium border-b-2 transition-colors ${
               activeTab === "agregar"
-                ? "border-primary text-green-600"
+                ? "border-primary text-primary-600"
                 : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
@@ -281,7 +281,7 @@ export default function AgentPage() {
                 <Button
                   type="submit"
                   disabled={createTutorMutation.isPending}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white"
                 >
                   {createTutorMutation.isPending ? (
                     <><Loader2 className="w-4 h-4 animate-spin mr-2" />Creando tutor...</>

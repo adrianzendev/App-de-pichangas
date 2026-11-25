@@ -69,7 +69,7 @@ export function AlertCard({ alert, disabled, onReview, onDismiss, onHideMessage,
               {high ? "Alta" : "Media"}
             </Badge>
             {alert.senderRole && (
-              <Badge variant="outline" className={alert.senderRole === "Tutor" ? "border-green-600 text-green-700" : undefined}>
+              <Badge variant="outline" className={alert.senderRole === "Tutor" ? "border-primary-600 text-primary-700" : undefined}>
                 {alert.senderRole}
               </Badge>
             )}

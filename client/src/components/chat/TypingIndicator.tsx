@@ -35,11 +35,11 @@ export const TypingIndicator = memo(function TypingIndicator({ variant = "label"
     );
   }
   return (
-    <span className="text-body text-green-700 font-medium flex items-center gap-1.5" aria-live="polite">
+    <span className="text-body text-primary-700 font-medium flex items-center gap-1.5" aria-live="polite">
       Escribiendo
       <span className="flex items-center gap-0.5" aria-hidden>
         {DELAY_CLASSES.map((d, i) => (
-          <span key={i} className={`size-typing-dot-sm rounded-full bg-green-600 animate-bounce ${d}`} />
+          <span key={i} className={`size-typing-dot-sm rounded-full bg-primary-600 animate-bounce ${d}`} />
         ))}
       </span>
     </span>

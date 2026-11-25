@@ -38,7 +38,7 @@ export function DateTimeField({ value, onChange, placeholder = "Seleccionar fech
         type="button"
         onClick={() => handleOpenChange(true)}
         className={cn(
-          "flex h-field w-full items-center justify-between gap-3 rounded-control border bg-white px-4 text-left text-base transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:border-green-600 focus-visible:ring-2 focus-visible:ring-green-100",
+          "flex h-field w-full items-center justify-between gap-3 rounded-control border bg-white px-4 text-left text-base transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:border-primary-600 focus-visible:ring-2 focus-visible:ring-primary-100",
           label ? "border-field text-gray-900" : "border-field text-muted",
           className
         )}

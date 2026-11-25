@@ -743,8 +743,8 @@ export default function OrdersSection() {
               }}
               className="w-full flex items-center gap-3 p-card-pad rounded-lg bg-card border border-border hover:bg-gray-50 transition-colors text-left"
             >
-              <div className="size-icon-box bg-green-50 rounded-full flex items-center justify-center">
-                <Calendar className="size-icon-lg text-green-600" />
+              <div className="size-icon-box bg-primary-50 rounded-full flex items-center justify-center">
+                <Calendar className="size-icon-lg text-primary-600" />
               </div>
               <div>
                 <p className="text-body font-semibold text-gray-900">Ampliar fecha</p>
@@ -761,8 +761,8 @@ export default function OrdersSection() {
               }}
               className="w-full flex items-center gap-3 p-card-pad rounded-lg bg-card border border-border hover:bg-gray-50 transition-colors text-left"
             >
-              <div className="size-icon-box bg-green-50 rounded-full flex items-center justify-center">
-                <Upload className="size-icon-lg text-green-600" />
+              <div className="size-icon-box bg-primary-50 rounded-full flex items-center justify-center">
+                <Upload className="size-icon-lg text-primary-600" />
               </div>
               <div>
                 <p className="text-body font-semibold text-gray-900">Agregar archivos</p>
@@ -773,7 +773,7 @@ export default function OrdersSection() {
             {/* Option 3: Edit Comment */}
             <div className="space-y-2">
               <div className="flex items-center gap-3 p-card-pad rounded-lg bg-card border border-border">
-                <div className="size-icon-box bg-green-50 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="size-icon-box bg-primary-50 rounded-full flex items-center justify-center flex-shrink-0">
                   <MessageCircle className="size-icon-lg text-gray-700" />
                 </div>
                 <div className="flex-1">

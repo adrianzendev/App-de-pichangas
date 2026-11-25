@@ -13,7 +13,7 @@ interface TutorsBannerProps {
   children?: ReactNode;
 }
 
-// Cabecera con una imagen sobre un degradado blanco -> green-100. Por defecto el PNG de los tutores es
+// Cabecera con una imagen sobre un degradado blanco -> primary-100. Por defecto el PNG de los tutores es
 // transparente: se apoya abajo y la hoja blanca que sube encima (-mt-sheet-overlap, rounded-t-xl) tapa los pies.
 // Los hijos se posicionan encima (logo, saludo). La imagen se cambia por pagina con `src`.
 export function TutorsBanner({
@@ -24,7 +24,7 @@ export function TutorsBanner({
   children,
 }: TutorsBannerProps) {
   return (
-    <div className={cn("relative h-banner-hero shrink-0 bg-gradient-to-b from-white to-green-100", className)}>
+    <div className={cn("relative h-banner-hero shrink-0 bg-gradient-to-b from-white to-primary-100", className)}>
       <img src={src} alt={alt} className={cn("h-full w-full object-contain", imageClassName)} />
       {children}
     </div>

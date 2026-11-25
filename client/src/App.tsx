@@ -368,7 +368,7 @@ function App() {
             <DialogTitle className="sr-only">Pago Confirmado</DialogTitle>
             <DialogDescription className="sr-only">Tu pago ha sido verificado exitosamente</DialogDescription>
             <div className="flex flex-col items-center gap-4">
-              <IconCircle size="xl" className="bg-green-100">
+              <IconCircle size="xl" className="bg-primary-100">
                 <CheckCircle className="w-10 h-10 text-success" />
               </IconCircle>
               <h2 className="text-heading font-bold text-gray-900">
@@ -382,7 +382,7 @@ function App() {
               </p>
               <Button 
                 onClick={() => setPaymentModalOpen(false)}
-                className="w-full bg-green-600 hover:bg-green-700 text-white mt-2"
+                className="w-full bg-primary-600 hover:bg-primary-700 text-white mt-2"
               >
                 Entendido
               </Button>

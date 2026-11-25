@@ -67,7 +67,7 @@ export default function CandidateCard({ candidate, taskId, currency }: Candidate
           <div className="flex-1">
             <h4 className="font-semibold text-gray-900 truncate">{candidate.tutor.name}</h4>
             <div className="flex items-center space-x-2 text-label text-gray-600">
-              <GraduationCap className="h-4 w-4 text-green-600" />
+              <GraduationCap className="h-4 w-4 text-primary-600" />
               <span>Matemática {candidate.tutor.rating}</span>
             </div>
             <p className="text-label text-gray-700 mt-1 line-clamp-2">{candidate.message}</p>

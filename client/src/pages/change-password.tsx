@@ -141,7 +141,7 @@ export default function ChangePassword() {
                 <Button
                   type="submit"
                   disabled={changePasswordMutation.isPending}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold"
                   data-testid="button-change-password"
                 >
                   {changePasswordMutation.isPending ? (

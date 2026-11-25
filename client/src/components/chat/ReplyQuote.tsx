@@ -51,9 +51,9 @@ export function ReplyQuote({ replyTo, meId, className = "", onCancel }: ReplyQuo
     ? thumbnailUrl(firstPath.startsWith("blob:") ? firstPath : getFileUrl(firstPath), 320)
     : null;
   return (
-    <div className={`flex items-center justify-between gap-2 overflow-hidden rounded-md border-l-4 border-green-600 bg-scrim/5 px-2 py-1 min-w-0 ${className}`}>
+    <div className={`flex items-center justify-between gap-2 overflow-hidden rounded-md border-l-4 border-primary-600 bg-scrim/5 px-2 py-1 min-w-0 ${className}`}>
       <div className="min-w-0 flex-1">
-        <p className="text-caption font-semibold text-green-600 truncate">
+        <p className="text-caption font-semibold text-primary-600 truncate">
           {replyTo.senderId === meId ? "Tú" : replyTo.senderName}
         </p>
         {/* Icono y texto en la MISMA linea (flex; line-clamp en un hijo, no en el flex). */}

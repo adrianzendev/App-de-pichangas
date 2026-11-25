@@ -6,12 +6,12 @@ const FROM = 'MilTareas <noreply@miltareas.com>';
 
 // Tokens resueltos del sistema de diseño (client/src/index.css) — email no
 // lee var(--...), hay que hardcodear el valor final.
-const PRIMARY_600 = '#397F5B';   // --primary-600 (green-600): fondo del boton, texto blanco >=4.5:1
+const PRIMARY_600 = '#7420C4';   // --primary-600: fondo del boton, texto blanco >=4.5:1
 const TEXT = '#1C1C1C';         // --gray-900 / --card-foreground
 const TEXT_MUTED = '#666666';   // --gray-700 / --muted-foreground
 const BORDER = '#EDEDED';       // --gray-200 / --border
 const CANVAS = '#F5F5F5';       // --gray-100 / --color-background
-const GREEN_100 = '#E2F3E7';    // --green-100: fin del degradado del banner
+const PRIMARY_100 = '#EADCFF';    // --primary-100: fin del degradado del banner
 const FONT_BODY = `'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
 const FONT_DISPLAY = FONT_BODY;
 // En dev, apuntar al propio dev server — BASE_URL (prod) todavia no tiene
@@ -33,17 +33,17 @@ function BaseEmailLayout(title: string, body: string, buttonLabel: string, butto
 <body style="margin:0;padding:0;background:${CANVAS};font-family:${FONT_BODY};">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${CANVAS};padding:32px 16px;">
     <tr><td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:${GREEN_100};border-radius:24px;overflow:hidden;">
-        <!-- Banner: degradado white -> green-100, logo arriba -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:${PRIMARY_100};border-radius:24px;overflow:hidden;">
+        <!-- Banner: degradado white -> primary-100, logo arriba -->
         <tr>
-          <td style="background-color:${GREEN_100};background-image:linear-gradient(180deg,#ffffff 0%,${GREEN_100} 100%);padding:16px 24px 0;">
+          <td style="background-color:${PRIMARY_100};background-image:linear-gradient(180deg,#ffffff 0%,${PRIMARY_100} 100%);padding:16px 24px 0;">
             <a href="${BASE_URL}"><img src="${LOGO_URL}" alt="MilTareas" width="115" style="display:block;border:0;height:auto;margin:0;"></a>
             <img src="${BANNER_URL}" alt="Tutores de MilTareas" width="300" style="display:block;border:0;width:100%;max-width:300px;height:auto;margin:-37px auto 0;">
           </td>
         </tr>
         <!-- Hoja blanca que sube sobre el banner -->
         <tr>
-          <td style="background:${GREEN_100};padding:0;">
+          <td style="background:${PRIMARY_100};padding:0;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:24px 24px 0 0;">
               <tr>
                 <td style="padding:28px 24px 8px;">

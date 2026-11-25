@@ -163,7 +163,7 @@ Reglas ya decididas (extender con el mismo criterio a pantallas nuevas):
   `components/chat/chat-bubble-styles.ts` (chat y vistas de solo lectura, ej. admin).
 - **Imagen con texto**: la burbuja mide el ancho de la imagen y el texto se ajusta a ese ancho
   (no ensancha la burbuja).
-- **Lista de conversaciones**: filas a todo el ancho (sin tarjeta, esquinas ni divisor), avatar `mdl` (48px) + nombre + hora + ultimo mensaje en una linea, contador verde
+- **Lista de conversaciones**: filas a todo el ancho (sin tarjeta, esquinas ni divisor), avatar `mdl` (48px) + nombre + hora + ultimo mensaje en una linea, contador morado
   (`UnreadBadge`) a la derecha; fila abierta en gris suave (`bg-gray-50`, el mismo color del hover). Alto ~72px.
 - **Radio de filas de lista (hover/seleccion)**: `rounded-md` (12px), no `rounded-xl`; no aplica a la lista de conversaciones (filas a ancho completo, sin radio). Una fila baja
   (~70px) con 24px de radio casi se vuelve capsula al resaltarse. El sistema no definia radio para
@@ -171,7 +171,7 @@ Reglas ya decididas (extender con el mismo criterio a pantallas nuevas):
 - **Contadores sobre iconos**: `UnreadBadge size="icon"`, siempre arriba a la derecha del icono.
 - **Menos adornos**: sin bordes, sombras ni chevrons decorativos donde el color de fondo y el
   espacio ya separan; sin etiquetas redundantes. Iconos simples de una sola linea.
-- **Color de marca**: verde solo como acento (acciones, contadores, estados activos), no como
+- **Color de marca**: morado (Pinkiball) solo como acento (acciones, contadores, estados activos), no como
   fondo de grandes superficies.
 
 ## Sistema de Diseno: Estilo Bento Grid UI
@@ -242,14 +242,14 @@ Reglas unicas para `Input`, `Textarea`, selectores de fecha y cualquier campo nu
 - **Borde y fondo:** `border border-field bg-white` (gray-300). Sin sombra.
 - **Placeholder:** `placeholder:text-muted` (gray-700), 16px; un boton o caja que imita un campo usa `FIELD_PLACEHOLDER` (`ui/input.tsx`). `gray-500` sobre blanco da ~2:1 y no se lee; no usarlo
   en texto (ni en placeholders ni en estados vacios).
-- **Foco de campos:** borde `green-600` + halo `ring-2 ring-green-100`. **Foco de botones, chips y enlaces:**
+- **Foco de campos:** borde `primary-600` + halo `ring-2 ring-primary-100`. **Foco de botones, chips y enlaces:**
   `focus-visible:ring-2 ring-ring ring-offset-2`. Nunca `outline` del navegador.
-- **Hover de superficies clicables blancas**: **todas** (chips, selector de fecha y campos que se abren al tocarlos) `hover:bg-gray-50`: el verde se reserva para estados (seleccionado, campo completo con borde verde). `gray-50` y no `gray-100`, que es el color del canvas.
+- **Hover de superficies clicables blancas**: **todas** (chips, selector de fecha y campos que se abren al tocarlos) `hover:bg-gray-50`: el morado se reserva para estados (seleccionado, campo completo con borde morado). `gray-50` y no `gray-100`, que es el color del canvas.
   `gray-100` solo sobre fondos de color o botones `ghost`.
 - **Error:** un solo rojo (coral-700): borde `border-error` y mensaje `text-error-fg`; en Publicar, borde de 2px con `FIELD_ERROR` de `ui/input.tsx`, que manda sobre `FIELD_COMPLETE`. Texto sobre `bg-error-bg`: `text-error-strong`. (tokens `--error` / `--error-fg`), no `coral-*` suelto.
   Se muestran tras el primer intento de envio; el minimo de caracteres puede validarse en vivo.
-- **Verde en estados:** `green-600` para texto de acento y borde de campo completo (2px, `FIELD_COMPLETE` de `ui/input.tsx`), `green-50` para fondos
-  suaves. No mezclar los alias `primary-*` / `success` con la escala `green-*` dentro de una misma pantalla.
+- **Morado en estados:** `primary-600` para texto de acento y borde de campo completo (2px, `FIELD_COMPLETE` de `ui/input.tsx`), `primary-50` para fondos
+  suaves. No mezclar los alias `primary-*` / `success` con la escala `primary-*` dentro de una misma pantalla.
 - **Obligatorio / opcional:** los obligatorios llevan asterisco (`<span aria-hidden className="text-error-fg">*</span>`)
   y `aria-required`; los opcionales, "(opcional)" en `text-gray-700 font-normal`.
 - **Objetivo tactil:** minimo 40px de alto en acciones secundarias (`h-10`); 44-48px en la accion principal. En Publicar, `Chip compact` se ve
@@ -267,7 +267,7 @@ la hoja `-mt-7 rounded-t-xl bg-white shadow-float` (ver `AuthShell`, `StudentHom
 
 - **Sombra:** la hoja es una capa que se superpone a la imagen, por eso es la unica "tarjeta" con
   `shadow-float` (token de capas flotantes). El resto de tarjetas va sin sombra.
-- **Fondo del banner:** degradado `from-white to-green-100` (tokens, sin imagen de fondo). Es la unica excepcion
+- **Fondo del banner:** degradado `from-white to-primary-100` (tokens, sin imagen de fondo). Es la unica excepcion
   a "NO gradients" de `index.css`.
 - **Imagen por pagina:** `TutorsBanner` acepta `src`, `alt` e `imageClassName`. `imageClassName` REEMPLAZA la
   posicion/escala por defecto (`origin-bottom object-bottom scale-125 md:scale-110`). El Inicio usa `md:scale-95`
@@ -279,14 +279,14 @@ la hoja `-mt-7 rounded-t-xl bg-white shadow-float` (ver `AuthShell`, `StudentHom
 
 ### Paleta oficial de tokens
 
-La escala `gray-*` es 100% neutra (saturacion 0, sin matiz verdoso): el verde solo vive en `green-*`.
+La escala `gray-*` es 100% neutra (saturacion 0, sin matiz verdoso): el color de marca (morado) vive en `primary-*`; el unico verde es `success-*` (estados de exito, en linea).
 
 - Canvas / fondo global: `bg-gray-100` (neutro Bento).
 - Tarjetas/modulos: `bg-white` + `rounded-lg` (16px), sin sombra.
 - Bordes de inputs/selects/textareas: `border-field` (token `--border-field`, = gray-300); no `border-gray-300` suelto.
 - Bordes: `border-gray-200` (o `border-slate-200/60` para tarjetas Bento
   con padding holgado, ver tarjetas de campo en `/publish` y `/tutors`).
-- Verde marca (primary): `green-500` (base) / `green-600` (primary-dark,
+- Morado de marca (primary): `primary-500` (base) / `primary-600` (primary-dark,
   estados activos/seleccionados).
 - Textos: `gray-900` (titulos) / `gray-700` (cuerpo, muted).
 
@@ -295,8 +295,8 @@ Prohibido usar paletas stock de Tailwind ajenas al sistema (`emerald-*`,
 componentes de marca o estados activos/seleccionados — generan CSS (estan
 disponibles porque `colors` esta bajo `extend` en `tailwind.config.ts`,
 sin purgar los defaults) pero introducen un segundo verde/gris en paralelo
-a la escala `green-*`/`gray-*` ya definida, la inconsistencia visual que
-esta regla evita. Usar siempre `gray-*`/`green-*` de la config.
+a la escala `primary-*`/`gray-*` ya definida, la inconsistencia visual que
+esta regla evita. Usar siempre `gray-*`/`primary-*` de la config.
 
 ### Tipografia: tokens responsivos para titulos y parrafos
 
@@ -358,7 +358,7 @@ No armar a mano lo que ya tiene componente (ver ejemplos vivos en `/styleguide`)
 - **Calificacion (solo lectura)**: `RatingStars` (`components/ui/rating-stars.tsx`): 5 estrellas con media estrella, o `compact` ("★ 4.8") para filas densas.
   Para ELEGIR una nota esta `StarRating` (selector). No repetir el `clipPath` ni usar `fill-primary`: las llenas son `yellow-500`.
 - **Chips / atajos**: `Chip` (`components/ui/chip.tsx`, `rounded-full` h-10; `compact` solo en el formulario de Publicar: `rounded-chip` 6px, h-7, `text-caption`). Con `active` es seleccionable (`aria-pressed`); sin `active` es una accion.
-  Los filtros de estado son `FilterPills` (chips sueltos con `Chip`; todo `Chip active`, tambien en Publicar, es borde verde y texto en negrita sobre blanco). No armar `<button className="rounded-full border …">` sueltos.
+  Los filtros de estado son `FilterPills` (chips sueltos con `Chip`; todo `Chip active`, tambien en Publicar, es borde morado y texto en negrita sobre blanco). No armar `<button className="rounded-full border …">` sueltos.
 - **Papelera**: `DeleteIconButton` (solo icono) y `DeleteButton` (con texto, modales) en `components/ui/delete-button.tsx`; rojo fijo (`text-error-fg`). `check:field-rules` falla con un `<Trash2>` fuera de ese archivo, en todo `client/src`.
 - **Columna País de tablas admin**: `AdminCountryTd` (`admin-table.tsx`). Acepta codigo o nombre y muestra siempre el nombre, sin bandera (Windows las pinta como letras); sin pais, "—".
 - **Columna Acciones de tablas admin**: `AdminActionsTh` + `AdminActionsTd` (`admin-table.tsx`), al final y alineada a la derecha; dentro, `AdminRowAction` (icono, `label`, `tone`, siempre con tooltip), `AdminDeleteButton` o `RowActions` (`components/admin/row-actions.tsx`). Si la fila termina en texto o `Badge`: `endsWithIcon={false}`. `check:field-rules` falla con `<AdminTh>Acciones` a mano.
@@ -366,8 +366,8 @@ No armar a mano lo que ya tiene componente (ver ejemplos vivos en `/styleguide`)
   `<div className="mx-auto max-w-content">` (no `style={{ maxWidth }}`). `inlineOnDesktop` lo deja en su columna desde `lg:`.
 - **Avisos (toast y push)**: un solo componente, `toast()` de `hooks/use-toast.ts` (se pinta en `<Toaster />`; piezas en
   `components/ui/toast.tsx`). No armar tarjetas flotantes propias con `fixed`/`z-toast`. Tarjeta blanca `rounded-lg` con `shadow-modal`
-  y circulo de icono segun el estado: `variant` omitido = informativo (`green-50`), `"success"` = exito, `"destructive"` = error.
-  `icon` cambia el icono (p. ej. `Bell`). Si el aviso pide una decision: `action` = `<ToastAction altText="…">` (boton verde, `altText`
+  y circulo de icono segun el estado: `variant` omitido = informativo (`primary-50`), `"success"` = exito, `"destructive"` = error.
+  `icon` cambia el icono (p. ej. `Bell`). Si el aviso pide una decision: `action` = `<ToastAction altText="…">` (boton morado, `altText`
   obligatorio) y `cancel` = `<ToastCancel>` (secundario, solo cierra). Sin `action` no hay botones: los avisos de "ya paso" solo llevan
   la X. Sale uno a la vez (`TOAST_LIMIT = 1`); un aviso con decision usa `duration: Infinity` para quedarse hasta que el usuario decida
   (ejemplo vivo: `components/modals/push-notification-modal.tsx`). Posicion: movil sobre la barra inferior, escritorio abajo a la derecha.

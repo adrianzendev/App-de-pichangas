@@ -53,20 +53,20 @@ export function NightChip({ active, pin = true, className, children, ...props }:
   );
 }
 
-/** Filtro rapido (Hoy, Mañana, Fútbol 7...): rectangulo chico en mayusculas. */
-export function QuickPill({ active, className, children, ...props }: PillProps) {
+/** Filtro rapido (Hoy, Mañana, Fútbol 7...): pastilla chica en mayusculas; tambien es la del filtro activo (con X). */
+export function QuickPill({ active, pin = true, className, children, ...props }: PillProps) {
   return (
     <button
       type="button"
       aria-pressed={active}
       className={cn(
-        "inline-flex h-8 shrink-0 items-center gap-2 whitespace-nowrap rounded-sm px-3 text-caption font-bold uppercase transition-colors duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch",
-        active ? "bg-night-container text-pitch" : "bg-night-low text-night-muted hover:text-night-text",
+        "inline-flex h-8 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-3 text-caption font-bold uppercase transition-colors duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch",
+        active ? "border-pitch bg-transparent text-pitch" : "border-night-highest bg-transparent text-night-muted hover:text-night-text",
         className,
       )}
       {...props}
     >
-      {active && <span className="size-2 rounded-full bg-pitch" aria-hidden />}
+      {active && pin && <span className="size-2 rounded-full bg-pitch" aria-hidden />}
       {children}
     </button>
   );

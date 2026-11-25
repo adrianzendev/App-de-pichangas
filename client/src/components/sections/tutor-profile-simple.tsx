@@ -210,7 +210,7 @@ export default function TutorProfileSection() {
                   className="block rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <UserAvatar name={currentUser.name} avatar={currentUser.avatar} size="lg" />
-                  <span aria-hidden className="absolute bottom-0 right-0 flex size-icon-badge-lg items-center justify-center rounded-full bg-green-600 text-white ring-2 ring-white">
+                  <span aria-hidden className="absolute bottom-0 right-0 flex size-icon-badge-lg items-center justify-center rounded-full bg-primary-600 text-white ring-2 ring-white">
                     <Camera className="size-icon-md" />
                   </span>
                 </button>
@@ -224,7 +224,7 @@ export default function TutorProfileSection() {
                 </div>
                 <p className="flex items-center gap-1 text-body text-gray-700">
                   <span className="truncate">{tutorProfile?.profession || "Tutor"}</span>
-                  <Star aria-hidden className="size-icon-md shrink-0 fill-green-600 text-green-600" />
+                  <Star aria-hidden className="size-icon-md shrink-0 fill-primary-600 text-primary-600" />
                   <span>{Number(tutorProfile?.rating || 0).toFixed(1)}</span>
                 </p>
               </div>
@@ -238,7 +238,7 @@ export default function TutorProfileSection() {
             >
               <span className="flex items-center gap-3">
                 <IconCircle>
-                  <BarChart3 className="size-icon-lg text-green-600" />
+                  <BarChart3 className="size-icon-lg text-primary-600" />
                 </IconCircle>
                 <span>
                   <span className="block text-body font-medium text-gray-900">Mis estadísticas</span>
@@ -292,7 +292,7 @@ export default function TutorProfileSection() {
                 <div className={prefRow}>
                     <div className="flex items-center gap-3">
                       <IconCircle>
-                        <Bell className="size-icon-lg text-green-600" />
+                        <Bell className="size-icon-lg text-primary-600" />
                       </IconCircle>
                       <div>
                         <p className="text-body font-medium text-gray-900">Notificaciones</p>
@@ -315,7 +315,7 @@ export default function TutorProfileSection() {
                 <div className={prefRow}>
                   <div className="flex items-center gap-3">
                     <IconCircle>
-                      <Volume2 className="size-icon-lg text-green-600" />
+                      <Volume2 className="size-icon-lg text-primary-600" />
                     </IconCircle>
                     <div>
                       <p className="text-body font-medium text-gray-900">Sonido de notificaciones</p>
@@ -367,7 +367,7 @@ export default function TutorProfileSection() {
               className={photoRow}
             >
               <IconCircle>
-                <Camera className="size-icon-lg text-green-600" />
+                <Camera className="size-icon-lg text-primary-600" />
               </IconCircle>
               <span className="text-body font-semibold">Cámara</span>
             </button>
@@ -377,7 +377,7 @@ export default function TutorProfileSection() {
               className={photoRow}
             >
               <IconCircle>
-                <ImagePlus className="size-icon-lg text-green-600" />
+                <ImagePlus className="size-icon-lg text-primary-600" />
               </IconCircle>
               <span className="text-body font-semibold">Galería</span>
             </button>

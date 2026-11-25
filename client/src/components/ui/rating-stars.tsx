@@ -16,7 +16,7 @@ interface RatingStarsProps {
 const SIZES = { sm: "size-icon-sm", md: "size-icon-star", lg: "size-icon-md" } as const;
 
 /** Color de toda estrella llena (lectura y selector): un solo lugar para cambiarlo. */
-export const STAR_FILLED = "fill-green-600 text-green-600";
+export const STAR_FILLED = "fill-primary-600 text-primary-600";
 
 /** Numero de calificacion con un decimal, sin el ".0" de las exactas ("5", "4.8"). Un solo formato para lista y detalle. */
 export const formatRating = (n: number) => n.toFixed(1).replace(/\.0$/, "");

@@ -81,7 +81,7 @@ interface SimpleTaskCardProps {
   onView?: (e: React.MouseEvent) => void;
   onCancel?: (e: React.MouseEvent) => void;
   unreadCount?: number;
-  /** Pedido abierto en el panel de detalle (escritorio): fondo green-50. */
+  /** Pedido abierto en el panel de detalle (escritorio): fondo primary-50. */
   selected?: boolean;
   className?: string;
   showPaymentStates?: boolean;

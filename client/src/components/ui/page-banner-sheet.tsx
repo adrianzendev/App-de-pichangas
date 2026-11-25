@@ -34,7 +34,7 @@ export function PageBannerSheet({ title, subtitle, src, alt, imageClassName, onB
   const hideMobile = hideBannerOnMobile || noBanner;
   const banner = <PageBanner title={title} subtitle={subtitle} src={src} alt={alt} imageClassName={imageClassName} onBack={onBack} />;
   return (
-    <div className={cn("rounded-none lg:mx-0 lg:mt-0", hideMobile ? "lg:overflow-hidden" : "overflow-hidden", !noBanner && "lg:rounded-xl lg:border lg:border-gray-200", hideMobile ? (noBanner ? "bg-white" : "bg-white lg:bg-green-100") : "-mx-page-h -mt-page-top bg-green-100")}>
+    <div className={cn("rounded-none lg:mx-0 lg:mt-0", hideMobile ? "lg:overflow-hidden" : "overflow-hidden", !noBanner && "lg:rounded-xl lg:border lg:border-gray-200", hideMobile ? (noBanner ? "bg-white" : "bg-white lg:bg-primary-100") : "-mx-page-h -mt-page-top bg-primary-100")}>
       {noBanner ? null : hideMobile ? <div className="hidden lg:block">{banner}</div> : banner}
       <div className={cn(
         "relative flex flex-col gap-4 bg-white",

@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NightBadge } from "@/components/pichangas/night-ui";
+import { HoldCountdown } from "@/components/pichangas/hold-countdown";
 import { PlayerRow } from "@/components/pichangas/player-row";
 import { cn } from "@/lib/utils";
 import type { MatchPlayer } from "@/lib/pichangas";
@@ -70,6 +71,10 @@ export function SquadList({
         {players.flatMap((p, i) => {
           // Mis cupos reservados (el mio y los de mis acompañantes) se pagan juntos con los marcados: mismo texto y mismo boton.
           const mine = !!mineHeld && p.userId === currentUserId;
+          // Estado de pago de la fila (y de sus acompañantes: pagan juntos): Pagado, o Reservado con la cuenta regresiva del plazo.
+          const payBadge = p.paid
+            ? <NightBadge tone="pitch" size="sm">Pagado</NightBadge>
+            : p.holdExpiresAt ? <NightBadge tone="muted" size="sm">Reservado · <HoldCountdown iso={p.holdExpiresAt} /></NightBadge> : undefined;
           return [
             <PlayerRow
               key={p.userId}
@@ -82,7 +87,7 @@ export function SquadList({
               selected={mine}
               action={mine
                 ? <SeatButton picked readOnly />
-                : p.holdExpiresAt ? <NightBadge tone="muted" size="sm">Reservado</NightBadge> : undefined}
+                : payBadge}
             />,
             // Cada acompañante ocupa un cupo propio: sin su fila la numeracion saltaria (3 -> 9) y parecerian jugadores perdidos.
             ...Array.from({ length: p.guests }, (_, g) => (
@@ -95,7 +100,7 @@ export function SquadList({
                 selected={mine}
                 number={seatOf[i] + g + 1}
                 index={rowIndex(i) + g + 1}
-                action={mine ? <SeatButton picked readOnly /> : undefined}
+                action={mine ? <SeatButton picked readOnly /> : payBadge}
               />
             )),
           ];

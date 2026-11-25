@@ -172,7 +172,7 @@ export default function ProfileSection() {
                   className="block rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <UserAvatar name={currentUser.name} avatar={currentUser.avatar} size="lg" />
-                  <span aria-hidden className="absolute bottom-0 right-0 flex size-icon-badge-lg items-center justify-center rounded-full bg-green-600 text-white ring-2 ring-white">
+                  <span aria-hidden className="absolute bottom-0 right-0 flex size-icon-badge-lg items-center justify-center rounded-full bg-primary-600 text-white ring-2 ring-white">
                     <Camera className="size-icon-md" />
                   </span>
                 </button>
@@ -198,7 +198,7 @@ export default function ProfileSection() {
                 <div className="flex items-center justify-between gap-3 rounded-md bg-gray-50 px-4 py-3">
                   <div className="flex items-center gap-3">
                     <IconCircle>
-                      <Bell className="size-icon-lg text-green-600" />
+                      <Bell className="size-icon-lg text-primary-600" />
                     </IconCircle>
                     <div>
                       <p className="text-body font-medium text-gray-900">Notificaciones</p>
@@ -266,7 +266,7 @@ export default function ProfileSection() {
               className="w-full flex items-center gap-4 px-4 py-3 rounded-md text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors"
             >
               <IconCircle>
-                <Camera className="size-icon-lg text-green-600" />
+                <Camera className="size-icon-lg text-primary-600" />
               </IconCircle>
               <span className="text-body font-semibold">Cámara</span>
             </button>
@@ -276,7 +276,7 @@ export default function ProfileSection() {
               className="w-full flex items-center gap-4 px-4 py-3 rounded-md text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors"
             >
               <IconCircle>
-                <ImagePlus className="size-icon-lg text-green-600" />
+                <ImagePlus className="size-icon-lg text-primary-600" />
               </IconCircle>
               <span className="text-body font-semibold">Galería</span>
             </button>

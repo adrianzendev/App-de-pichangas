@@ -48,7 +48,7 @@ export function ChatListRow({ name, avatar, userId, isOnline, time, preview, unr
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <h3 className="truncate text-body font-semibold text-gray-900">{name}</h3>
-          <span className={cn("shrink-0 text-caption", unread ? "font-semibold text-green-600" : "text-gray-700")}>{time}</span>
+          <span className={cn("shrink-0 text-caption", unread ? "font-semibold text-primary-600" : "text-gray-700")}>{time}</span>
         </div>
         <div className="mt-0.5 flex items-center justify-between gap-2">
           <p className={cn("flex min-w-0 flex-1 items-center text-label", unread ? "font-semibold text-gray-900" : "font-normal text-gray-700")}>{preview}</p>

@@ -60,7 +60,7 @@ export function TutorFormFields({
             <label
               htmlFor={`${idPrefix}-photo`}
               aria-label="Cambiar foto de perfil"
-              className="absolute bottom-0 right-0 size-icon-badge bg-green-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-green-700 transition-colors"
+              className="absolute bottom-0 right-0 size-icon-badge bg-primary-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-primary-700 transition-colors"
             >
               <Pencil className="size-icon-sm text-white" />
             </label>
@@ -77,7 +77,7 @@ export function TutorFormFields({
           </div>
           <div className="text-caption text-gray-700">
             {photo.hasNewFile ? (
-              <span className="text-green-600">Nueva foto seleccionada</span>
+              <span className="text-primary-600">Nueva foto seleccionada</span>
             ) : (
               <span>Haz clic en el ícono para cambiar</span>
             )}

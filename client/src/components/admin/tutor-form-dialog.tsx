@@ -210,12 +210,12 @@ export function TutorFormDialog({ open, onOpenChange, mode, tutor, countries, ca
       onSubmit={handleSubmit}
       submitLabel={save.isPending || checking ? (isEdit ? "Guardando…" : "Creando…") : isEdit ? "Guardar cambios" : "Crear tutor"}
       submitDisabled={save.isPending || checking || !form.name || !form.email || (isEdit && !coursesLoaded)}
-      submitClassName="bg-green-600 hover:bg-green-700 text-white"
+      submitClassName="bg-primary-600 hover:bg-primary-700 text-white"
     >
       {isEdit && tutor && (
         <div className="space-y-2" data-testid="text-invitation-status">
           <p className="flex items-center gap-2 text-label">
-            <span className={`size-2 rounded-full ${tutor.activationPending ? "bg-yellow-500" : "bg-green-600"}`} aria-hidden />
+            <span className={`size-2 rounded-full ${tutor.activationPending ? "bg-yellow-500" : "bg-primary-600"}`} aria-hidden />
             {tutor.activationPending ? "Invitación enviada: pendiente de activación" : "Cuenta activada por el tutor"}
           </p>
           <Button

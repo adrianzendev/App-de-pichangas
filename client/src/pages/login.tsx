@@ -177,7 +177,7 @@ export default function LoginPage() {
           type="button"
           onClick={() => setLocation('/register')}
           data-testid="link-register"
-          className="flex h-12 w-full items-center justify-center rounded-control bg-transparent text-body font-bold text-night-text transition-colors duration-fast hover:bg-night-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch"
+          className="flex h-12 w-full items-center justify-center rounded-control border border-night-highest bg-transparent text-body font-bold text-night-text transition-colors duration-fast hover:bg-night-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch"
         >
           Crear cuenta
         </button>

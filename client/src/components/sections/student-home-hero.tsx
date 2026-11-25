@@ -42,7 +42,7 @@ export function StudentHomeHero({ firstName, onPublish, onService }: StudentHome
         <div className="-mx-page-h flex flex-nowrap gap-2 overflow-x-auto px-page-h scrollbar-none md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
           {SERVICES.map(({ label, icon: Icon, service }) => (
             <Chip key={service} onClick={() => onService(service)} className="shrink-0 text-gray-900 border-transparent active:scale-95">
-              <Icon className="size-icon-lg text-green-600" />
+              <Icon className="size-icon-lg text-primary-600" />
               {label}
             </Chip>
           ))}

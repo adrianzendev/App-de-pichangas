@@ -117,8 +117,8 @@ export function ImageAttachmentCard({
       )}
       {!isCurrentUser && downloaded && (
         <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-scrim/50 rounded-full px-2 py-0.5">
-          <Check className="size-icon-sm text-green-300" />
-          <span className="text-caption text-green-300">Descargado</span>
+          <Check className="size-icon-sm text-primary-300" />
+          <span className="text-caption text-primary-300">Descargado</span>
         </div>
       )}
       {fill && footer && (

@@ -41,7 +41,7 @@ function formatAccountNumber(value: string): string {
 function StepTitle({ n, id, children }: { n: number; id: string; children: string }) {
   return (
     <div className="flex items-center gap-2 mb-3">
-      <span aria-hidden className="flex size-6 items-center justify-center rounded-full bg-green-600 text-caption font-bold text-white">{n}</span>
+      <span aria-hidden className="flex size-6 items-center justify-center rounded-full bg-primary-600 text-caption font-bold text-white">{n}</span>
       <h3 id={id} className="text-subheading font-semibold text-gray-900">{children}</h3>
     </div>
   );
@@ -172,7 +172,7 @@ export function HireModal({
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-body text-gray-900 truncate">{receiptFile.name}</p>
-                  <p className="text-caption text-green-700">Comprobante adjunto</p>
+                  <p className="text-caption text-primary-700">Comprobante adjunto</p>
                 </div>
                 <label
                   htmlFor="receipt"

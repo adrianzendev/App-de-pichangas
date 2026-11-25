@@ -11,7 +11,7 @@ export const TutorChatButton = React.forwardRef<HTMLButtonElement, Omit<ButtonPr
       ref={ref}
       variant="secondary"
       size="sm"
-      className={cn("border-gray-300 text-gray-900 hover:border-green-600 hover:bg-green-600 hover:text-white", className)}
+      className={cn("border-gray-300 text-gray-900 hover:border-primary-600 hover:bg-primary-600 hover:text-white", className)}
       {...props}
     >
       Chat

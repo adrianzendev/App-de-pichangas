@@ -12,6 +12,7 @@ import { CollapsibleCard, OrganizerCard, SectionCard } from "@/components/pichan
 import { squadOf } from "@/lib/squad";
 import { Button } from "@/components/ui/button";
 import { SeatStepper } from "@/components/pichangas/seat-stepper";
+import { HoldCountdown } from "@/components/pichangas/hold-countdown";
 import { SquadList } from "@/components/pichangas/squad-list";
 import { NightBadge, NightEmpty, PitchButton } from "@/components/pichangas/night-ui";
 import { toast } from "@/hooks/use-toast";
@@ -163,7 +164,7 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
     } else if (!me.paid) {
       cta = (
         <div className="space-y-2 lg:flex lg:flex-1 lg:items-center lg:gap-6 lg:space-y-0">
-          {me.holdExpiresAt && <p className="text-caption font-bold text-crimson lg:shrink-0">Paga antes de las {time12Label(me.holdExpiresAt)} o perderás tu lugar.</p>}
+          {me.holdExpiresAt && <p className="text-caption font-bold text-crimson lg:shrink-0">Paga en <HoldCountdown iso={me.holdExpiresAt} /> (antes de las {time12Label(me.holdExpiresAt)}) o perderás tu lugar.</p>}
           {stepper}
           <PitchButton className="w-full uppercase lg:flex-1" disabled={busy} onClick={payNow}>{payLabel}</PitchButton>
         </div>

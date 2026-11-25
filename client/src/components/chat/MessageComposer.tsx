@@ -47,7 +47,7 @@ export function MessageComposer({ value, onChange, onSend, onAttach, hasFiles = 
 
   return (
     <div className="flex items-center gap-2">
-      <div className="flex h-field min-w-0 flex-1 items-center gap-2 rounded-full border border-field bg-white pl-4 pr-1 transition-colors focus-within:border-green-600 focus-within:ring-1 focus-within:ring-inset focus-within:ring-green-600">
+      <div className="flex h-field min-w-0 flex-1 items-center gap-2 rounded-full border border-field bg-white pl-4 pr-1 transition-colors focus-within:border-primary-600 focus-within:ring-1 focus-within:ring-inset focus-within:ring-primary-600">
         <input
           ref={inputRef}
           type="text"

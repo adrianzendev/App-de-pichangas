@@ -31,7 +31,7 @@ export interface PdfFloatingToolbarProps {
  * @returns {JSX.Element} La barra flotante.
  */
 export function PdfFloatingToolbar({ page, pageCount, onPrev, onNext, onZoomIn, onZoomOut, zoomInDisabled, zoomOutDisabled }: PdfFloatingToolbarProps) {
-  const btn = "flex size-touch items-center justify-center rounded-md hover:text-green-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40 disabled:pointer-events-none";
+  const btn = "flex size-touch items-center justify-center rounded-md hover:text-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40 disabled:pointer-events-none";
   return (
     <div className="absolute right-4 top-1/2 -translate-y-1/2 z-dropdown flex flex-col items-center gap-2 bg-gray-900/90 text-white p-2 rounded-xl backdrop-blur-md shadow-float select-none w-14">
       <span className="text-caption font-semibold">{pageCount ? page : "–"}</span>

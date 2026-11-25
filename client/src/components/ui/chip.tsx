@@ -24,7 +24,7 @@ export function Chip({ active, compact, className, children, ...props }: ChipPro
           ? "relative gap-1 h-7 px-2 rounded-chip before:absolute before:inset-x-0 before:-inset-y-chip-touch text-caption"
           : "gap-2 h-10 px-4 rounded-full text-label",
         // Borde de 2px al estar activo: 1px de borde + 1px de anillo interior, asi el chip no cambia de tamano.
-        active ? "bg-white text-gray-900 font-semibold border-green-600 ring-1 ring-inset ring-green-600" : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50",
+        active ? "bg-white text-gray-900 font-semibold border-primary-600 ring-1 ring-inset ring-primary-600" : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50",
         className
       )}
       {...props}

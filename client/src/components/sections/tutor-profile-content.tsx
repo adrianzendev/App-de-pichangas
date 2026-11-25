@@ -151,7 +151,7 @@ function ProfileActions({ tutor, onChatStarted, showChatAction }: ActionsProps) 
       onClick={() => toggleFavorite.mutate({ tutorId: tutor.id, isFavorite: tutor.isFavorite || false })}
       disabled={toggleFavorite.isPending}
     >
-      <Bookmark className={cn("size-icon-md", tutor.isFavorite && "fill-green-600 text-green-600")} />
+      <Bookmark className={cn("size-icon-md", tutor.isFavorite && "fill-primary-600 text-primary-600")} />
       {tutor.isFavorite ? "Guardado en favoritos" : "Guardar en favoritos"}
     </Button>
   );
@@ -235,7 +235,7 @@ export function TutorProfileMain({ tutorKey, onChatStarted, showChatAction = tru
         </div>
 
         {tutor.isVerified && (
-          <Badge variant="outline" className="w-fit gap-1.5 border-green-600 text-green-600">
+          <Badge variant="outline" className="w-fit gap-1.5 border-primary-600 text-primary-600">
             <Check className="size-icon-md" />
             Tutor verificado por Mil Tareas
           </Badge>

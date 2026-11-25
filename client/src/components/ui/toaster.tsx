@@ -11,7 +11,7 @@ import {
 
 // El estado se comunica con el circulo de icono (no con el color de toda la tarjeta).
 const STATUS = {
-  default: { Icon: Info, circle: "bg-green-50 text-green-600" },
+  default: { Icon: Info, circle: "bg-primary-50 text-primary-600" },
   success: { Icon: Check, circle: "bg-success-bg text-success-fg" },
   destructive: { Icon: AlertCircle, circle: "bg-error-bg text-error-fg" },
 } as const

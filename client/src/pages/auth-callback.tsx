@@ -206,15 +206,15 @@ export default function AuthCallback() {
           </>
         ) : verified ? (
           <>
-            <div className="size-avatar-lg bg-green-100 rounded-full flex items-center justify-center">
-              <MailCheck className="size-icon-xl text-green-600" />
+            <div className="size-avatar-lg bg-primary-100 rounded-full flex items-center justify-center">
+              <MailCheck className="size-icon-xl text-primary-600" />
             </div>
             <h1 className="text-heading font-bold text-gray-900">¡Email verificado!</h1>
             <p className="text-body text-gray-700">Tu cuenta está confirmada. Redirigiendo…</p>
           </>
         ) : (
           <>
-            <Loader2 className="size-icon-xl animate-spin text-green-600" />
+            <Loader2 className="size-icon-xl animate-spin text-primary-600" />
             <h1 className="text-heading font-bold text-gray-900">Completando autenticación…</h1>
           </>
         )}

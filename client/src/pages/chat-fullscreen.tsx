@@ -1632,7 +1632,7 @@ export default function ChatFullscreenWorking({ overrideParams, embedded = false
   if (showSpinner) {
     return (
       <div className={embedded ? "h-full bg-white flex items-center justify-center" : "h-dvh bg-white flex items-center justify-center"}>
-        <Spinner size="lg" className="text-green-600" />
+        <Spinner size="lg" className="text-primary-600" />
       </div>
     );
   }
@@ -1666,9 +1666,9 @@ export default function ChatFullscreenWorking({ overrideParams, embedded = false
       onDrop={handleChatDrop}
     >
       {isDraggingFile && (
-        <div className="absolute inset-0 z-overlay bg-green-50 border-4 border-dashed border-green-600 flex items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 z-overlay bg-primary-50 border-4 border-dashed border-primary-600 flex items-center justify-center pointer-events-none">
           <div className="bg-white rounded-xl px-6 py-4 flex items-center gap-3">
-            <Upload className="size-icon-lg text-green-600" />
+            <Upload className="size-icon-lg text-primary-600" />
             <span className="text-body font-medium text-gray-900">Suelta el archivo para adjuntarlo</span>
           </div>
         </div>
@@ -1941,7 +1941,7 @@ export default function ChatFullscreenWorking({ overrideParams, embedded = false
                       </span>
                       <button
                         onClick={openEditReview}
-                        className="min-h-10 text-caption text-green-600 font-medium hover:text-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-2"
+                        className="min-h-10 text-caption text-primary-600 font-medium hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-2"
                       >
                         Editar
                       </button>
@@ -1960,7 +1960,7 @@ export default function ChatFullscreenWorking({ overrideParams, embedded = false
                 <div className="flex items-center justify-center px-4 py-2 bg-gray-100">
                   <button
                     onClick={() => setShowReviewModal(true)}
-                    className="min-h-10 text-caption text-green-600 font-medium hover:text-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-2"
+                    className="min-h-10 text-caption text-primary-600 font-medium hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-2"
                   >
                     Calificar al tutor
                   </button>

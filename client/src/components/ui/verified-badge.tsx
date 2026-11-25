@@ -10,7 +10,7 @@ export function VerifiedBadge({ className }: { className?: string }) {
       role="img"
       aria-label="Tutor verificado"
       viewBox="0 0 24 24"
-      className={cn("size-icon-lg shrink-0 text-green-600", className)}
+      className={cn("size-icon-lg shrink-0 text-primary-600", className)}
     >
       <title>Tutor verificado</title>
       <path

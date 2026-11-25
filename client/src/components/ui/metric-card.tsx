@@ -20,7 +20,7 @@ export function MetricCard({ title, value, icon: Icon, subtitle, testId, indicat
           <div className="relative">
             <Icon className="size-icon-xl text-gray-700" aria-hidden />
             {indicator && (
-              <span className="absolute -top-1 -right-1 size-presence-md bg-green-600 rounded-full border-2 border-white" />
+              <span className="absolute -top-1 -right-1 size-presence-md bg-primary-600 rounded-full border-2 border-white" />
             )}
           </div>
         )}

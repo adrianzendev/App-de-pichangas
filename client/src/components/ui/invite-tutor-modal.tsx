@@ -334,7 +334,7 @@ export function InviteTutorModal({ tutor, isOpen, onClose }: InviteTutorModalPro
                         <button
                           type="button"
                           onClick={() => removeFile(index)}
-                          className="ml-2 h-10 rounded-md px-2 text-caption font-medium text-green-600 hover:text-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          className="ml-2 h-10 rounded-md px-2 text-caption font-medium text-primary-600 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         >
                           Eliminar
                         </button>
@@ -408,7 +408,7 @@ export function InviteTutorModal({ tutor, isOpen, onClose }: InviteTutorModalPro
               <Button
                 type="submit"
                 disabled={createTaskMutation.isPending}
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-medium"
+                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium"
               >
                 <Send className="mr-2 size-icon-md" />
                 {createTaskMutation.isPending ? "Enviando…" : "Enviar pedido"}

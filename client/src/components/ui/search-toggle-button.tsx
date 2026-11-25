@@ -26,7 +26,7 @@ export function SearchToggleButton({ open, active = false, onClick, "aria-label"
       data-testid={rest["data-testid"]}
     >
       <Icon className="size-icon-lg" aria-hidden />
-      {active && !open && <span aria-hidden className="absolute right-2 top-2 size-2 rounded-full bg-green-600" />}
+      {active && !open && <span aria-hidden className="absolute right-2 top-2 size-2 rounded-full bg-primary-600" />}
     </Button>
   );
 }

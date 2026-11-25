@@ -590,7 +590,7 @@ export default function TutorWorkSection() {
                 onClick={() => {
                   setLocation(`${ROUTES.chatFullscreen}?taskId=${selectedTask.id}&userId=${selectedTask.userId}`);
                 }}
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold"
               >
                 <MessageCircle className="w-4 h-4 mr-2" />
                 Ir al chat
@@ -601,7 +601,7 @@ export default function TutorWorkSection() {
           return (
             <Button
               onClick={() => handleApply(selectedTask)}
-              className={`w-full py-3 font-semibold ${isUnavailable ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white'}`}
+              className={`w-full py-3 font-semibold ${isUnavailable ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700 text-white'}`}
               disabled={isUnavailable}
               data-testid="button-apply-task"
             >
@@ -674,7 +674,7 @@ export default function TutorWorkSection() {
             <Button
               onClick={submitApplication}
               disabled={applyToTaskMutation.isPending}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+              className="flex-1 bg-primary-600 hover:bg-primary-700 text-white"
             >
               {applyToTaskMutation.isPending ? "Enviando..." : "Enviar"}
             </Button>

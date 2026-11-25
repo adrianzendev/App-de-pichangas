@@ -207,7 +207,7 @@ export const MessageBubble = memo(function MessageBubble({
   const renderMeta = (variant: "inline" | "block" | "compact" | "overlay") => {
     const overlay = variant === "overlay";
     const idle = overlay ? "text-white" : "text-gray-700";
-    const read = overlay ? "text-white" : "text-green-600";
+    const read = overlay ? "text-white" : "text-primary-600";
     return (
     <div className={variant === "inline" ? "absolute bottom-2.5 right-4 flex items-center gap-1" : variant === "block" ? "flex items-center justify-end gap-1 mt-1" : "flex items-center justify-end gap-1"}>
       <span className={overlay ? BUBBLE_TIME_OVERLAY_CLASS : BUBBLE_TIME_CLASS}>

@@ -82,7 +82,7 @@ export function ProfileFields({ value, onChange, email, nameError, universityErr
               href={SUPPORT_EMAIL_CHANGE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium text-green-600 underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="font-medium text-primary-600 underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               escribe a soporte
             </a>

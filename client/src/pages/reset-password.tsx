@@ -105,7 +105,7 @@ export default function ResetPassword() {
             <AuthNotice title="¡Contraseña actualizada!">Redirigiendo al inicio de sesión…</AuthNotice>
           ) : !isReady ? (
             <div className="flex flex-col items-center gap-6 text-center">
-              <Loader2 className="size-icon-badge animate-spin text-green-600" />
+              <Loader2 className="size-icon-badge animate-spin text-primary-600" />
               <div className="flex flex-col gap-1">
                 <p className="text-body text-gray-700">Verificando enlace de recuperación…</p>
                 <p className="text-caption text-gray-700">Si este mensaje persiste, el enlace puede haber expirado.</p>

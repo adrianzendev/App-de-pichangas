@@ -3786,7 +3786,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(500).json({ message: "Error al subir la foto. Por favor intenta de nuevo." });
         }
       } else {
-        profilePhotoUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(currentUser.name)}&backgroundColor=59BC7A`;
+        profilePhotoUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(currentUser.name)}&backgroundColor=8b2fe0`;
       }
       
       console.log(`[PHOTO_UPLOAD] 💾 Saving avatar URL to database: ${profilePhotoUrl}`);
@@ -3885,6 +3885,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("[POST /api/user/change-password] error:", error);
       res.status(500).json({ message: "Error al cambiar la contraseña" });
+    }
+  });
+
+  // Cambiar el correo (identidad de la cuenta): exige la contrasena actual y un correo libre. Solo cuentas con contrasena local.
+  app.post("/api/user/change-email", changePasswordLimiter, async (req, res) => {
+    try {
+      const sessionUser = req.session.user;
+      if (!sessionUser) return res.status(401).json({ message: "Debes iniciar sesión" });
+
+      const { newEmail, currentPassword } = req.body ?? {};
+      if (typeof newEmail !== "string" || typeof currentPassword !== "string" || !currentPassword) {
+        return res.status(400).json({ message: "Faltan campos requeridos" });
+      }
+      const email = newEmail.toLowerCase().trim();
+      if (!z.string().email().max(200).safeParse(email).success) {
+        return res.status(400).json({ message: "Escribe un correo válido" });
+      }
+
+      const user = await storage.getUser(sessionUser.id);
+      if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+      if (email === user.email.toLowerCase()) return res.status(400).json({ message: "Ese ya es tu correo" });
+
+      const stored = (user as any).password as string | null | undefined;
+      if (!stored) {
+        return res.status(400).json({ message: "Tu cuenta no tiene contraseña (Google o sin activar): no puedes cambiar el correo desde aquí." });
+      }
+      if (currentPassword === DEFAULT_PASSWORD || !verifyPassword(currentPassword, stored)) {
+        return res.status(400).json({ message: "La contraseña actual es incorrecta" });
+      }
+      if (await storage.getUserByEmail(email)) {
+        return res.status(400).json({ message: "Ese correo ya está registrado" });
+      }
+
+      const oldEmail = user.email;
+      const updated = await storage.updateUser(user.id, { email } as any);
+      if (!updated) return res.status(404).json({ message: "Usuario no encontrado" });
+
+      // Supabase Auth guarda su propio correo: se mantiene alineado (si falla, la cuenta de la app ya quedo cambiada y se registra).
+      const supabaseUrl = process.env.SUPABASE_URL;
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (supabaseUrl && serviceKey) {
+        try {
+          const headers = { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey, "Content-Type": "application/json" };
+          let uid = (user as any).supabaseUid as string | undefined;
+          if (!uid) {
+            const listRes = await fetch(`${supabaseUrl}/auth/v1/admin/users?filter=${encodeURIComponent(oldEmail)}&per_page=10`, { headers });
+            if (listRes.ok) {
+              const listData = await listRes.json() as { users?: { id: string; email: string }[] };
+              uid = listData.users?.find((u) => u.email?.toLowerCase() === oldEmail.toLowerCase())?.id;
+            }
+          }
+          if (uid) {
+            const upRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${uid}`, { method: "PUT", headers, body: JSON.stringify({ email, email_confirm: true }) });
+            if (!upRes.ok) console.error(`[CHANGE_EMAIL] Supabase Auth update failed (${upRes.status}):`, await upRes.text());
+          }
+        } catch (supaErr) {
+          console.error("[CHANGE_EMAIL] Supabase Auth update error:", supaErr);
+        }
+      }
+
+      req.session.user = { ...req.session.user!, email } as any;
+      logActivity(user.id, "email_change", "Cambio de correo", req);
+      res.json({ email });
+    } catch (error) {
+      console.error("[POST /api/user/change-email] error:", error);
+      res.status(500).json({ message: "Error al cambiar el correo" });
     }
   });
 

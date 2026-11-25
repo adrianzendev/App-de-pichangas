@@ -76,7 +76,7 @@ export function GoogleAuthButton({ role = "student", night }: { role?: AuthRole;
         type="button"
         onClick={handleClick}
         disabled={loading}
-        className="flex h-12 w-full items-center justify-center gap-2 rounded-control bg-transparent text-label font-bold text-night-text transition-colors duration-fast hover:bg-night-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch disabled:opacity-50"
+        className="flex h-12 w-full items-center justify-center gap-2 rounded-control border border-night-highest bg-transparent text-label font-bold text-night-text transition-colors duration-fast hover:bg-night-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch disabled:opacity-50"
       >
         {loading ? <Loader2 className="size-icon-md animate-spin" /> : <GoogleIcon />}
         Continuar con Google

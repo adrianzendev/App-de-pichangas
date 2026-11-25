@@ -426,7 +426,7 @@ export default function Home() {
                 <p className="text-label font-medium text-gray-900 line-clamp-2 mb-2">
                   {assignedTaskInfo.taskTitle}
                 </p>
-                <p className="text-heading font-bold text-green-600">
+                <p className="text-heading font-bold text-primary-600">
                   {formatPrice(assignedTaskInfo.amount, assignedTaskInfo.currency)}
                 </p>
               </div>

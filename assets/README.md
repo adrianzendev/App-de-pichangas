@@ -20,7 +20,7 @@ fondo transparente; sin él se usa el icono completo (se ve bien porque el fondo
 3. Con Capacitor instalado y los proyectos creados (`npx cap add android ios`):
    `npx @capacitor/assets generate --android --iconBackgroundColor "<fondo>" --splashBackgroundColor "#F5F5F5"` (el script imprime el comando con el color de fondo tomado del icono maestro; hoy `#59BC7A`)
 
-Colores: verde de marca `#4DAC7B` (`theme_color`) y fondo `#F5F5F5` (`background_color`). La app no tiene modo oscuro,
+Colores: verde de marca `#8B2FE0` (`theme_color`) y fondo `#F5F5F5` (`background_color`). La app no tiene modo oscuro,
 así que no hace falta `splash-dark.png`.
 
 Los archivos generados (`icon-only.png`, `icon-foreground.png`, `icon-background.png`, `splash.png`) se pueden

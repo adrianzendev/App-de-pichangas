@@ -133,7 +133,7 @@ export default function TutorStatsSection() {
                 formatter={(v) => [v, "Vistas"]}
                 contentStyle={{ borderRadius: "var(--radius-md)", border: "1px solid var(--border)", fontSize: "var(--text-caption)" }}
               />
-              <Bar dataKey="views" fill="var(--green-600)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="views" fill="var(--primary-600)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}

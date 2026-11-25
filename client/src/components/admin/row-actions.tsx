@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 
 const ROW_ACTION_TONE = {
   default: "",
-  success: "text-green-600 hover:text-green-700",
+  success: "text-primary-600 hover:text-primary-700",
   danger: "text-error-fg hover:text-error-fg",
 } as const;
 

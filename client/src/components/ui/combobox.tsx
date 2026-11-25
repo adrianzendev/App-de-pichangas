@@ -342,7 +342,7 @@ export function Combobox({
           placeholder={value ? selectedLabel : searchPlaceholder}
           className={cn(
             "w-full h-field px-4 py-2 pr-10 border border-field rounded-control text-base",
-            "focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100",
+            "focus:outline-none focus:border-primary-600 focus:ring-2 focus:ring-primary-100",
             "bg-white text-gray-900 placeholder:text-placeholder",
             className
           )}
@@ -441,11 +441,11 @@ export function Combobox({
             <>
               {onCreateOption ? (
                 <li
-                  className="flex items-center gap-2 px-4 py-3 cursor-pointer text-body text-green-700 font-medium hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-2 px-4 py-3 cursor-pointer text-body text-primary-700 font-medium hover:bg-gray-50 transition-colors"
                   onClick={handleCreateOption}
                 >
                   {isCreating ? (
-                    <Spinner size="sm" className="flex-shrink-0 text-green-700" />
+                    <Spinner size="sm" className="flex-shrink-0 text-primary-700" />
                   ) : (
                     <Plus className="size-icon-md flex-shrink-0" />
                   )}
@@ -467,7 +467,7 @@ export function Combobox({
                     "flex items-center px-4 py-2 cursor-pointer text-body transition-colors",
                     "hover:bg-gray-100",
                     index === highlightedIndex && "bg-gray-100",
-                    value === option.value && "text-green-700 font-medium"
+                    value === option.value && "text-primary-700 font-medium"
                   )}
                   onClick={() => handleSelectOption(option)}
                 >

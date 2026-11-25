@@ -53,7 +53,7 @@ export function FeaturedTutors() {
                   avatar={tutor.user.avatar}
                   profession={tutor.profession}
                   beforeProfession={Number(tutor.rating) > 0 && (
-                    <RatingStars compact className="shrink-0" value={Number(tutor.rating)} size="sm" label={<span className="text-caption font-semibold text-green-600">{formatRating(Number(tutor.rating))}</span>} />
+                    <RatingStars compact className="shrink-0" value={Number(tutor.rating)} size="sm" label={<span className="text-caption font-semibold text-primary-600">{formatRating(Number(tutor.rating))}</span>} />
                   )}
                 />
 

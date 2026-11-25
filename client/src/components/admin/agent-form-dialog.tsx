@@ -116,7 +116,7 @@ export function AgentFormDialog({ open, onOpenChange, mode, agent }: AgentFormDi
       onSubmit={() => save.mutate()}
       submitLabel={save.isPending ? (isEdit ? "Guardando…" : "Creando…") : isEdit ? "Guardar cambios" : "Crear agente"}
       submitDisabled={save.isPending || !form.name || !form.email}
-      submitClassName="bg-green-600 hover:bg-green-700 text-white"
+      submitClassName="bg-primary-600 hover:bg-primary-700 text-white"
     >
       <AccountIdentityFields idPrefix={idPrefix} value={form} onChange={patch} namePlaceholder="Nombre del agente" />
       <div>

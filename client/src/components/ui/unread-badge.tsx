@@ -24,7 +24,7 @@ export function UnreadBadge({ count, max = 99, size = "sm", className = "", srLa
     <span
       className={cn(
         SIZE_CLASSES[size],
-        "flex items-center justify-center text-caption font-medium rounded-full bg-green-600 text-white flex-shrink-0",
+        "flex items-center justify-center text-caption font-medium rounded-full bg-primary-600 text-white flex-shrink-0",
         className
       )}
     >

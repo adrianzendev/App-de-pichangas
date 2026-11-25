@@ -16,6 +16,7 @@ import { NightBackLink, NightIconButton, NightInput, NightLinkButton, NightTabs 
 import { PlayerShell } from "@/components/pichangas/player-shell";
 import { HostMatchPage } from "@/components/pichangas/host-match-page";
 import { HostView } from "@/components/pichangas/host-view";
+import { ProfilePhoto } from "@/components/pichangas/profile-photo";
 import { ProfileForm } from "@/components/pichangas/profile-form";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { MQ } from "@/lib/breakpoints";
@@ -139,10 +140,10 @@ function FeedScreen({ selectedId, userId, isDesktop }: { selectedId?: string; us
         {activeFilters.length > 0 && (
           <div className="flex flex-wrap items-center gap-2" aria-label="Filtros activos">
             {activeFilters.map((f) => (
-              <Button key={f.id} variant="pitch-outline" size="compact" onClick={f.clear} aria-label={`Quitar filtro ${f.label}`}>
+              <QuickPill key={f.id} active pin={false} onClick={f.clear} aria-label={`Quitar filtro ${f.label}`}>
                 {f.label}
                 <X className="size-icon-sm" aria-hidden />
-              </Button>
+              </QuickPill>
             ))}
             <NightLinkButton className="px-1 text-caption hover:text-night-text" onClick={clearAll}>Limpiar</NightLinkButton>
           </div>
@@ -294,8 +295,8 @@ function ProfileView({ user }: { user: CurrentUser }) {
   return (
     <div className="space-y-section-gap px-page-h py-4 lg:px-0 lg:py-6">
       <h1 className="text-heading font-bold text-night-text">Perfil</h1>
-      <section className={cn(surfaceClass(), "flex items-center gap-4 p-card-pad")}>
-        <UserAvatar name={user.name} avatar={user.avatar} size="lg" />
+      <section className="flex items-center gap-4">
+        <ProfilePhoto name={user.name} avatar={user.avatar} />
         <div className="min-w-0">
           <p className="truncate text-subheading font-bold text-night-text">{user.name}</p>
           <p className="truncate text-body text-night-muted">{user.email}</p>

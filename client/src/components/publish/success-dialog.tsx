@@ -10,7 +10,7 @@ export function PublishSuccessDialog({ open, onClose }: { open: boolean; onClose
         <DialogHeader className="sr-only"><DialogTitle>Pedido publicado</DialogTitle></DialogHeader>
         <div className="flex flex-col items-center gap-6">
           <div className="size-avatar-lg rounded-full bg-gray-100 flex items-center justify-center">
-            <CheckCircle className="size-icon-xl text-green-600" />
+            <CheckCircle className="size-icon-xl text-primary-600" />
           </div>
           <div className="space-y-2">
             <h2 className="text-heading font-bold text-gray-900">¡Pedido publicado!</h2>

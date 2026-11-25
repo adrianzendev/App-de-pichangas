@@ -88,7 +88,7 @@ export function UserFormDialog({ open, onOpenChange, mode, user, countries }: Us
       submitLabel={save.isPending ? (isEdit ? "Guardando…" : "Creando…") : isEdit ? "Guardar cambios" : "Crear estudiante"}
       submitDisabled={save.isPending || !form.name || !form.email}
       submitTestId={isEdit ? "button-save-user" : undefined}
-      submitClassName="bg-green-600 hover:bg-green-700 text-white"
+      submitClassName="bg-primary-600 hover:bg-primary-700 text-white"
     >
       <AccountFields
         idPrefix={isEdit ? "edit-user" : "new-student"}

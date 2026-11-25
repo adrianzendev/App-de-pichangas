@@ -17,7 +17,7 @@ export const FieldLinkRow = React.forwardRef<HTMLButtonElement, FieldLinkRowProp
       type="button"
       aria-invalid={invalid || undefined}
       className={cn(
-        "flex min-h-field w-full items-center justify-between gap-3 rounded-control border bg-white px-4 py-2 text-left text-base transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:border-green-600 focus-visible:ring-2 focus-visible:ring-green-100",
+        "flex min-h-field w-full items-center justify-between gap-3 rounded-control border bg-white px-4 py-2 text-left text-base transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:border-primary-600 focus-visible:ring-2 focus-visible:ring-primary-100",
         invalid ? "border-error" : "border-field",
         className,
       )}

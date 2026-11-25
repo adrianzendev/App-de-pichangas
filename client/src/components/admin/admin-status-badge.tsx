@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 export function AdminStatusBadge({ status, testId, account }: { status: string; testId?: string; account?: boolean }) {
   const TONE = {
     neutral: "border-field text-gray-700",
-    success: "border-green-600 text-success-fg",
+    success: "border-primary-600 text-success-fg",
     warning: "border-warning text-warning-fg",
     error:   "border-error text-error-fg",
     info:    "border-info text-info-fg",

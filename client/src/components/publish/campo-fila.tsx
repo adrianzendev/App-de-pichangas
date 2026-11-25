@@ -9,7 +9,7 @@ export function CampoFila({ icon, label, required, value, placeholder, isComplet
   return (
     <button type="button" onClick={onClick}
       className="w-full p-4 flex items-center justify-between gap-3 text-left hover:bg-gray-50/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-      <div className={`size-icon-circle rounded-full flex items-center justify-center shrink-0 transition-colors ${isComplete ? 'bg-green-600' : 'bg-gray-100'}`}>
+      <div className={`size-icon-circle rounded-full flex items-center justify-center shrink-0 transition-colors ${isComplete ? 'bg-primary-600' : 'bg-gray-100'}`}>
         {isComplete ? <Check className="size-icon-md text-white" /> : <span className="text-gray-700 flex items-center justify-center">{icon}</span>}
       </div>
       <div className="flex-1 min-w-0">

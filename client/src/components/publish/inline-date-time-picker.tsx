@@ -129,7 +129,7 @@ export function InlineDateTimePicker({ value, onChange }: { value: string; onCha
                 const day = i + 1; const past = isPast(day); const sel = isSelected(day); const tod = isToday(day);
                 return (
                   <button key={day} type="button" aria-pressed={sel} disabled={past} onClick={() => handleSelectDate(day)}
-                    className={`${past ? 'line-through ' : ''}aspect-square rounded-row border text-label font-medium flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${sel ? 'border-green-600 bg-white text-gray-900' : tod ? 'border-field bg-gray-100 text-gray-900' : past ? 'border-transparent text-gray-700 opacity-40 cursor-not-allowed' : 'border-transparent text-gray-700 hover:bg-gray-50'}`}>
+                    className={`${past ? 'line-through ' : ''}aspect-square rounded-row border text-label font-medium flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${sel ? 'border-primary-600 bg-white text-gray-900' : tod ? 'border-field bg-gray-100 text-gray-900' : past ? 'border-transparent text-gray-700 opacity-40 cursor-not-allowed' : 'border-transparent text-gray-700 hover:bg-gray-50'}`}>
                     {day}
                   </button>
                 );
@@ -148,7 +148,7 @@ export function InlineDateTimePicker({ value, onChange }: { value: string; onCha
                 const disabled = selectedIsToday && !!slotDate && slotDate < minAllowed;
                 return (
                   <button key={slot} type="button" aria-pressed={active} disabled={disabled} data-selected={active} onClick={() => handleSelectTime(slot)}
-                    className={`w-full h-10 px-2 rounded-row border text-label text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${disabled ? 'border-transparent text-gray-700 opacity-40 cursor-not-allowed' : active ? 'border-green-600 bg-white text-gray-900 font-semibold' : 'border-transparent text-gray-700 hover:bg-gray-50 font-medium'}`}>
+                    className={`w-full h-10 px-2 rounded-row border text-label text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${disabled ? 'border-transparent text-gray-700 opacity-40 cursor-not-allowed' : active ? 'border-primary-600 bg-white text-gray-900 font-semibold' : 'border-transparent text-gray-700 hover:bg-gray-50 font-medium'}`}>
                     {slot}
                   </button>
                 );

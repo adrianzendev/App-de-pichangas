@@ -21,7 +21,7 @@ const SelectTrigger = React.forwardRef<
     ref={ref}
     className={cn(
       // Mismas medidas y estados que `Input` (alto h-field, rounded-control, 16px, borde border-field, foco verde con halo).
-      "group flex h-field w-full items-center justify-between rounded-control border border-field bg-white px-4 py-3 text-base text-gray-900 transition-colors hover:bg-gray-50 data-[placeholder]:text-muted focus-visible:outline-none focus-visible:border-green-600 focus-visible:ring-2 focus-visible:ring-green-100 aria-[invalid=true]:border-error disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white [&>span]:line-clamp-1",
+      "group flex h-field w-full items-center justify-between rounded-control border border-field bg-white px-4 py-3 text-base text-gray-900 transition-colors hover:bg-gray-50 data-[placeholder]:text-muted focus-visible:outline-none focus-visible:border-primary-600 focus-visible:ring-2 focus-visible:ring-primary-100 aria-[invalid=true]:border-error disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white [&>span]:line-clamp-1",
       className
     )}
     {...props}
