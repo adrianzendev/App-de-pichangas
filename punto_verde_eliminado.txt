@@ -1,0 +1,10 @@
+✅ PUNTO VERDE ELIMINADO PERMANENTEMENTE
+
+Los cambios aplicados:
+1. hasNotification: false (forzado)
+2. unreadCount: 0 (forzado)  
+3. Condición extra: unreadCount > 0 para mostrar el punto
+
+Esto garantiza que el punto verde NUNCA aparezca.
+
+El usuario debe hacer login para verificar el fix.

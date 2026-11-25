@@ -1,0 +1,23 @@
+{
+  "id": "/",
+  "name": "Pinkiball",
+  "short_name": "Pinkiball",
+  "description": "Encuentra pichangas cerca de ti: elige cancha, horario y anótate al partido",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F5F5F5",
+  "theme_color": "#4DAC7B",
+  "orientation": "any",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Partidos", "url": "/play", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Mis partidos", "url": "/play/mine", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+  ],
+  "categories": ["sports", "social"],
+  "lang": "es"
+}

@@ -1,0 +1,22 @@
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tokens:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # check-css-literals compila Tailwind, necesita node_modules.
+      - run: npm ci
+      - run: npm run check:tokens
+      # Mismo build que produccion (Railway): detecta fallos de vite/esbuild antes del deploy.
+      - run: npm run build
+      # El bundle del servidor no debe depender de tailwindcss/vite.config: en produccion se cae al arrancar.
+      - run: "! grep -q \"tailwindcss\" dist/index.js"

@@ -1,0 +1,10 @@
+🔗 ENLACE DIRECTO PARA PROBAR:
+
+http://localhost:5000/admin
+
+1. Copia y pega esta URL en tu navegador
+2. Busca la pestaña "Diagnósticos" 
+3. Haz clic en el botón azul "Probar Endpoint de Chat"
+4. Ve el resultado
+
+¡Es todo!

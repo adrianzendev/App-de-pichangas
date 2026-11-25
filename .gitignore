@@ -1,0 +1,63 @@
+﻿node_modules
+dist
+.DS_Store
+server/public
+vite.config.ts.*
+*.tar.gz
+.env
+
+# Sesiones y cookies de prueba (no versionar)
+*cookies*.txt
+cookies.tmp
+*_session.txt
+
+# Paginas HTML de prueba/diagnostico movidas fuera del repo
+_local-tests/
+
+# Playwright
+test-results/
+playwright-report/
+
+# Assets nativos generados por scripts/prepare-assets.mjs (se recrean desde assets/icon-master.png)
+assets/icon-only.png
+assets/icon-foreground.png
+assets/icon-background.png
+assets/splash.png
+
+# Script de prueba local
+v9.cjs
+
+# Android Studio / JetBrains
+.idea/
+
+# Skills de agentes (instaladas con npx neon skills)
+.claude/
+skills-lock.json
+.neon
+.env.local
+
+# Neon / variables locales
+.env.local
+.env.*.local
+
+# Datos privados y de prueba: nunca al repositorio (sesiones, subidas de usuarios, capturas, claves de proyectos nativos)
+/uploads/
+/screenshots/
+/tasks_data.json
+/*.png
+/*cookies*.txt
+/cookies.tmp
+/*_session.txt
+/*_test.txt
+/fresh_*.txt
+/debug_*.txt
+/debug_*.html
+/test_*.txt
+/test_*.html
+/login_test.txt
+/manual_login.txt
+/force_login.txt
+/session_check.txt
+/dev-server.log
+/android/app/google-services.json
+/.vercel

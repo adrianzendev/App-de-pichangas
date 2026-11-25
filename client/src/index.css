@@ -1,0 +1,1051 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   MILTAREAS DESIGN SYSTEM 2025
+   Sistema de Diseño Unificado
+
+   PRINCIPIOS DE DISEÑO:
+   - Spacing: Sistema de 4pt y 8pt
+   - NO gradients. Unica excepcion: el degradado white -> green-100 del banner (TutorsBanner, ver CLAUDE.md "Banner + hoja")
+   - Cards Bento: blancas sobre canvas gris, sin sombra. --shadow-float/--shadow-modal son
+     solo para capas flotantes (modales, menús y la hoja que sube sobre el banner, TutorsBanner);
+     nunca en tarjetas de contenido.
+   - NO green glow/ring/shadow effects
+   - Fuente: Manrope (cuerpo/UI y títulos/display; clase font-display = mismo Manrope)
+
+   ============================================================
+   REGLAS DE CÓDIGO — OBLIGATORIAS EN TODO COMPONENTE NUEVO O MODIFICADO
+   ============================================================
+
+   1. COLORES
+      ✓ Marca = primary: bg-primary, bg-primary-600, text-primary-700, border-primary, ring-primary.
+        Éxito = success / success-bg / success-fg. Neutros: text-gray-700, etc.
+        green-* solo decorativo o datos (gráficos, avatares); nunca para marca ni estados nuevos.
+        Texto verde sobre fondo claro: text-primary-600 (>=4.5:1); text-primary (500) solo íconos.
+      ✗ Nunca: style={{ color: '#59BC7A' }}, bg-[#F5F7F4], text-[hsl(149,38%,49%)]
+
+   2. ANCHOS FIJOS
+      ✓ Usar siempre: var(--content-width) [672px], var(--container-width) [1080px], var(--modal-width) [400px]
+      ✗ Nunca: maxWidth: '672px', style={{ width: '1080px' }}, max-w-[400px]
+
+   3. TIPOGRAFÍA
+      ✓ Rejilla 4pt: toda altura de linea es multiplo de 4px (leading-4..16 = --lh-N)
+      ✓ Titulos/parrafos: text-heading (24/32px, 28/36px desde 768px) · text-subheading (20/28) · text-nav (18/24, solo menu lateral) · text-body (16/24) · text-caption (12/16)
+      ✓ Botones, chips, estados (Badge), etiquetas de campo y descripciones de modal: text-label (14/20)
+      ✓ Montos destacados (hire-modal, cotizacion del chat, pedido asignado): text-heading font-bold
+      ✓ Campos de formulario: text-base (16px fijo, iOS no hace zoom). Display (emojis): text-xl..text-5xl (20/24/28/36/48)
+      ✗ Nunca: text-xs, text-sm, text-2xs, text-lg (usa los alias), leading-tight/snug/normal/relaxed, text-[13px],
+        font-size: 11px. check:tokens lo vigila en TODO client/src (excepciones: user-avatar.tsx y styleguide.tsx)
+
+   4. BORDER RADIUS
+      ✓ Usar siempre: rounded-xs (2px) · rounded-sm (8px) · rounded-md (12px) · rounded-lg (16px)
+                      rounded-card (14px) · rounded-sheet (20px) · rounded-modal (16-20px) · rounded-xl (24px) · rounded-full
+      ✗ Nunca: rounded-[14px], rounded-[20px], borderRadius: '10px'
+
+   5. INLINE STYLES
+      ✓ Permitido solo para: valores dinámicos calculados en JS (ej: tamaño de avatar por prop)
+      ✗ Nunca para colores, anchos o radios que puedan expresarse con tokens
+   ============================================================ */
+
+/* ============================================================
+   1. TOKENS DE DISEÑO - VARIABLES CSS
+   ============================================================ */
+
+/* Satoshi (variable, 300-900): solo para el tema Pichanga Black. Licencia ITF Free Font License (Fontshare). */
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Variable.woff2') format('woff2');
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* === 1.1 TIPOGRAFÍA === */
+  --font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  color-scheme: light;
+
+  /* Escala de tamaños fija (clases text-xs..text-5xl en tailwind.config.ts), TODA en la rejilla de 4pt: sin clamp()
+     fluidos (daban 20,1 / 24,2 / 28,2px segun el ancho). Para texto de interfaz usa los alias (text-heading, text-subheading,
+     text-body, text-label, text-caption): xs/sm/base son sus equivalentes en px y quedan solo para campos (text-base) y
+     para los alias. xl..5xl son DISPLAY (emojis, ilustraciones); los montos destacados usan text-heading font-bold.
+     No existen text-2xs ni text-lg (12px ya es text-caption; 18px no esta en la jerarquia). */
+  --fs-xs: 0.75rem;      /* 12px */
+  --fs-sm: 0.875rem;     /* 14px */
+  --fs-base: 1rem;       /* 16px */
+  --fs-xl: 1.25rem;      /* 20px */
+  --fs-2xl: 1.5rem;      /* 24px */
+  --fs-3xl: 1.75rem;     /* 28px */
+  --fs-4xl: 2.25rem;     /* 36px */
+  --fs-5xl: 3rem;        /* 48px */
+
+  /* Font weights */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+
+  /* === 1.2 SPACING (Sistema 4pt/8pt) === */
+  --space-0: 0;
+  --space-0-5: 0.125rem;   /* 2px */
+  --space-1: 0.25rem;      /* 4px */
+  --space-1-5: 0.375rem;   /* 6px */
+  --space-2: 0.5rem;       /* 8px */
+  --space-2-5: 0.625rem;   /* 10px */
+  --space-3: 0.75rem;      /* 12px */
+  --space-3-5: 0.875rem;   /* 14px */
+  --space-4: 1rem;         /* 16px */
+  --space-5: 1.25rem;      /* 20px */
+  --space-6: 1.5rem;       /* 24px */
+  --space-7: 1.75rem;      /* 28px */
+  --space-8: 2rem;         /* 32px */
+  --space-9: 2.25rem;      /* 36px */
+  --space-10: 2.5rem;      /* 40px */
+  --space-11: 2.75rem;     /* 44px */
+  --space-12: 3rem;        /* 48px */
+  --space-14: 3.5rem;      /* 56px */
+  --space-16: 4rem;        /* 64px */
+  --space-20: 5rem;        /* 80px */
+  --space-24: 6rem;        /* 96px */
+  --space-28: 7rem;     /* 112px */
+  --space-32: 8rem;     /* 128px */
+  --space-36: 9rem;     /* 144px */
+  --space-40: 10rem;    /* 160px */
+  --space-44: 11rem;    /* 176px */
+  --space-48: 12rem;    /* 192px */
+  --space-52: 13rem;    /* 208px */
+  --space-56: 14rem;    /* 224px */
+  --space-60: 15rem;    /* 240px */
+  --space-64: 16rem;    /* 256px */
+  --space-72: 18rem;    /* 288px */
+  --space-80: 20rem;    /* 320px */
+  --space-96: 24rem;    /* 384px */
+  --space-px: 1px;        /* hairline */
+  --space-icon: 48px;      /* icon offset */
+  --space-avatar: 60px;    /* avatar offset */
+  --space-bottom-safe: 100px; /* bottom safe area for fixed nav */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-pad-nav: calc(var(--space-2) + var(--safe-bottom));   /* barra inferior fija: 8px + safe-area (pb-safe-nav); 8px separan los iconos del indicador de inicio de iOS */
+  --safe-pad-min: max(var(--space-2), var(--safe-bottom));     /* acciones al pie de un modal: al menos 8px (pb-safe-min) */
+
+  /* === STRUCTURAL SPACING — tokens responsivos en tiers: móvil (base aquí), sm (>=640px), tablet (>=768px) y escritorio (>=1024px), ver sección 1b === */
+  --spacing-page-top: 24px;
+  --spacing-page-horizontal: 16px;
+  --spacing-section-gap: 16px;
+  --spacing-card-padding: 12px;
+  --spacing-card-gap: 12px;
+  --spacing-grid-gap: var(--spacing-card-gap);   /* separacion entre columnas/tarjetas de un grid */
+  --spacing-bottom-nav: calc(80px + env(safe-area-inset-bottom, 0px));
+  --nav-height: 56px;
+
+  /* === 1.3 COLORES - ESCALA VERDE (HSL) === */
+  --green-50: hsl(136, 41%, 96%);
+  --green-100: hsl(136, 41%, 92%);
+  --green-200: hsl(112, 58%, 80%);
+  --green-300: hsl(125, 52%, 71%);
+  --green-400: hsl(149, 38%, 60%);    /* primary-light */
+  --green-500: hsl(149, 38%, 49%);    /* Primary */
+  --green-600: hsl(149, 38%, 36%);    /* texto blanco >=4.5:1; = --color-primary-dark */
+  --green-700: hsl(150, 59%, 29%);    /* Secondary/Hover */
+  --green-800: hsl(150, 64%, 22%);
+  --green-900: hsl(150, 65%, 15%);
+
+  /* === 1.3b ESCALA DE MARCA (semántica) — hoy = verde; cambiar la marca = repuntar aquí === */
+  --primary-50: var(--green-50);
+  --primary-100: var(--green-100);
+  --primary-200: var(--green-200);
+  --primary-300: var(--green-300);
+  --primary-400: var(--green-400);
+  --primary-500: var(--green-500);
+  --primary-600: var(--green-600);
+  --primary-700: var(--green-700);
+  --primary-800: var(--green-800);
+  --primary-900: var(--green-900);
+  
+  /* === 1.4 COLORES - ESCALA GRIS (HSL) === */
+  --white: hsl(0, 0%, 100%);
+  --black: hsl(0, 0%, 0%);
+  --gray-0: var(--white);
+  --gray-50: hsl(0, 0%, 98%);
+  --gray-100: hsl(0, 0%, 96%);       /* Background */
+  --gray-200: hsl(0, 0%, 93%);       /* Border light */
+  --gray-300: hsl(0, 0%, 87%);       /* Border */
+  --gray-400: hsl(0, 0%, 81%);
+  --gray-500: hsl(0, 0%, 71%);       /* Placeholder/Hint */
+  --gray-600: hsl(0, 0%, 61%);
+  --gray-700: hsl(0, 0%, 40%);       /* Secondary text (>=4.5:1 sobre blanco y gray-100) */
+  --gray-800: hsl(0, 0%, 27%);
+  --gray-900: hsl(0, 0%, 11%);       /* Primary text */
+  
+  /* === 1.5 COLORES - ESTADOS (Pastel HSL) === */
+  /* Azul - En progreso */
+  --blue-100: hsl(206, 82%, 95%);
+  --blue-500: hsl(204, 60%, 61%);
+  --blue-700: hsl(204, 54%, 39%);
+  
+  /* Coral - Expirado/Error */
+  --coral-100: hsl(6, 76%, 96%);
+  --coral-500: hsl(4, 64%, 67%);
+  --coral-700: hsl(4, 44%, 52%);
+  --coral-900: hsl(4, 50%, 36%);     /* texto sobre coral-100 (>=4.5:1) */
+  
+  /* Amarillo - Pendiente */
+  --yellow-100: hsl(47, 91%, 95%);
+  --yellow-500: hsl(48, 89%, 60%);
+  --yellow-700: hsl(48, 89%, 38%);
+  --yellow-900: hsl(48, 90%, 20%);   /* texto sobre yellow-100 (>=4.5:1) */
+
+  /* === 1.5a COLORES SEMÁNTICOS DE ESTADO (alias; -bg = fondo suave, -fg = texto sobre -bg) === */
+  --success: var(--green-500);
+  --success-bg: var(--green-100);
+  --success-fg: var(--green-700);
+  --warning: var(--yellow-500);
+  --warning-bg: var(--yellow-100);
+  --warning-fg: var(--yellow-900);
+  --error: var(--coral-700);        /* un solo rojo de error: borde, mensaje, asterisco y papelera */
+  --error-bg: var(--coral-100);
+  --error-fg: var(--coral-700);     /* 4.6:1 sobre blanco */
+  --error-strong: var(--coral-900); /* solo texto sobre error-bg: alli coral-700 no llega a 4.5:1 */
+  --info: var(--blue-500);
+  --info-bg: var(--blue-100);
+  --info-fg: var(--blue-700);
+
+  /* === 1.5b LAYOUT === */
+  --content-width: 672px;
+  --container-width: 1080px;
+  --shell-width: 1400px;   /* ancho maximo del shell de escritorio: sidebar + contenido + panel derecho */
+  --modal-width: 400px;
+  --form-width: 512px;
+  --sheet-max-height-sm: 60vh;
+  --sheet-max-height-md: 70vh;
+  --sheet-max-height: 85vh;
+  --sheet-max-height-lg: 90vh;
+  --truncate-width-xs: 120px;
+  --truncate-width-sm: 150px;
+  --truncate-width-lg: 200px;
+  --chat-bubble-max-width: 75%;
+  --chat-bubble-max-width-system: 85%;
+  /* Burbuja propia: gris neutro sin matiz verde. La ajena: blanca con borde (--border), sobre el fondo blanco del chat. */
+  --chat-bubble-own: var(--gray-100);
+  --chat-bubble-other: var(--card);
+  --chat-doc-width: 320px;              /* tarjeta de documento/PDF */
+  --chat-pdf-cover-height: 9rem;        /* portada del PDF (144px) */
+  --scrim: hsl(0, 0%, 0%);              /* velo: usar con opacidad (bg-scrim/50) sobre imagenes, visores y citas */
+
+  /* ---- PINKIBALL: tokens del jugador y del panel (/play y /admin/play). Un solo tema, claro y morado (ya no hay tema oscuro).
+     Texto sobre fondos: >=4.5:1. Excepcion acotada a esa zona: aqui hay brillo de acento. Usar solo desde PlayerShell. ---- */
+  --night: #ffffff;                     /* fondo de la app */
+  --night-lowest: #ffffff;              /* barra inferior, campo de busqueda interno, cancha tactica */
+  --night-low: #ece1ff;                 /* cajas internas de una tarjeta */
+  --night-container: #ffffff;           /* tarjetas */
+  --night-high: #eadcff;                /* chips, campos, superficies elevadas */
+  --night-highest: #dcc7ff;             /* chips activos suaves, barras de progreso vacias */
+  --night-text: #2a0b4d;                /* texto principal (>=4.5:1 sobre --night) */
+  --night-muted: #5b4a78;               /* texto secundario (>=4.5:1 sobre --night-container) */
+  --night-outline: #76679a;             /* texto terciario, solo tamaños >=12px sobre --night */
+  --pitch: #8b2fe0;                     /* morado de acento: acciones, estados activos, cifras clave */
+  --pitch-strong: #7420c4;              /* relleno del segmento activo */
+  --on-pitch: #ffffff;                  /* texto sobre --pitch (>=4.5:1) */
+  --aqua: #5b2fc9;                      /* datos en tiempo real, Plin, ubicacion */
+  --orchid: #9b2ba3;                    /* Yape, suplentes, calificacion */
+  --yape: #742284;                      /* fondo de marca Yape */
+  --crimson: #b3261e;                   /* urgencia: ultimo cupo, pago pendiente */
+  --on-crimson: #ffffff;                /* texto sobre --crimson */
+  --crimson-container: #fde4e1;
+  --shadow-night-card: none;
+  --shadow-night-bar: 0 4px 24px rgba(42, 11, 77, 0.10);
+  --shadow-night-nav: 0 -4px 24px rgba(42, 11, 77, 0.10);
+  --shadow-glow: 0 0 16px rgba(139, 47, 224, 0.25);
+  --font-satoshi: 'Satoshi', var(--font-family);
+  --file-pdf: var(--coral-700);         /* insignias por tipo de archivo (texto blanco >=4.5:1) */
+  --file-word: var(--blue-700);
+  --file-excel: var(--green-700);
+  --file-ppt: var(--coral-900);
+  --file-default: var(--gray-700);
+  --typing-delay-1: 150ms;              /* retardo de los puntos de "escribiendo..." */
+  --typing-delay-2: 300ms;
+  --space-touch: 40px;                  /* objetivo tactil minimo de botones de icono */
+  --table-max-height: 600px;
+  --dropdown-max-height: 300px;
+  --scrollbar-thumb: color-mix(in srgb, var(--gray-400) 60%, transparent); /* barra de scroll visible solo al desplazar (.scrollbar-on-scroll) */
+  --select-min-height: 8rem;       /* lista de un Select: minimo (3 opciones) aunque el campo quede muy abajo */
+  --dropdown-width-sm: 160px;
+  --dropdown-width-md: 180px;
+  --button-min-width-sm: 100px;
+  --menu-min-width: 8rem;           /* popovers de menu (dropdown/context/menubar/select) */
+  --menu-min-width-lg: 12rem;
+  --label-min-width: 140px;         /* etiqueta central del datetime-picker */
+  --time-col-width: 100px;          /* columna de hora del datetime-picker */
+  --count-min-width: 1.25rem;       /* pildora de conteo en tablas admin */
+  --count-min-width-lg: 1.5rem;
+  --badge-size-sm: 18px;            /* UnreadBadge */
+  --badge-size-md: 20px;
+  --badge-size-lg: 22px;
+  --textarea-min-height: 80px;
+  --field-height: 3rem;             /* 48px: alto de campos (Input, Select, selector de fecha, barra del Inicio) */
+  --panel-min-height: 100px;
+  --view-min-height: 400px;
+  --empty-center-min-height: 55dvh; /* estado vacio bajo titulo y filtros: su centro cae en el centro de la pantalla */
+  --modal-width-md: 420px;
+  --chip-max-width: 180px;
+  --name-max-width: 100px;
+  --name-max-width-lg: 10rem;
+  --thumb-max-height: 320px;
+  --skeleton-width-sm: 4.25rem;     /* hueco de la hora en burbuja ajena */
+  --skeleton-width-lg: 5.5rem;      /* hueco de hora + checks en burbuja propia */
+  --border-width-ring: 2.5px;       /* anillo blanco del punto de conexion */
+  --scale-press: 0.98;              /* active:scale-press en botones/filas tocables */
+  --scale-press-sm: 0.99;
+  --toggle-offset: 2px;             /* ToggleSwitch: posicion apagado / encendido */
+  --toggle-on: 18px;
+  --toggle-on-lg: 26px;
+  --dialog-width-fluid: 90%;        /* Dialog/AlertDialog en movil */
+  --dialog-slide: 48%;              /* recorrido vertical de entrada/salida */
+  --chat-cols-3: minmax(160px, 240px) minmax(320px, 380px) 1fr;
+  --chat-cols-2: minmax(320px, 380px) 1fr;
+  --chat-split-height: calc(100dvh - var(--safe-top) - var(--spacing-bottom-nav)); /* Mensajes no lleva Header: solo el espacio bajo la barra de estado */
+  --viewport-gutter-width: calc(100vw - 2rem);
+  --modal-body-max-height: calc(90vh - 140px);
+  --half-max-height: 50vh;
+  --arrow-offset: 60%;              /* flecha del tooltip del NavigationMenu */
+  --alert-icon-nudge: 3px;
+
+  /* === 1.5c TIPOGRAFÍA RESPONSIVA (aliases semánticos) === */
+  /* Móvil (<768). Tablet (>=768) y escritorio (>=1024) se sobreescriben en la sección 1b. */
+  /* Rejilla 4pt: toda altura de linea es multiplo de 4px (--lh-N, abajo). Solo el titulo cambia de tamano (24 -> 28px desde 768px). */
+  --text-heading: 1.5rem;        /* 24px / linea 32px */
+  --text-subheading: 1.25rem;    /* 20px / linea 28px */
+  --text-nav: 1.125rem;          /* 18px / linea 24px: filas del menu lateral de escritorio (estilo X) */
+  --text-body: 1rem;           /* 16px / linea 24px */
+  --text-caption: 0.75rem;       /* 12px / linea 16px */
+  --text-label: 0.875rem;        /* 14px / linea 20px: botones, chips, estados */
+
+  /* Escala h1-h6 (titulos de landing y paginas editoriales). Movil; desde 768px se sobreescribe en 1b. */
+  --text-h1: 2rem;        /* 32px */
+  --text-h2: 1.5rem;      /* 24px */
+  --text-h3: 1.25rem;     /* 20px */
+  --text-h4: 1.125rem;    /* 18px */
+  --text-h5: 1rem;        /* 16px */
+  --text-h6: 0.875rem;    /* 14px (usar con uppercase tracking-wider) */
+
+  /* === 1.5d TIPOGRAFÍA — PESO / INTERLINEADO / TRACKING === */
+  --lh-none: 1;
+  --lh-normal: 1.5;     /* solo el line-height base del documento (16px -> 24px); no usar leading-normal en componentes */
+  /* Alturas de linea en px (utilidades leading-4 ... leading-16): multiplos de 4. */
+  --lh-4: 1rem;     /* 16px */
+  --lh-5: 1.25rem;  /* 20px */
+  --lh-6: 1.5rem;   /* 24px */
+  --lh-7: 1.75rem;  /* 28px */
+  --lh-8: 2rem;     /* 32px */
+  --lh-9: 2.25rem;  /* 36px */
+  --lh-10: 2.5rem;  /* 40px */
+  --lh-12: 3rem;    /* 48px */
+  --lh-14: 3.5rem;  /* 56px */
+  --lh-16: 4rem;    /* 64px */
+  /* Alias semanticos (titulo y h1-h4 cambian a 768px, ver 1b). */
+  --lh-heading: var(--lh-8);
+  --lh-subheading: var(--lh-7);
+  --lh-nav: var(--lh-6);
+  --lh-body: var(--lh-6);
+  --lh-caption: var(--lh-4);
+  --lh-label: var(--lh-5);
+  --lh-h1: var(--lh-10);   /* 32px */
+  --lh-h2: var(--lh-8);    /* 24px */
+  --lh-h3: var(--lh-7);    /* 20px */
+  --lh-h4: var(--lh-7);    /* 18px */
+
+  --ls-wide: 0.02em;
+  --ls-normal: 0;
+  --ls-tight: -0.01em;
+  --ls-tighter: -0.02em;
+  --ls-wider: 0.05em;
+  --ls-widest: 0.1em;
+
+  /* === 1.6 BORDER RADIUS === */
+  --radius-xs: 0.125rem;   /* 2px - micro elements */
+  --radius-sm: 0.5rem;     /* 8px */
+  --radius-md: 0.75rem;    /* 12px - filas y miniaturas */
+  --radius-lg: 1rem;       /* 16px - burbujas de chat */
+  --radius-xl: 1.5rem;     /* 24px - radio grande fijo (rounded-xl): hojas e imagenes del chat; tarjetas, modales y avisos usan rounded-lg */
+  --radius-card: 0.875rem; /* 14px móvil → 16px desktop via @media */
+  --radius-sheet: 1.25rem; /* 20px móvil → 24px desktop via @media */
+  --radius-modal: 1rem;    /* 16px móvil → 20px desktop via @media */
+  --radius-chip: 0.375rem;  /* 6px - Chip */
+  --radius-control: var(--radius-md); /* 12px - UNICO radio de controles: Button, Input, Textarea (rounded-control). Cambiarlo aqui cambia todos a la vez */
+  --radius-thumb: var(--radius-md);   /* 12px - miniaturas de archivo/imagen (hasta ~100px: con 24px casi son circulo) */
+  --radius-row: var(--radius-md);     /* 12px - hover/seleccion de filas de lista y celdas de calendario */
+
+  /* === 1.6b AVATAR (colores de fondo sin foto = escalas green/gray; tamanos = AvatarSize de user-avatar.tsx) === */
+  --avatar-2xs: 1.25rem;            /* 20px: celdas de tabla densas */
+  --avatar-xs: 1.5rem;              /* 24px: inline con el nombre (sidebar) */
+  --avatar-sm: 2rem;                /* 32px: listas */
+  --avatar-md: 2.5rem;              /* 40px: tarjetas (default) */
+  --avatar-mdl: 3rem;               /* 48px: filas de tutores */
+  --avatar-lg: 4rem;                /* 64px: perfiles */
+  --avatar-xl: 6.25rem;             /* 100px: cabeceras */
+  --avatar-color-1: var(--green-500);
+  --avatar-color-2: var(--green-700);
+  --avatar-color-3: var(--green-400);
+  --avatar-color-4: var(--green-600);
+  --avatar-color-5: var(--green-300);
+  --avatar-color-6: var(--gray-700);
+  --avatar-color-7: var(--gray-800);
+  --avatar-color-8: var(--gray-600);
+  --avatar-color-9: var(--gray-500);
+  --avatar-color-10: var(--green-800);
+  --avatar-color-11: var(--green-200);
+  --avatar-color-12: var(--gray-400);
+  --avatar-color-13: var(--green-900);
+  --avatar-color-14: var(--gray-200);
+  --avatar-color-15: var(--green-100);
+
+  /* === 1.7 SOMBRAS (Neutras, sin verde) === */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.10);
+  /* Aliases semánticos responsivos */
+  --shadow-float: 0 1px 3px rgba(0, 0, 0, 0.08);   /* capas flotantes (menus, modales, hoja sobre el banner); móvil → desktop via @media */
+  --shadow-modal: 0 8px 30px rgba(0, 0, 0, 0.12);  /* móvil → desktop via @media */
+
+  /* === 1.8 TRANSICIONES === */
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --duration-200: 200ms;
+  --duration-300: 300ms;
+  --duration-500: 500ms;
+  --duration-1000: 1000ms;
+  --duration-spin: 1s;              /* animate-spin y animate-bounce */
+  --duration-pulse: 2s;             /* animate-pulse */
+  --duration-pulse-ring: 3s;        /* animate-pulse-ring (boton Publicar) */
+  --duration-caret: 1.25s;          /* cursor del InputOTP */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-pulse: cubic-bezier(0.4, 0, 0.6, 1);
+  --ease-out-soft: ease-out;
+  --pulse-min-opacity: 0.5;
+  --underline-offset: 4px;
+  --opacity-2: 0.02;
+  --opacity-5: 0.05;
+  --opacity-10: 0.1;
+  --opacity-15: 0.15;
+  --opacity-20: 0.2;
+  --opacity-30: 0.3;
+  --opacity-40: 0.4;
+  --opacity-50: 0.5;
+  --opacity-60: 0.6;
+  --opacity-70: 0.7;
+  --opacity-80: 0.8;
+  --opacity-90: 0.9;
+  --opacity-95: 0.95;
+  --rotate-45: 45deg;
+  --rotate-90: 90deg;
+  --rotate-180: 180deg;
+  --scale-90: 0.9;
+  --scale-95: 0.95;
+  --scale-100: 1;
+  --scale-110: 1.1;
+  --scale-125: 1.25;
+  --blur-sm: 4px;
+  --blur-md: 12px;
+  --bp-sm: 640px;                   /* breakpoints: se leen en build (tailwind.config.ts, vite.config.ts) */
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+  --bp-tablet-min-height: 600px;    /* alto minimo de la pantalla `tablet:` */
+  --control-width-sm: 160px;        /* Select / input de formularios y filtros */
+  --control-width-md: 180px;        /* botones de accion de una fila */
+  --icon-sm: 0.75rem;               /* 12px: puntos y X de chips */
+  --icon-md: 1rem;                  /* 16px: iconos en botones */
+  --icon-lg: 1.25rem;               /* 20px: icono dentro de su caja */
+  --icon-box: 2.5rem;               /* 40px: caja contenedora del icono */
+  --caret-h-md: 1.25rem;            /* 20px: cursor del compositor del Inicio */
+  --caret-h-sm: 0.75rem;            /* 12px: cursor de "Buscando tutores…" */
+  --caret-w-md: 0.125rem;           /* 2px */
+  --field-gap: var(--space-8);      /* 32px: separacion entre campos de un formulario, en pantallas y modales (gap-field-gap, space-y-field-gap) */
+  --chip-touch-inset: 7px;          /* Chip: 28px visibles + 6px arriba y abajo = zona tactil de 40px (el pseudo-elemento se mide desde dentro del borde de 1px) */
+  --caret-w-sm: var(--border-width); /* 1px */
+  --task-meta-min-h: var(--space-4);        /* tarjeta de pedido: fila de tiempo restante (1 linea de caption) */
+  --task-candidates-min-h: calc(var(--space-12) + var(--space-1)); /* 52px: tarjeta de pedido: fila de candidatos ("Candidatos:" + avatares) */
+  --sheet-pad: 1rem;                /* relleno de la hoja blanca bajo el banner y alineacion del titulo; 24px desde 640px */
+  --bento-pad: 1rem;                /* relleno de las tarjetas Bento (pedido, tutor, resumen, candidato); 24px desde 1024px */
+  --sheet-overlap: var(--space-7);  /* cuanto sube la hoja blanca sobre el banner (28px) */
+  --banner-h-page: var(--space-52); /* alto del banner de pantallas principales (208px) */
+  --banner-h-hero: var(--space-80); /* alto del banner de login/registro (320px) */
+  --skeleton-line: var(--space-4);     /* esqueleto: linea de metadata (16px) */
+  --skeleton-title: var(--space-5);    /* esqueleto: linea de titulo (20px) */
+  --skeleton-meta-h: var(--space-3);   /* esqueleto: linea de detalle (12px) */
+  --skeleton-name-w: var(--space-28);  /* esqueleto: nombre corto (112px) */
+  --skeleton-title-w: var(--space-40); /* esqueleto: nombre largo (160px) */
+  --skeleton-meta-w: var(--space-24);  /* esqueleto: detalle (96px) */
+  --skeleton-badge-h: var(--space-6);  /* esqueleto: pildora de estado, alto (24px) */
+  --skeleton-badge-w: var(--space-16); /* esqueleto: pildora de estado, ancho (64px) */
+  --skeleton-pill-w: var(--space-20);  /* esqueleto: pastilla de filtro, ancho (80px) */
+  --icon-xl: 2rem;                  /* 32px: icono de archivo en listas */
+  --icon-star: 0.875rem;            /* 14px: estrella de calificacion (RatingStars md) */
+  --icon-badge: 1.5rem;             /* 24px: insignia circular sobre un avatar */
+  --icon-badge-lg: 1.75rem;         /* 28px: insignia circular grande (camara del perfil) */
+  --thumb: 3rem;                    /* 48px: miniatura de archivo/comprobante */
+  --icon-circle: 2.25rem;           /* 36px: circulo con icono (campo de Publicar, "Para todos") */
+  --icon-xs: 0.625rem;              /* 10px: icono diminuto (estado "Descargado") */
+  --typing-dot-md: 0.375rem;        /* 6px: punto de "escribiendo..." en burbuja */
+  --typing-dot-sm: 0.25rem;         /* 4px: punto de "escribiendo..." en lista */
+  --menu-row-h: var(--space-12);    /* fila del popover de cuenta (48px) */
+  --account-row-h: var(--space-14); /* fila de /cuenta en movil (56px) */
+  --popover-menu-w: var(--space-72);/* ancho del popover de cuenta en el header (288px) */
+  --skeleton-panel-h: var(--space-96); /* esqueleto de un panel de formulario (384px) */
+  --dot-sm: 0.5rem;                 /* 8px: punto de estado pequeno */
+  --icon-empty: 3rem;               /* 48px: icono de los estados vacios (EmptyState) */
+  --presence-offset: 14.6%;         /* borde de un circulo a 45 grados medido desde la esquina de su caja: 50% x (1 - cos 45) */
+  --presence-dot-sm: 0.625rem;      /* 10px: punto de conexion pequeno */
+  --presence-dot-md: 0.75rem;       /* 12px: punto de conexion */
+  --icon-nav: 1.375rem;             /* 22px: iconos del sidebar de escritorio */
+  --sidebar-slot: var(--avatar-xs);  /* 24px: columna del icono/avatar en el sidebar (= avatar `xs`) */
+  --size-full: 100%;                /* w-full, h-full, inset-full... */
+  --size-1-2: 50%;
+  --size-2-3: 66.666667%;
+  --size-3-4: 75%;
+  --size-2-5: 40%;
+  --size-screen-w: 100vw;
+  --size-screen-h: 100vh;
+  --size-dvh: 100dvh;
+  --radius-full: 9999px;
+  --aspect-square: 1 / 1;
+  --flex-1: 1 1 0%;
+  --cols-1: repeat(1, minmax(0, 1fr));
+  --cols-2: repeat(2, minmax(0, 1fr));
+  --cols-3: repeat(3, minmax(0, 1fr));
+  --cols-4: repeat(4, minmax(0, 1fr));
+  --cols-6: repeat(6, minmax(0, 1fr));
+  --cols-7: repeat(7, minmax(0, 1fr));
+  --cols-10: repeat(10, minmax(0, 1fr));
+  --cols-12: repeat(12, minmax(0, 1fr));
+  --span-2: span 2 / span 2;
+  --span-3: span 3 / span 3;
+  --span-4: span 4 / span 4;
+  --span-6: span 6 / span 6;
+  --span-7: span 7 / span 7;
+  --span-10: span 10 / span 10;
+  --outline-none: 2px solid transparent;
+  --outline-offset: 2px;
+  --border-width: 1px;
+  --border-width-2: 2px;
+  --border-width-4: 4px;
+  --max-width-xs: 20rem;
+  --max-width-sm: 24rem;
+  --max-width-md: 28rem;
+  --max-width-lg: 32rem;
+  --max-width-2xl: 42rem;
+  --ease-standard: ease;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: var(--duration-fast) var(--ease-standard);
+  --overlay-backdrop: rgba(0, 0, 0, 0.5);
+
+  /* === 1.8b ESCALA DE CAPAS — z-index === */
+  --z-base:     0;
+  --z-dropdown: 100;
+  --z-sticky:   200;
+  --z-overlay:  300;
+  --z-modal:    400;
+  --z-toast:    500;
+  --z-tooltip:  600;
+  --z-viewer:   700;   /* visores a pantalla completa (imagen/PDF), sobre modales */
+
+  /* === 1.9 ALIASES SEMÁNTICOS === */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--green-700);      /* hover del primario (mas oscuro) */
+  --color-primary-dark: var(--green-600);       /* = config primary-dark; texto blanco >=4.5:1 */
+  --color-primary-text: var(--green-600);       /* texto verde sobre superficies claras (>=4.5:1) */
+  --color-text: var(--gray-900);
+  --color-text-muted: var(--gray-700);
+  --color-text-placeholder: var(--gray-500); /* Placeholder: un paso mas claro que gray-700; no es texto de lectura */
+  --color-text-hint: var(--gray-500);
+  --color-background: var(--gray-100);
+  --color-surface: var(--gray-0);
+  --color-border: var(--gray-200);
+  --color-border-strong: var(--gray-300);
+
+  /* === 1.10 TOKENS SHADCN (compatibilidad) === */
+  --background: var(--white);      /* canvas de la app (bg-background): blanco */
+  --foreground: var(--gray-900);
+  --muted: var(--gray-100);
+  --muted-foreground: var(--gray-700);
+  --popover: var(--gray-0);
+  --popover-foreground: var(--gray-900);
+  --card: var(--gray-0);
+  --card-foreground: var(--gray-900);
+  --border: var(--gray-200);
+  --border-field: var(--gray-300);  /* borde de inputs/selects/textareas */
+  --input: var(--gray-0);
+  --primary: var(--green-500);
+  --primary-foreground: var(--gray-0);
+  --secondary: var(--gray-0);
+  --secondary-foreground: var(--color-primary-text);
+  --accent: var(--gray-100);
+  --accent-foreground: var(--gray-900);
+  --destructive: var(--coral-700);
+  --destructive-foreground: var(--gray-0);
+  --ring: var(--green-600);          /* foco visible de teclado (shadcn ring-ring) */
+  --radius: var(--radius-md);
+}
+
+/* ============================================================
+   1b. RESPONSIVE — sobreescritura de variables por tier
+   Breakpoints (única fuente): móvil <640 · sm >=640 · tablet >=768 · escritorio >=1024.
+   Equivalen a sm: (640), md: (768) y lg: (1024) de Tailwind; no cambiar uno sin el otro.
+   Margen lateral de página (--spacing-page-horizontal): 16px móvil · 24px sm · 32px md y lg.
+   Anchos --content-width / --container-width / --modal-width son fijos a propósito
+   (columna de lectura); el layout responsivo vive en ThreeColumnLayout.
+   ============================================================ */
+/* sm (>=640px): solo el margen lateral sube a 24px; el resto de espaciados espera a tablet. */
+@media (min-width: 640px) {
+  :root {
+    --spacing-page-horizontal: 24px;
+    --sheet-pad: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    /* Espaciado */
+    --spacing-page-top: 24px;
+    --spacing-page-horizontal: 32px;
+    --spacing-section-gap: 24px;
+    --spacing-card-padding: 16px;
+    --spacing-card-gap: 16px;
+    --spacing-bottom-nav: calc(80px + env(safe-area-inset-bottom, 0px));
+    --nav-height: 64px;
+
+    /* Tipografía: subtitulo, cuerpo y metadato no cambian (rejilla 4pt); titulo y h1-h4 crecen. */
+    --text-heading: 1.75rem;      /* 28px / linea 36px */
+    --lh-heading: var(--lh-9);
+    --text-h1: 3rem;              /* 48px */
+    --text-h2: 2.25rem;           /* 36px */
+    --text-h3: 1.5rem;            /* 24px */
+    --text-h4: 1.25rem;           /* 20px */
+    --lh-h1: var(--lh-14);
+    --lh-h2: var(--lh-10);
+    --lh-h3: var(--lh-8);
+    --lh-h4: var(--lh-7);
+
+    /* Border radius */
+    --radius-card: 1rem;          /* 16px */
+    --radius-sheet: 1.5rem;       /* 24px */
+    --radius-modal: 1.25rem;      /* 20px */
+
+    /* Sombras */
+    --shadow-float: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-modal: 0 16px 40px rgba(0, 0, 0, 0.12);
+  }
+}
+
+/* Escritorio (>=1024px). Hoy iguala a tablet; el tier existe para ajustar sin tocar componentes. */
+@media (min-width: 1024px) {
+  :root {
+    --bento-pad: 1.5rem;
+    /* Espaciado */
+    --spacing-page-top: 24px;
+    --spacing-page-horizontal: 32px;
+    --spacing-section-gap: 24px;
+    --spacing-card-padding: 16px;
+    --spacing-card-gap: 16px;
+    --nav-height: 64px;
+    /* Tipografía: igual que tablet (los tamaños viven en el tier >=768px). */
+  }
+}
+
+/* ============================================================
+   2. RESET Y BASE
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: var(--font-family);
+  font-size: 100%;   /* respeta el tamano de letra del navegador; los tokens estan en rem */
+  line-height: var(--lh-normal);
+  color: var(--color-text);
+  background-color: var(--background);   /* blanco (fondo blanco global); --color-background es el canvas gris */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Sin "jalar para recargar" (Android) ni rebote de toda la vista con la barra inferior (iOS). Los contenedores con scroll propio siguen rebotando dentro de si mismos. */
+  overscroll-behavior-y: none;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply antialiased;
+  }
+
+  /* max-w-content, max-h-sheet, min-w-btn-sm, bg-bubble-own, etc.: ver tailwind.config.ts */
+
+  /* Backdrops translúcidos siempre cubren todo el viewport.
+     width 100% (no 100vw): 100vw incluye el scrollbar y provoca scroll horizontal. */
+  .fixed.inset-0:not(.bg-gray-100):not(.bg-white):not(.bg-card):not(.bg-background):not(.bg-surface):not(.bg-gray-0) {
+    max-width: none !important;
+    width: var(--size-full) !important;
+    left: 0 !important;
+    transform: none !important;
+  }
+}
+
+/* ============================================================
+   3. MODAL ESTÁNDAR - Sistema unificado de modales
+   Ancho: 90% móvil, 400px desktop
+   Alto máximo: 85vh con scroll
+   ============================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--overlay-backdrop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-overlay);
+  padding: var(--space-4);
+}
+
+.modal-content {
+  background-color: var(--card);
+  border-radius: var(--radius-modal);
+  box-shadow: var(--shadow-modal);
+  width: var(--dialog-width-fluid);
+  max-width: var(--modal-width);
+  max-height: var(--sheet-max-height);
+  overflow-y: auto;
+  padding: var(--space-6);
+}
+
+/* ============================================================
+   4. COMPONENTES - INPUTS
+   ============================================================ */
+
+/* Input base - padding controlled by Tailwind utilities.
+   Texto de campos 16px fijo (--fs-base) en todos los tamaños: con menos de 16px iOS Safari hace zoom al enfocar.
+   :where() deja la especificidad en cero: las utilidades de Tailwind (border-field, text-*, rounded-*, border-0)
+   y los componentes Input/Textarea ganan siempre, sin parches con "!". Ver CLAUDE.md "Campos de formulario". */
+@layer base {
+  :where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, select) {
+    font-family: var(--font-family);
+    font-size: var(--fs-base);
+    line-height: var(--lh-normal);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    transition: border-color var(--duration-fast) var(--ease-standard);
+  }
+}
+
+@layer base {
+  :where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, select):focus {
+    outline: none;
+    border-color: var(--green-600);
+    box-shadow: 0 0 0 2px var(--green-100);
+  }
+
+  /* Autocompletado del navegador (correo/clave guardados): Chrome pinta el campo de azul claro y no esta en la paleta.
+     Se deja el fondo del campo: la transicion casi infinita impide que el color del navegador llegue a verse
+     (box-shadow no se usa: lo ocupa el halo de foco). */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    transition: background-color 600000s 0s, color 600000s 0s;
+  }
+
+  /* Placeholder en gris legible (gray-700, >=4.5:1); gray-500 (--color-text-hint) queda solo para disabled. */
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-text-placeholder);
+  }
+
+  /* Estados de formulario */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):disabled,
+  textarea:disabled,
+  select:disabled {
+    background-color: var(--muted);
+    color: var(--color-text-hint);
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):read-only:not(:disabled),
+  textarea:read-only:not(:disabled) {
+    background-color: var(--muted);
+  }
+
+  input[aria-invalid="true"],
+  textarea[aria-invalid="true"],
+  select[aria-invalid="true"] {
+    border-color: var(--error);
+  }
+}
+
+/* Utilidades de color (text-primary, bg-primary, bg-surface, text-muted...): ver colors/textColor en tailwind.config.ts.
+   .line-clamp-1/2/3 los trae Tailwind 3.4 de serie; .truncate-title no tenia usos. */
+
+/* ============================================================
+   5. UTILIDADES - TEXTO Y WRAP
+   ============================================================ */
+
+.wrap-anywhere {
+  overflow-wrap: anywhere;
+}
+
+/* ============================================================
+   6. UTILIDADES - SCROLL
+   ============================================================ */
+
+/* Scrollbar delgado global (Bento UI): reemplaza la barra nativa gris tosca
+   en TODO scroll de la app -- sidebar, columnas de ThreeColumnLayout, feed
+   de Inicio, historial de chat, etc. Sin clase opt-in ni envolver cada
+   contenedor en ScrollArea (Radix): esto ya cubre cualquier overflow-y-auto
+   presente y futuro. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--gray-400) 60%, transparent) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--gray-400) 60%, transparent);
+  border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--gray-500);
+}
+
+/* Barra visible solo mientras se desplaza: el contenedor recibe `.is-scrolling` en cada evento scroll y la pierde a los
+   800ms (ver ChatCanvas). Ocupa su espacio todo el tiempo, asi el contenido no salta al aparecer. */
+.scrollbar-on-scroll {
+  scrollbar-color: transparent transparent;
+}
+
+.scrollbar-on-scroll::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+.scrollbar-on-scroll.is-scrolling {
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+.scrollbar-on-scroll.is-scrolling::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+}
+
+/* Oculta la barra pero conserva el desplazamiento (rueda, tactil, teclado). Las columnas de
+   ThreeColumnLayout la usan: el scroll se sobreentiende y la barra ensucia el borde entre columnas. */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================================
+   7. PROTECCIÓN DE PRECIOS
+   ============================================================ */
+
+.price-element,
+.price-element span,
+.price-element * {
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  overflow: visible !important;
+  flex-shrink: 0 !important;
+}
+
+/* ============================================================
+   8. DATETIME INPUT FIX
+   ============================================================ */
+
+input[type="datetime-local"] {
+  position: relative;   /* ancla el indicador absoluto de abajo al propio input */
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 12px;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* ============================================================
+   9. ACCESIBILIDAD Y MOVIMIENTO
+   ============================================================ */
+
+/* Foco visible de teclado en botones, links, tabs, etc. (los inputs usan borde verde en :focus). */
+:focus-visible {
+  outline: 2px solid var(--color-primary-dark);
+  outline-offset: 2px;
+}
+
+/* Reducir animaciones para quien lo pide en el sistema operativo.
+   Los spinners de carga son movimiento esencial (indican que la app esta trabajando): no se detienen,
+   si no parecen colgados. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-spin,
+  .animate-caret-blink,
+  #boot-spinner span {
+    animation-duration: var(--duration-spin) !important;
+    animation-iteration-count: infinite !important;
+  }
+  /* Las View Transitions no cuelgan de `*`: se anulan aparte. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   9b. TRANSICIONES DE PANTALLA
+   - Fundido al cambiar de pestana (`.page-fade-in`, home.tsx): en todos los tamanos.
+   - Deslizamiento (View Transitions API, lib/page-transition.ts) al abrir/cerrar pantallas profundas
+     (detalle de pedido, chat, perfil de tutor, Publicar): solo bajo lg. La pantalla nueva entra por la derecha;
+     al volver, la que sale se va hacia la derecha. `html[data-nav]` lo pone y lo quita page-transition.ts.
+   ============================================================ */
+
+@keyframes page-fade-in { from { opacity: 0; } }
+@keyframes nav-in-right { from { transform: translateX(100%); } }
+@keyframes nav-out-right { to { transform: translateX(100%); } }
+@keyframes nav-in-left-under { from { transform: translateX(-25%); opacity: 0.6; } }
+@keyframes nav-out-left-under { to { transform: translateX(-25%); opacity: 0.6; } }
+
+/* `backwards`: sin relleno final, para no dejar un contexto de apilamiento permanente. */
+.page-fade-in { animation: page-fade-in var(--duration-fast) var(--ease-standard) backwards; }
+/* Durante un deslizamiento manda este; el fundido de la pestana no se suma. */
+html[data-nav] .page-fade-in { animation: none; }
+
+/* La franja que tapa la barra de estado no se desliza con la pagina. */
+.vt-safe-top { view-transition-name: safe-top; }
+
+/* Franja que tapa la barra de estado (App.tsx). Blanca: en Android (edge-to-edge) y navegador los iconos son oscuros.
+   iOS instalado (PWA, status-bar-style black-translucent): el texto de la barra es SIEMPRE blanco, asi que la franja
+   va en verde solido para que se lea. Sin esta regla, reloj y bateria serian blanco sobre blanco. */
+.status-bar-cover { background-color: var(--white); }
+@media (display-mode: standalone) {
+  @supports (-webkit-touch-callout: none) {
+    .status-bar-cover { background-color: var(--green-600); }
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) { mix-blend-mode: normal; }
+
+html[data-nav="forward"]::view-transition-old(root) { animation: nav-out-left-under var(--duration-base) var(--ease-standard) both; }
+html[data-nav="forward"]::view-transition-new(root) { animation: nav-in-right var(--duration-base) var(--ease-standard) both; }
+html[data-nav="back"]::view-transition-old(root) { z-index: 2; animation: nav-out-right var(--duration-base) var(--ease-standard) both; }
+html[data-nav="back"]::view-transition-new(root) { z-index: 1; animation: nav-in-left-under var(--duration-base) var(--ease-standard) both; }
+
+/* Sin View Transitions (iOS < 18, WebViews viejos): la pantalla profunda entra deslizando, sin salida. */
+@supports not (view-transition-name: none) {
+  @media (max-width: 1023px) {
+    .page-slide-in { animation: nav-in-right var(--duration-base) var(--ease-standard) backwards; }
+  }
+}
+
+/* ============================================================
+   10. DARK MODE
+   ============================================================ */
+
+.dark {
+  --background: var(--gray-900);
+  --foreground: var(--gray-100);
+  --muted: var(--gray-800);
+  --muted-foreground: var(--gray-400);
+  --popover: var(--gray-800);
+  --popover-foreground: var(--gray-100);
+  --card: var(--gray-800);
+  --card-foreground: var(--gray-100);
+  --border: var(--gray-700);
+  --input: var(--gray-800);
+  --primary: var(--green-500);
+  --primary-foreground: var(--gray-0);
+  --secondary: var(--gray-800);
+  --secondary-foreground: var(--green-400);
+  --accent: var(--green-800);
+  --accent-foreground: var(--green-200);
+  --destructive: var(--coral-700);
+  --destructive-foreground: var(--gray-0);
+  --ring: transparent;
+
+  /* Aliases --color-* y borde de campos: se redefinen aquí porque var() se resuelve en :root. */
+  --color-primary: var(--primary);
+  --color-text: var(--foreground);
+  --color-text-muted: var(--muted-foreground);
+  --color-text-placeholder: var(--muted-foreground);
+  --color-text-hint: var(--gray-500);
+  --color-background: var(--background);
+  --color-surface: var(--card);
+  --color-border: var(--border);
+  --color-border-strong: var(--gray-700);
+  --border-field: var(--gray-700);
+  /* Foco y texto verde: aclarar sobre fondo oscuro (green-600/700 pierden contraste) */
+  --color-primary-dark: var(--green-400);
+  --color-primary-hover: var(--green-300);
+  --color-primary-text: var(--green-400);
+  --ring: var(--green-400);
+  --chat-bubble-own: hsl(0, 0%, 25%);
+
+  /* Estados: fondos translúcidos y texto claro sobre fondo oscuro */
+  --success-bg: color-mix(in srgb, var(--green-500) 20%, transparent);
+  --success-fg: var(--green-200);
+  --warning-bg: color-mix(in srgb, var(--yellow-500) 20%, transparent);
+  --warning-fg: var(--yellow-100);
+  --error: var(--coral-500);
+  --error-bg: color-mix(in srgb, var(--coral-500) 20%, transparent);
+  --error-fg: var(--coral-100);
+  --error-strong: var(--coral-100);
+  --info-bg: color-mix(in srgb, var(--blue-500) 20%, transparent);
+  --info-fg: var(--blue-100);
+
+  /* Scrollbars y controles nativos oscuros */
+  color-scheme: dark;
+}
+
+/* Shell de escritorio de home.tsx (grid de 12 columnas, `px-6` + `gap-6`, estilo X): la columna central lleva lineas a los
+   lados, asi que dentro del shell el margen lateral de pagina (px-page-h) es de 24px (= el gap-6 entre columnas), no de 32px. */
+@media (min-width: 1024px) {
+  .shell-grid {
+    --spacing-page-horizontal: var(--space-6);
+  }
+}
+

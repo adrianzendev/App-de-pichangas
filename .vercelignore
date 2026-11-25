@@ -1,0 +1,19 @@
+# Lo que Vercel no necesita (y no debe recibir): sesiones de prueba, capturas y proyectos nativos.
+android
+e2e
+load-tests
+screenshots
+uploads
+tests
+*cookies*.txt
+*_session.txt
+*_test*.txt
+fresh_*.txt
+login_test.txt
+manual_login.txt
+force_login.txt
+current_session.txt
+session_check.txt
+debug_*.txt
+dev-server.log
+/*.png
