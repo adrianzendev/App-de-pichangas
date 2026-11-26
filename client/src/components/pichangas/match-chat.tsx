@@ -91,7 +91,7 @@ export function GeneralChat({ me, fill }: { me: ChatUser; fill?: boolean }) {
           </span>
           <div className="min-w-0">
             <h2 className="truncate text-label font-bold text-night-text">Chat general</h2>
-            <p className="truncate text-caption text-night-muted">Todos los jugadores de Pinkiball</p>
+            <p className="truncate text-caption text-night-muted">Todos los jugadores de F7</p>
           </div>
         </div>
       }

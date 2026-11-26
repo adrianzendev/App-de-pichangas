@@ -10,15 +10,15 @@ interface BrandLogoProps {
   className?: string;
 }
 
-// Logo tipografico de Pinkiball: la marca va en texto (sin imagen), una sola palabra del color del texto del tema (blanco en oscuro) (gris oscuro sobre fondo claro).
+// Logo tipografico de F7: la marca va en texto (sin imagen), una sola palabra del color del texto del tema (blanco en oscuro) (gris oscuro sobre fondo claro).
 export function BrandLogo({ size = "md", tone = "night", className }: BrandLogoProps) {
   return (
     <span
       role="img"
-      aria-label="Pinkiball"
+      aria-label="F7"
       className={cn("inline-flex select-none items-baseline font-satoshi font-extrabold italic tracking-tight", SIZE[size], className)}
     >
-      <span className={tone === "night" ? "text-pitch" : "text-gray-900"}>Pinkiball</span>
+      <span className={tone === "night" ? "text-pitch" : "text-gray-900"}>F7</span>
     </span>
   );
 }

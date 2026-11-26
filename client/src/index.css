@@ -22,7 +22,7 @@
    1. COLORES
       ✓ Marca = primary: bg-primary, bg-primary-600, text-primary-700, border-primary, ring-primary.
         Éxito = success / success-bg / success-fg. Neutros: text-gray-700, etc.
-        primary-* es la marca (morado Pinkiball); success-* es el unico verde (estados de exito) (gráficos, avatares); nunca para marca ni estados nuevos.
+        primary-* es la marca (morado F7); success-* es el unico verde (estados de exito) (gráficos, avatares); nunca para marca ni estados nuevos.
         Texto verde sobre fondo claro: text-primary-600 (>=4.5:1); text-primary (500) solo íconos.
       ✗ Nunca: style={{ color: '#59BC7A' }}, bg-[#F5F7F4], text-[hsl(149,38%,49%)]
 
@@ -143,7 +143,7 @@
   --spacing-bottom-nav: calc(80px + env(safe-area-inset-bottom, 0px));
   --nav-height: 56px;
 
-  /* === 1.3 COLORES - ESCALA DE MARCA (morado Pinkiball) === */
+  /* === 1.3 COLORES - ESCALA DE MARCA (morado F7) === */
   --primary-50: #f6efff;
   --primary-100: #eadcff;
   --primary-200: #dcc7ff;
@@ -170,7 +170,7 @@
   --gray-800: hsl(0, 0%, 27%);
   --gray-900: hsl(0, 0%, 11%);       /* Primary text */
   
-  /* === 1.5 COLORES - ESTADOS: salen del sistema Pinkiball (morado, orquidea, aqua, crimson); no hay verde, coral, amarillo ni azul === */
+  /* === 1.5 COLORES - ESTADOS: salen del sistema F7 (morado, orquidea, aqua, crimson); no hay verde, coral, amarillo ni azul === */
 
   /* === 1.5a COLORES SEMÁNTICOS DE ESTADO (alias; -bg = fondo suave, -fg = texto sobre -bg) === */
   --success: var(--primary-500);    /* exito / en linea: el morado de marca */
@@ -209,7 +209,7 @@
   --chat-pdf-cover-height: 9rem;        /* portada del PDF (144px) */
   --scrim: hsl(0, 0%, 0%);              /* velo: usar con opacidad (bg-scrim/50) sobre imagenes, visores y citas */
 
-  /* ---- PINKIBALL: tokens del jugador y del panel (/play y /admin/play). Un solo tema, claro y morado (ya no hay tema oscuro).
+  /* ---- F7: tokens del jugador y del panel (/play y /admin/play). Un solo tema, claro y morado (ya no hay tema oscuro).
      Texto sobre fondos: >=4.5:1. Excepcion acotada a esa zona: aqui hay brillo de acento. Usar solo desde PlayerShell. ---- */
   --night: #ffffff;                     /* fondo de la app */
   --night-lowest: #ffffff;              /* barra inferior, campo de busqueda interno, cancha tactica */

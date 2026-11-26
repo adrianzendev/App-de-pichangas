@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
-// Superficies del tema Pinkiball: UN solo origen para el fondo, el radio y la sombra de tarjetas y cajas.
+// Superficies del tema F7: UN solo origen para el fondo, el radio y la sombra de tarjetas y cajas.
 // - card:  tarjeta sobre el fondo de la app (blanca en claro, azul noche en oscuro).
 // - inset: caja interna dentro de una tarjeta (datos, celdas, resumenes).
 export type SurfaceLevel = "card" | "inset";

@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Pinkiball",
-  "short_name": "Pinkiball",
+  "name": "F7",
+  "short_name": "F7",
   "description": "Encuentra pichangas cerca de ti: elige cancha, horario y anótate al partido",
   "start_url": "/",
   "scope": "/",

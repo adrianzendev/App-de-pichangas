@@ -171,7 +171,7 @@ Reglas ya decididas (extender con el mismo criterio a pantallas nuevas):
 - **Contadores sobre iconos**: `UnreadBadge size="icon"`, siempre arriba a la derecha del icono.
 - **Menos adornos**: sin bordes, sombras ni chevrons decorativos donde el color de fondo y el
   espacio ya separan; sin etiquetas redundantes. Iconos simples de una sola linea.
-- **Color de marca**: morado (Pinkiball) solo como acento (acciones, contadores, estados activos), no como
+- **Color de marca**: morado (F7) solo como acento (acciones, contadores, estados activos), no como
   fondo de grandes superficies.
 
 ## Sistema de Diseno: Estilo Bento Grid UI

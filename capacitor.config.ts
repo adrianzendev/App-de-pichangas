@@ -7,7 +7,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
   appId: "com.miltareas.app",
-  appName: "Pinkiball",
+  appName: "F7",
   // Salida de `vite build` (dist/ tambien contiene el servidor Express empaquetado). Con `server.url` el WebView no
   // la usa, pero Capacitor exige que exista (`npm run build`).
   webDir: "dist/public",
