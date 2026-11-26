@@ -246,6 +246,12 @@ export function useChatMessages(path: string | undefined, enabled = true) {
     staleTime: 5_000,
   });
 }
+/** Ultimo mensaje de un chat (vista previa en la lista de Chats). */
+export interface ChatPreview { body: string; userId: string; name: string; createdAt: string }
+export interface ChatPreviews { general: ChatPreview | null; matches: Record<string, ChatPreview> }
+export function useChatPreviews() {
+  return useQuery<ChatPreviews>({ queryKey: ["/api/chats/previews"], refetchInterval: 15_000, staleTime: 5_000 });
+}
 export const useMatchMessages = (matchId: string | undefined, enabled = true) =>
   useChatMessages(matchId ? `/api/matches/${matchId}/messages` : undefined, enabled);
 
@@ -283,7 +289,10 @@ export function useSendChatMessage(
         message,
       ]);
     },
-    onSettled: () => qc.invalidateQueries({ queryKey: key }),
+    onSettled: () => {
+      void qc.invalidateQueries({ queryKey: key });
+      void qc.invalidateQueries({ queryKey: ["/api/chats/previews"] });
+    },
   });
 }
 

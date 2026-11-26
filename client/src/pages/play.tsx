@@ -424,7 +424,8 @@ export default function PlayPage() {
   }
   if (location.startsWith(PLAY_ROUTES.chats)) {
     return (
-      <PlayerShell active="chats">
+      // Movil con un chat abierto: sin cabecera ni barra inferior, el chat ocupa toda la pantalla.
+      <PlayerShell active="chats" hideMobileBar={!isDesktop && !!chatParams?.id}>
         <ChatsView selectedId={chatParams?.id ? matchIdFromParam(chatParams.id) : undefined} me={user} isDesktop={isDesktop} />
       </PlayerShell>
     );

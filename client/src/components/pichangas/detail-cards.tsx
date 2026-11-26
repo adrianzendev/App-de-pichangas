@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import { surfaceClass } from "@/components/pichangas/surface";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -18,14 +18,15 @@ export function SectionCard({ title, description, className, children }: { title
 }
 
 /** Tarjeta plegable (cerrada por defecto): Reglas del encuentro. */
-export function CollapsibleCard({ title, className, children }: { title: string; className?: string; children: ReactNode }) {
+export function CollapsibleCard({ title, className, lazy, children }: { title: string; className?: string; /** Monta el contenido solo cuando se abre la tarjeta (p. ej. un chat que consulta el servidor). */ lazy?: boolean; children: ReactNode }) {
+  const [opened, setOpened] = useState(false);
   return (
-    <details className={cn(surfaceClass(), "group px-card-pad py-3", className)} aria-label={title}>
+    <details className={cn(surfaceClass(), "group px-card-pad py-3", className)} aria-label={title} onToggle={(e) => setOpened(e.currentTarget.open)}>
       <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-label font-bold text-night-muted transition-colors duration-fast hover:text-night-text [&::-webkit-details-marker]:hidden">
         {title}
         <ChevronDown className="size-icon-md transition-transform duration-fast group-open:rotate-180" aria-hidden />
       </summary>
-      <div className="mt-4">{children}</div>
+      <div className="mt-4">{(!lazy || opened) && children}</div>
     </details>
   );
 }

@@ -107,14 +107,16 @@ function registerOpenChat(app: Express, path: string, resolve: (req: Request) =>
     try {
       const parsed = z.object({ body: z.string().trim().min(1).max(500) }).safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ message: "Escribe un mensaje de hasta 500 caracteres" });
-      const matchId = await resolve(req);
-      if (matchId === undefined) return res.status(404).json({ message: "Partido no encontrado" });
-
+      // El ritmo se comprueba y se anota ANTES de cualquier await: varias peticiones en paralelo no se lo saltan.
       const now = Date.now();
       if (now - (lastOpenPost.get(userId) ?? 0) < OPEN_CHAT_GAP_MS) return res.status(429).json({ message: "Espera un momento antes de enviar otro mensaje" });
-      const [user] = await db.select({ name: users.name, avatar: users.avatar, status: users.status }).from(users).where(eq(users.id, userId));
-      if (user?.status === "suspended") return res.status(403).json({ message: "Tu cuenta está suspendida" });
       lastOpenPost.set(userId, now);
+      if (lastOpenPost.size > 5000) for (const [id, t] of lastOpenPost) if (now - t > OPEN_CHAT_GAP_MS) lastOpenPost.delete(id);
+
+      const matchId = await resolve(req);
+      if (matchId === undefined) return res.status(404).json({ message: "Partido no encontrado" });
+      const [user] = await db.select({ name: users.name, avatar: users.avatar, status: users.status }).from(users).where(eq(users.id, userId));
+      if (user?.status && user.status !== "active") return res.status(403).json({ message: "Tu cuenta no puede escribir en el chat" });
 
       const [message] = await db.insert(openMessages).values({ matchId, userId, body: parsed.data.body }).returning();
       res.status(201).json({ ...message, name: user?.name ?? "", avatar: user?.avatar ?? null });
@@ -550,8 +552,41 @@ export function registerPichangas(app: Express) {
   // ── Chats abiertos: general y preguntas al organizador de cada partido ──
   registerOpenChat(app, "/api/chat/general", async () => null);
   registerOpenChat(app, "/api/matches/:id/questions", async (req) => {
-    const [match] = await db.select({ id: matches.id }).from(matches).where(eq(matches.id, req.params.id));
-    return match ? match.id : undefined;
+    const [match] = await db.select({ id: matches.id, status: matches.status }).from(matches).where(eq(matches.id, req.params.id));
+    return match && match.status !== "cancelled" && match.status !== "finished" ? match.id : undefined;
+  });
+
+  // Lista de Chats: el ultimo mensaje de cada chat (los de mis partidos con cupo y el general) para mostrarlo como vista previa.
+  app.get("/api/chats/previews", async (req, res) => {
+    const userId = requireUser(req, res);
+    if (!userId) return;
+    try {
+      const result = await db.execute(sql`
+        select distinct on (mm.match_id) mm.match_id as "matchId", mm.body as "body", mm.user_id as "userId", mm.created_at as "createdAt", u.name as "name"
+        from match_messages mm
+        join users u on u.id = mm.user_id
+        where mm.match_id in (
+          select mp.match_id from match_players mp where mp.user_id = ${userId} and mp.status = 'confirmed' and mp.paid = true
+          union
+          select m.id from matches m where m.organizer_id = ${userId}
+        )
+        order by mm.match_id, mm.created_at desc`);
+      const rows = ((result as unknown as { rows?: Record<string, unknown>[] }).rows ?? (result as unknown as Record<string, unknown>[])) as { matchId: string; body: string; userId: string; createdAt: string; name: string }[];
+      const [general] = await db
+        .select({ body: openMessages.body, userId: openMessages.userId, createdAt: openMessages.createdAt, name: users.name })
+        .from(openMessages)
+        .innerJoin(users, eq(openMessages.userId, users.id))
+        .where(isNull(openMessages.matchId))
+        .orderBy(sql`${openMessages.createdAt} desc`)
+        .limit(1);
+      res.json({
+        general: general ?? null,
+        matches: Object.fromEntries(rows.map(({ matchId, ...preview }) => [matchId, preview])),
+      });
+    } catch (error) {
+      console.error("[GET /api/chats/previews] error:", error);
+      res.status(500).json({ message: "No se pudieron cargar los chats" });
+    }
   });
 
   // ── Chat del partido (Camerino & Coordinacion) ──
@@ -585,7 +620,8 @@ export function registerPichangas(app: Express) {
       if (!parsed.success) return res.status(400).json({ message: "Escribe un mensaje de hasta 500 caracteres" });
       if (!(await isMatchMember(req.params.id, userId))) return res.status(403).json({ message: "Solo quienes tienen cupo escriben en este chat" });
 
-      const [user] = await db.select({ name: users.name, avatar: users.avatar }).from(users).where(eq(users.id, userId));
+      const [user] = await db.select({ name: users.name, avatar: users.avatar, status: users.status }).from(users).where(eq(users.id, userId));
+      if (user?.status && user.status !== "active") return res.status(403).json({ message: "Tu cuenta no puede escribir en el chat" });
       const [message] = await db
         .insert(matchMessages)
         .values({ matchId: req.params.id, userId, body: parsed.data.body })

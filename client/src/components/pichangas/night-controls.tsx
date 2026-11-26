@@ -159,8 +159,11 @@ export function NightNavButton({ variant, active, icon: Icon, label, children, c
 
 // ───────────── Fila de lista ─────────────
 
-/** Fila de una lista seleccionable (chats): icono redondo + titulo + subtitulo. Activa = fondo morado muy suave. */
-export function NightListRow({ active, icon, title, subtitle, onClick }: { active?: boolean; icon: ReactNode; title: string; subtitle: string; onClick: () => void }) {
+/**
+ * Fila de una lista seleccionable (chats): icono redondo + titulo + subtitulo. A la derecha, alineados con cada linea:
+ * `meta` junto al titulo (fecha del partido) y `metaBottom` junto al subtitulo (hora del ultimo mensaje). Activa = fondo morado muy suave.
+ */
+export function NightListRow({ active, icon, title, subtitle, meta, metaBottom, onClick }: { active?: boolean; icon: ReactNode; title: string; subtitle: string; meta?: ReactNode; metaBottom?: ReactNode; onClick: () => void }) {
   return (
     <button
       type="button"
@@ -169,9 +172,15 @@ export function NightListRow({ active, icon, title, subtitle, onClick }: { activ
       className={cn("flex w-full items-center gap-3 rounded-row px-3 py-3 text-left transition-colors duration-fast", RING, active ? "bg-pitch/5" : "hover:bg-pitch/5")}
     >
       <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-pitch/15 text-pitch" aria-hidden>{icon}</span>
-      <span className="min-w-0">
-        <span className="block truncate text-body font-bold text-night-text">{title}</span>
-        <span className="block truncate text-caption text-night-muted">{subtitle}</span>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-baseline justify-between gap-2">
+          <span className="truncate text-body font-bold text-night-text">{title}</span>
+          {meta && <span className="shrink-0 text-caption text-night-muted">{meta}</span>}
+        </span>
+        <span className="flex items-baseline justify-between gap-2">
+          <span className="truncate text-caption text-night-muted">{subtitle}</span>
+          {metaBottom && <span className="shrink-0 text-caption text-night-muted">{metaBottom}</span>}
+        </span>
       </span>
     </button>
   );

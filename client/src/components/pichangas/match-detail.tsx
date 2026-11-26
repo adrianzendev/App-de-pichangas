@@ -237,7 +237,7 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
         {/* Plegado por defecto: las reglas ya se leen en el pase y no deben competir con la plantilla ni con el boton de pago. */}
         <CollapsibleCard title="Reglas del encuentro"><RuleList startsAt={match.startsAt} /></CollapsibleCard>
         {/* Preguntas al organizador: abiertas a cualquier jugador con sesion, aunque aun no tenga cupo. */}
-        {currentUserId && <CollapsibleCard title="Preguntas al organizador"><MatchQuestions matchId={match.id} organizerId={match.organizerId} /></CollapsibleCard>}
+        {currentUserId && <CollapsibleCard title="Preguntas al organizador" lazy><MatchQuestions matchId={match.id} organizerId={match.organizerId} /></CollapsibleCard>}
 
         {waitlist.length > 0 && (
           <SectionCard title="Suplentes" description="Entran por orden de llegada si alguien se baja.">

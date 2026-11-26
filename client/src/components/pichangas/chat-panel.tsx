@@ -49,7 +49,10 @@ export function ChatPanel({
     if (!body || send.isPending) return;
     setDraft("");
     send.mutate(body, {
-      onError: (error) => toast({ variant: "destructive", title: "No se pudo enviar", description: error instanceof Error ? error.message : undefined }),
+      onError: (error) => {
+        setDraft((d) => d || body); // no se pierde lo escrito si el envio falla (limite de ritmo, sin permiso, red)
+        toast({ variant: "destructive", title: "No se pudo enviar", description: error instanceof Error ? error.message : undefined });
+      },
     });
   };
 
@@ -57,14 +60,14 @@ export function ChatPanel({
     <section className={cn(surfaceClass(), "flex flex-col overflow-hidden", fill && "h-full")} aria-label={ariaLabel}>
       <header className="flex items-center justify-between gap-3 bg-night-high px-3 py-3">{header}</header>
 
-      <div ref={streamRef} className={cn("space-y-3 overflow-y-auto p-3", fill ? "min-h-0 flex-1" : "max-h-80 min-h-40")}>
+      <div ref={streamRef} className={cn("flex flex-col space-y-3 overflow-y-auto p-3", fill ? "min-h-0 flex-1" : "max-h-80 min-h-40")}>
         {isLoading ? (
           <div className="space-y-3" aria-busy="true">
             <Skeleton className="h-14 w-3/4 bg-night-high" />
             <Skeleton className="ml-auto h-12 w-2/3 bg-night-high" />
           </div>
         ) : !messages || messages.length === 0 ? (
-          <div className="flex flex-col items-center gap-1 py-8 text-center">
+          <div className="m-auto flex flex-col items-center gap-1 py-8 text-center">
             <NoMessagesIcon />
             <p className="text-body font-semibold text-night-text">{emptyTitle}</p>
             <p className="text-caption text-night-muted">{emptyHint}</p>
