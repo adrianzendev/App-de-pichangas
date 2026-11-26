@@ -13,6 +13,7 @@ import { NightEmpty, PitchButton } from "@/components/pichangas/night-ui";
 import { LOGOUT_ACTION, PlayerShell, type ShellItem } from "@/components/pichangas/player-shell";
 import { ProfileMenuButton } from "@/components/layout/profile-menu-button";
 import { toast } from "@/hooks/use-toast";
+import { startImpersonation } from "@/lib/impersonation";
 import { ADMIN_ROUTES, PLAY_ROUTES, ROUTES } from "@/lib/routes";
 import { MatchForm } from "@/components/pichangas/match-form";
 import { AdminVenueForm, AdminPlayerForm } from "@/components/pichangas/admin-forms";
@@ -336,6 +337,16 @@ function PlayersView() {
   const [form, setForm] = useState<AdminPlayer | null | undefined>(undefined);
   const [toDelete, setToDelete] = useState<AdminPlayer | null>(null);
 
+  // "Ver como": el servidor cambia la sesion a este jugador en solo lectura (30 min, queda en la auditoria). Solo el super admin.
+  const [viewing, setViewing] = useState<string | null>(null);
+  const viewAs = (p: AdminPlayer) => {
+    setViewing(p.id);
+    startImpersonation(p.id).catch((e) => {
+      setViewing(null);
+      toast({ variant: "destructive", title: "No pudimos entrar como este jugador", description: errorText(e) });
+    });
+  };
+
   const apply = (p: AdminPlayer, status: "active" | "suspended") =>
     setStatus.mutate({ id: p.id, status }, {
       onSuccess: () => toast({ title: status === "suspended" ? "Jugador suspendido" : "Jugador reactivado", description: p.name }),
@@ -368,6 +379,7 @@ function PlayersView() {
                   <AdminTd tone="secondary">{lastSeenLabel(p.lastSeen)}</AdminTd>
                   <AdminTd>{suspended ? <AdminBadge tone="danger">Suspendido</AdminBadge> : <AdminBadge tone="success">Activo</AdminBadge>}</AdminTd>
                   <AdminActionsTd>
+                    <AdminButton compact onClick={() => viewAs(p)} disabled={viewing === p.id} title="Ver la app como este jugador (solo lectura)">{viewing === p.id ? "Entrando…" : "Ver como"}</AdminButton>
                     <AdminButton compact onClick={() => setForm(p)}>Editar</AdminButton>
                     {suspended
                       ? <AdminButton compact tone="pitch" onClick={() => apply(p, "active")}>Reactivar</AdminButton>

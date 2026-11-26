@@ -42,7 +42,7 @@ export function PlayerRow({ number, name, avatar, isMe, placeholder, highlight, 
       className={cn(
         surfaceClass(), "flex h-12 items-center gap-3 px-2",
         onSelect && "cursor-pointer select-none transition-colors duration-fast hover:bg-pitch/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch",
-        selected && "border-pitch ring-1 ring-pitch",
+        selected && "border-2 border-pitch",
         className,
       )}
       title={title}

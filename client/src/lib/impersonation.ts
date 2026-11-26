@@ -1,5 +1,6 @@
 import { clearAccountState } from "@/lib/logout";
 import { queryClient } from "@/lib/queryClient";
+import { ADMIN_ROUTES } from "@/lib/routes";
 
 // La cookie de sesion es la misma en todas las pestanas: si una cambia de cuenta, las demas seguirian mostrando la
 // cuenta anterior mientras actuan con la nueva. Se avisa a las otras para que recarguen (quien envia no recibe su aviso).
@@ -20,7 +21,7 @@ async function switchSession(url: string, to: string): Promise<void> {
 }
 
 export const startImpersonation = (userId: string) => switchSession(`/api/admin/impersonate/${userId}`, "/");
-export const stopImpersonation = () => switchSession("/api/admin/impersonate/stop", "/dashboard/users");
+export const stopImpersonation = () => switchSession("/api/admin/impersonate/stop", ADMIN_ROUTES.players);
 
 export const isImpersonating = (): boolean =>
   !!queryClient.getQueryData<{ impersonating?: boolean }>(["/api/user/current"])?.impersonating;

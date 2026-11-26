@@ -130,6 +130,9 @@ export const SURFACE_LABEL: Record<string, string> = {
 export const FORMAT_OPTIONS = Object.entries(FORMAT_LABEL).map(([id, label]) => ({ id, label }));
 export const LEVEL_OPTIONS = Object.entries(LEVEL_LABEL).map(([id, label]) => ({ id, label }));
 export const GENDER_OPTIONS = Object.entries(GENDER_LABEL).map(([id, label]) => ({ id, label }));
+/** Minutos que se guarda un cupo reservado sin pagar (igual que HOLD_MINUTES del servidor). */
+export const HOLD_MINUTES = 10;
+
 /** "Cuando" del feed (no es un campo del partido: se filtra por el dia). */
 export const WHEN_OPTIONS = [{ id: "today", label: "Hoy" }, { id: "tomorrow", label: "Mañana" }];
 

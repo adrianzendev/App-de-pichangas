@@ -20,7 +20,7 @@ import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { PLAY_ROUTES, ROUTES } from "@/lib/routes";
 import {
-  SURFACE_LABEL, coverPhotos, dayLabel, priceLabel, spotsLeft, time12Label,
+  HOLD_MINUTES, SURFACE_LABEL, coverPhotos, dayLabel, priceLabel, spotsLeft, time12Label,
   timeRange12, useJoinLeave, useMatch,
 } from "@/lib/pichangas";
 
@@ -93,15 +93,16 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
   const seatCount = me ? baseSeats + picks.length : Math.max(1, picks.length);
   const maxSeats = me ? baseSeats + maxPicks : Math.max(1, maxPicks);
   const minSeats = me ? baseSeats : 1;
+  // Los cupos marcados siempre son CONSECUTIVOS desde el primer lugar libre: marcar uno marca desde el primero hasta ese; desmarcar uno quita ese y los siguientes.
+  const pickFirst = (n: number) => setPicked(Array.from({ length: Math.max(0, Math.min(n, maxPicks)) }, (_, i) => i));
   const togglePick = (i: number) => {
-    if (picks.includes(i)) setPicked(picks.filter((x) => x !== i));
-    else if (!limitReached) setPicked([...picks, i].sort((a, b) => a - b));
+    if (picks.includes(i)) pickFirst(i);
+    else pickFirst(i + 1);
   };
   const addSeat = () => {
-    if (picks.length === 0 && !me) { setPicked([0, 1].filter((i) => i < left)); return; }
+    if (picks.length === 0 && !me) { pickFirst(2); return; }
     if (limitReached) return;
-    const next = Array.from({ length: left }, (_, i) => i).find((i) => !picks.includes(i));
-    if (next !== undefined) setPicked([...picks, next].sort((a, b) => a - b));
+    pickFirst(picks.length + 1);
   };
   const removeSeat = () => setPicked(picks.slice(0, -1));
   const busy = join.isPending || leave.isPending;
@@ -136,10 +137,10 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
   };
 
   const stepper = canPick && maxSeats > minSeats ? (
-    <SeatStepper className="lg:shrink-0" label={me ? `Cupos a pagar (tu lugar + ${picks.length} más)` : "Cupos (tú y acompañantes)"} value={seatCount} min={minSeats} max={maxSeats} onAdd={addSeat} onRemove={removeSeat} />
+    <SeatStepper className="lg:shrink-0" label="Cupos" value={seatCount} min={minSeats} max={maxSeats} onAdd={addSeat} onRemove={removeSeat} />
   ) : null;
-  const joinLabel = left > 0 ? (seatCount > 1 ? `Inscribirme con ${seatCount - 1} ${seatCount === 2 ? "acompañante" : "acompañantes"}` : "Inscribirme") : "Inscribirme de suplente";
-  const payLabel = seatCount > 1 ? `Reservar ${seatCount} cupos` : "Reservar";
+  const joinLabel = left > 0 ? "Inscribirme" : "Inscribirme de suplente";
+  const payLabel = "Reservar";
   // Anotado sin pagar: va al pago con todos los cupos (los que ya tenia + los marcados).
   const payNow = () => {
     const go = () => setLocation(`${PLAY_ROUTES.pay(match)}${seatCount > 1 ? `?cupos=${seatCount}` : ""}`);
@@ -176,6 +177,7 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
   } else {
     cta = (
       <div className="space-y-2 lg:flex lg:flex-1 lg:items-center lg:gap-6 lg:space-y-0">
+        {left > 0 && picks.length > 0 && <p className="text-caption font-bold text-crimson lg:max-w-48 lg:shrink-0">Paga en {HOLD_MINUTES} min o pierdes tu cupo.</p>}
         {stepper}
         <PitchButton className="w-full uppercase lg:flex-1" disabled={busy} onClick={requestJoin}>{joinLabel}</PitchButton>
       </div>
