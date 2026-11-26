@@ -12,6 +12,8 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 import { NightIconButton, NightInput, NightTile } from "@/components/pichangas/night-controls";
 import { NightBadge, NightEmpty, PitchButton } from "@/components/pichangas/night-ui";
 import { RuleList } from "@/components/pichangas/rule-list";
+import { TicketBox } from "@/components/pichangas/ticket-box";
+import { GuestNamesEditor } from "@/components/pichangas/guest-names-editor";
 import { GuestNamesDialog } from "@/components/pichangas/guest-names-dialog";
 import { guestNamesComplete } from "@/lib/guest-names";
 import { useMutation } from "@tanstack/react-query";
@@ -125,15 +127,6 @@ function PassQr({ value }: { value: string }) {
       {src
         ? <img src={src} alt="Código QR de tu pase" width={148} height={148} className="relative max-w-full rounded-sm" />
         : <Ticket className="relative size-icon-xl text-night-lowest" aria-hidden />}
-    </div>
-  );
-}
-
-function TicketMeta({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="min-w-0 rounded-sm bg-night-high p-3">
-      <span className="block text-caption font-bold uppercase text-night-muted">{label}</span>
-      {children}
     </div>
   );
 }
@@ -305,19 +298,23 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
             <div className="-mr-5 size-6 rounded-full bg-night" />
           </div>
 
-          <div className="space-y-3 bg-night-low p-5">
+          <div className="space-y-3 p-5">
             <div>
-              <TicketMeta label={isOrganizer ? "Organizador" : "Jugador"}>
+              <TicketBox label={isOrganizer ? "Organizador" : "Jugador"}>
                 <div className="mt-1 flex items-center gap-2">
                   <span className="truncate text-body font-bold text-night-text">{me.name}</span>
                   {seat > 0 && <span className="shrink-0 rounded-xs bg-pitch px-2 py-0.5 text-caption font-bold text-pitch-on">#{seat}</span>}
                 </div>
                 {/* Un jugador anotado no necesita etiqueta: solo se avisa cuando el estado es distinto. */}
                 {(isOrganizer || !confirmed) && <span className="block text-caption text-pitch">{isOrganizer ? "Organiza la pichanga" : "Suplente"}</span>}
-              </TicketMeta>
+              </TicketBox>
             </div>
 
-            <div className="flex items-start justify-between gap-3 rounded-sm bg-night-high p-3">
+            {!!minePlayer && minePlayer.guests > 0 && (
+              <GuestNamesEditor count={minePlayer.guests} saved={minePlayer.guestNames} saving={saveNames.isPending} onSave={(names) => saveNames.mutate(names)} />
+            )}
+
+            <TicketBox className="flex items-start justify-between gap-3">
               <div className="flex min-w-0 items-start gap-3">
                 <span className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-full bg-night-container text-aqua" aria-hidden>
                   <MapPin className="size-icon-lg" />
@@ -333,12 +330,12 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
                 href={mapsUrl(match.venue)}
                 target="_blank"
                 rel="noreferrer"
-                className="flex shrink-0 items-center gap-1 rounded-sm bg-night-container px-3 py-2 text-caption font-bold text-aqua transition-transform duration-fast active:scale-95 hover:bg-night-highest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch"
+                className="flex shrink-0 items-center gap-1 rounded-sm bg-white px-3 py-2 text-caption font-bold text-aqua transition-transform duration-fast active:scale-95 hover:bg-night-highest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch"
               >
                 <Navigation className="size-icon-sm" aria-hidden />
                 GPS
               </a>
-            </div>
+            </TicketBox>
           </div>
         </section>
 

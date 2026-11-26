@@ -6,6 +6,8 @@ import { venues, matches, matchPlayers, users, playerProfiles, insertMatchSchema
 import fs from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { districtCodesUnder } from "@shared/peru-geo";
+import { RUN_MIGRATIONS } from "./runtime";
 import multer from "multer";
 import sharp from "sharp";
 import { ObjectStorageService } from "./object_storage";
@@ -31,7 +33,58 @@ export function requireAdmin(req: Request, res: Response): boolean {
   return true;
 }
 
+/** Distritos del Peru activados por el administrador (solo se guardan los activos). Aditiva e idempotente. */
+async function ensureGeoTable() {
+  try {
+    await db.execute(sql`CREATE TABLE IF NOT EXISTS geo_active_districts (code varchar(6) PRIMARY KEY, activated_at timestamp DEFAULT now())`);
+  } catch (error) {
+    console.error("[Geo] no se pudo crear geo_active_districts:", error);
+  }
+}
+
+async function activeDistrictCodes(): Promise<string[]> {
+  const result = await db.execute(sql`select code from geo_active_districts order by code`);
+  const rows = ((result as unknown as { rows?: { code: string }[] }).rows ?? (result as unknown as { code: string }[])) as { code: string }[];
+  return rows.map((r) => r.code);
+}
+
 export function registerAdminPichangas(app: Express) {
+  if (RUN_MIGRATIONS) void ensureGeoTable();
+
+  // Geografia: que departamentos, provincias y distritos del Peru estan activos.
+  app.get("/api/admin/pichangas/geo", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    try {
+      res.json({ active: await activeDistrictCodes() });
+    } catch (error) {
+      console.error("[GET /api/admin/pichangas/geo] error:", error);
+      res.status(500).json({ message: "No se pudo cargar la geografía" });
+    }
+  });
+
+  // Activa o desactiva una zona: departamento (2 digitos), provincia (4) o distrito (6), con todo lo que contiene.
+  app.put("/api/admin/pichangas/geo", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const parsed = z.object({ code: z.string().regex(/^[0-9]{0,6}$/), active: z.boolean() }).safeParse(req.body);
+    if (!parsed.success || ![0, 2, 4, 6].includes(parsed.data.code.length)) return res.status(400).json({ message: "Zona no válida" });
+    const { code, active } = parsed.data;
+    try {
+      const targets = districtCodesUnder(code);
+      if (targets.length === 0) return res.status(400).json({ message: "Zona no válida" });
+      if (active) {
+        await db.execute(sql`insert into geo_active_districts (code) values ${sql.join(targets.map((c) => sql`(${c})`), sql`, `)} on conflict do nothing`);
+      } else if (code.length === 0) {
+        await db.execute(sql`delete from geo_active_districts`);
+      } else {
+        await db.execute(sql`delete from geo_active_districts where code like ${code + "%"}`);
+      }
+      res.json({ active: await activeDistrictCodes() });
+    } catch (error) {
+      console.error("[PUT /api/admin/pichangas/geo] error:", error);
+      res.status(500).json({ message: "No se pudo guardar la geografía" });
+    }
+  });
+
   // Sube UNA portada y devuelve su URL; el formulario la agrega a la lista de portadas del partido.
   app.post("/api/admin/pichangas/matches/cover", async (req, res) => {
     // Admin o host: quien puede crear partidos puede subir sus portadas.

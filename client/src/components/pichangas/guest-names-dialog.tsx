@@ -34,7 +34,7 @@ export function GuestNamesDialog({ open, count, initial, onConfirm, onCancel }: 
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) onCancel(); }}>
-      <DialogContent className="mx-4">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{count === 1 ? "¿Quién te acompaña?" : "¿Quiénes te acompañan?"}</DialogTitle>
           <DialogDescription>Escribe el nombre de {count === 1 ? "tu acompañante" : `tus ${count} acompañantes`}. Aparecerá en la plantilla.</DialogDescription>

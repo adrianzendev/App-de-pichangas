@@ -7,7 +7,7 @@ import { NightEmpty, PitchButton } from "@/components/pichangas/night-ui";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { PLAY_ROUTES } from "@/lib/routes";
-import { dayLabel, time12Label, useChatPreviews, useMyMatches, type ChatPreview, type MatchSummary } from "@/lib/pichangas";
+import { coverOf, coverPhotos, dayLabel, time12Label, useChatPreviews, useMyMatches, type ChatPreview, type MatchSummary } from "@/lib/pichangas";
 
 interface ChatsViewProps {
   /** Id (corto) del partido abierto, o "general"; sin id, en escritorio se abre el primero y en movil se ve la lista. */
@@ -65,7 +65,7 @@ export function ChatsView({ selectedId, me, isDesktop }: ChatsViewProps) {
         const on = selected?.id === m.id;
         return (
           <li key={m.id}>
-            <NightListRow active={on} icon={<MessageSquare className="size-icon-lg" />} title={m.title} subtitle={previewText(previews?.matches[m.id], me.id, "Aún sin mensajes")} meta={`${dayLabel(m.startsAt)} · ${time12Label(m.startsAt)}`} metaBottom={previewTime(previews?.matches[m.id])} onClick={() => setLocation(PLAY_ROUTES.chat(m))} />
+            <NightListRow active={on} icon={<img src={coverPhotos(m)[0] || coverOf(m.venue)} alt="" className="h-full w-full object-cover" loading="lazy" decoding="async" />} title={m.title} subtitle={previewText(previews?.matches[m.id], me.id, "Aún sin mensajes")} meta={`${dayLabel(m.startsAt)} · ${time12Label(m.startsAt)}`} metaBottom={previewTime(previews?.matches[m.id])} onClick={() => setLocation(PLAY_ROUTES.chat(m))} />
           </li>
         );
       })}

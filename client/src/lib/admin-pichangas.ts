@@ -129,3 +129,8 @@ export const createRuleRequest = (data: AdminRuleInput) => apiRequest("POST", "/
 export const updateRuleRequest = ({ id, data }: { id: string; data: AdminRuleInput }) => apiRequest("PATCH", `/api/admin/pichangas/rules/${id}`, data);
 export const moveRuleRequest = ({ id, direction }: { id: string; direction: "up" | "down" }) => apiRequest("POST", `/api/admin/pichangas/rules/${id}/move`, { direction });
 export const deleteRuleRequest = (id: string) => apiRequest("DELETE", `/api/admin/pichangas/rules/${id}`);
+
+// Geografia: distritos del Peru activos (departamentos y provincias se calculan a partir de ellos).
+export const useAdminGeo = () => useQuery<{ active: string[] }>({ queryKey: ["/api/admin/pichangas/geo"] });
+export const setGeoRequest = async (input: { code: string; active: boolean }): Promise<{ active: string[] }> =>
+  (await apiRequest("PUT", "/api/admin/pichangas/geo", input)).json();

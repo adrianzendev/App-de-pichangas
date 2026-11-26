@@ -105,6 +105,7 @@ export const ADMIN_ROUTES = {
   venues: "/panel/venues",
   players: "/panel/players",
   rules: "/panel/rules",
+  geo: "/panel/geo",
 } as const;
 
 /** Rutas de autenticacion: NO renombrar (estan en la lista de Redirect URLs de Supabase). */

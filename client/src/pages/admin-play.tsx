@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarDays, CircleDollarSign, Gauge, LayoutDashboard, ListChecks, MapPin, ScrollText, Users, type LucideIcon } from "lucide-react";
+import { CalendarDays, CircleDollarSign, Gauge, Globe2, LayoutDashboard, ListChecks, MapPin, ScrollText, Users, type LucideIcon } from "lucide-react";
 import { ListScreen } from "@/components/ui/list-screen";
 import { PageLoader } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,6 +16,7 @@ import { toast } from "@/hooks/use-toast";
 import { ADMIN_ROUTES, PLAY_ROUTES, ROUTES } from "@/lib/routes";
 import { MatchForm } from "@/components/pichangas/match-form";
 import { AdminVenueForm, AdminPlayerForm } from "@/components/pichangas/admin-forms";
+import { AdminGeoView } from "@/components/pichangas/admin-geo";
 import { AdminRulesView } from "@/components/pichangas/admin-rules";
 import {
   cancelMatchRequest, createMatchRequest, createPlayerRequest, createVenueRequest, deleteMatchRequest, deletePlayerRequest, deleteVenueRequest,
@@ -31,6 +32,7 @@ const NAV: ShellItem[] = [
   { id: "venues", label: "Canchas", icon: MapPin, path: ADMIN_ROUTES.venues },
   { id: "players", label: "Jugadores", icon: Users, path: ADMIN_ROUTES.players },
   { id: "rules", label: "Reglas", icon: ScrollText, path: ADMIN_ROUTES.rules },
+  { id: "geo", label: "Geografía", icon: Globe2, path: ADMIN_ROUTES.geo },
 ];
 
 // El admin solo tiene "Cerrar sesión": no hay perfil editable en este panel.
@@ -410,6 +412,7 @@ const SECTIONS = {
   venues: { title: "Canchas", subtitle: "Crea, edita y aprueba las canchas donde se juegan los partidos.", View: VenuesView },
   players: { title: "Jugadores", subtitle: "Crea, edita y administra las cuentas de los jugadores.", View: PlayersView },
   rules: { title: "Reglas", subtitle: "Las reglas del encuentro que ven los jugadores en cada partido y en su pase.", View: () => <AdminRulesView /> },
+  geo: { title: "Geografía", subtitle: "Activa las regiones, provincias y distritos del Perú donde opera la app.", View: () => <AdminGeoView /> },
 } as const;
 type SectionId = keyof typeof SECTIONS;
 
