@@ -124,7 +124,7 @@ function FeedScreen({ selectedId, userId, isDesktop }: { selectedId?: string; us
       <div className="space-y-2">
         <div className="relative">
           <Search className="pointer-events-none absolute left-4 top-1/2 size-icon-lg -translate-y-1/2 text-night-muted" aria-hidden />
-          <NightInput type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar cancha, distrito o nivel..." aria-label="Buscar partidos" className="pl-11 pr-14" />
+          <NightInput shape="pill" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar cancha, distrito o nivel..." aria-label="Buscar partidos" className="pl-11 pr-14" />
           <NightIconButton
             size="sm"
             aria-label={activeFilters.length > 0 ? `Filtros (${activeFilters.length} activos)` : "Filtros"}
@@ -180,7 +180,7 @@ function FeedScreen({ selectedId, userId, isDesktop }: { selectedId?: string; us
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <h2 className="text-body font-extrabold uppercase text-night-text">Pichangas disponibles</h2>
-            <span className="shrink-0 whitespace-nowrap rounded-sm bg-night-highest px-2 py-0.5 text-caption font-bold text-pitch">{visible.length} {visible.length === 1 ? "activa" : "activas"}</span>
+            <span className="shrink-0 whitespace-nowrap rounded-sm bg-pitch/10 px-2 py-0.5 text-caption font-bold text-pitch">{visible.length} {visible.length === 1 ? "activa" : "activas"}</span>
           </div>
           <NightMenu value={sort} options={SORT_OPTIONS} onSelect={setSort} ariaLabel="Ordenar partidos" trigger={<>Ordenar<ArrowUpDown className="size-icon-md" aria-hidden /></>} />
         </div>
