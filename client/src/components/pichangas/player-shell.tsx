@@ -1,7 +1,7 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarCheck, CalendarPlus, LogOut, Search, User, type LucideIcon } from "lucide-react";
+import { CalendarCheck, CalendarPlus, LogOut, MessageSquare, Search, User, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PLAY_ROUTES } from "@/lib/routes";
 import { logout } from "@/lib/logout";
@@ -16,13 +16,6 @@ export const LOGOUT_ACTION: AccountAction = {
   id: "logout", label: "Cerrar sesión", icon: LogOut, onSelect: () => void logout(), testId: "menu-logout", danger: true,
 };
 
-/**
- * Hueco del menu lateral, debajo de las opciones (escritorio). Una pantalla puede pintar ahi contenido propio con un portal
- * (el chat del partido en el pase). null mientras el shell no lo montó o en movil, donde el menu lateral no existe.
- */
-const SidebarSlotContext = createContext<HTMLElement | null>(null);
-export const useSidebarSlot = () => useContext(SidebarSlotContext);
-
 export interface ShellItem {
   id: string;
   label: string;
@@ -36,6 +29,7 @@ export const HOST_NAV: ShellItem = { id: "host", label: "Organizar", icon: Calen
 export const PLAYER_NAV: ShellItem[] = [
   { id: "feed", label: "Explorar", icon: Search, path: PLAY_ROUTES.feed },
   { id: "mine", label: "Mis pichangas", icon: CalendarCheck, path: PLAY_ROUTES.mine },
+  { id: "chats", label: "Chats", icon: MessageSquare, path: PLAY_ROUTES.chats },
 ];
 
 interface PlayerShellProps {
@@ -57,7 +51,6 @@ interface PlayerShellProps {
 // Misma cuadricula que el shell de home.tsx (CLAUDE.md "Shell de escritorio"): 12 columnas, gap-6, tope `max-w-shell`.
 export function PlayerShell({ active, items: itemsProp = PLAYER_NAV, brand, accountActions, headerAction, hideMobileBar, children }: PlayerShellProps) {
   const [, setLocation] = useLocation();
-  const [slotEl, setSlotEl] = useState<HTMLDivElement | null>(null);
   // El menu del jugador suma "Organizar" cuando tiene el perfil de host (el menu del admin no cambia).
   const { data: playerProfile } = useQuery<{ isHost: boolean }>({ queryKey: ["/api/player/profile"], enabled: itemsProp === PLAYER_NAV });
   const items = itemsProp === PLAYER_NAV && playerProfile?.isHost ? [...PLAYER_NAV, HOST_NAV] : itemsProp;
@@ -68,7 +61,6 @@ export function PlayerShell({ active, items: itemsProp = PLAYER_NAV, brand, acco
   ];
 
   return (
-    <SidebarSlotContext.Provider value={slotEl}>
     <div className="min-h-dvh bg-night font-satoshi text-night-text">
       <div className="shell-grid min-h-dvh lg:mx-auto lg:grid lg:w-full lg:max-w-shell lg:grid-cols-12 lg:gap-6 lg:px-6">
         <aside className="hidden flex-col gap-1 p-4 lg:sticky lg:top-0 lg:col-span-2 lg:flex lg:h-dvh" aria-label="Menú principal">
@@ -86,7 +78,6 @@ export function PlayerShell({ active, items: itemsProp = PLAYER_NAV, brand, acco
               );
             })}
           </nav>
-          <div ref={setSlotEl} className="min-h-0 flex-1 py-2 empty:hidden" />
           {/* Cuenta: avatar + nombre abajo del menu; el popover abre hacia arriba. */}
           <div className="mt-auto space-y-1 pb-2">
             {accountActions ? (
@@ -133,6 +124,5 @@ export function PlayerShell({ active, items: itemsProp = PLAYER_NAV, brand, acco
         </nav>
       )}
     </div>
-    </SidebarSlotContext.Provider>
   );
 }

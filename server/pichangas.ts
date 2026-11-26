@@ -1,10 +1,10 @@
 import type { Express, Request, Response } from "express";
-import { and, asc, eq, gte, inArray, ne, sql } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, isNull, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "./db";
 import { IS_VERCEL, RUN_MIGRATIONS } from "./runtime";
 import {
-  venues, matches, matchPlayers, matchMessages, users, playerProfiles,
+  venues, matches, matchPlayers, matchMessages, openMessages, users, playerProfiles,
   PLAYER_POSITIONS, PLAYER_AGE_MIN, PLAYER_AGE_MAX,
   insertVenueSchema, insertMatchSchema,
   MATCH_FORMATS, MATCH_LEVELS, MATCH_GENDERS,
@@ -34,7 +34,7 @@ async function confirmedCounts(matchIds: string[]): Promise<Map<string, number>>
   return map;
 }
 
-/** Solo el organizador y los anotados (confirmados o suplentes) ven y escriben en el chat del partido. */
+/** Solo el organizador y quienes tienen cupo (confirmado y pagado) ven y escriben en el chat del partido. No entran suplentes ni reservas sin pagar. */
 async function isMatchMember(matchId: string, userId: string): Promise<boolean> {
   const [match] = await db.select({ organizerId: matches.organizerId }).from(matches).where(eq(matches.id, matchId));
   if (!match) return false;
@@ -42,7 +42,7 @@ async function isMatchMember(matchId: string, userId: string): Promise<boolean> 
   const [player] = await db
     .select({ id: matchPlayers.id })
     .from(matchPlayers)
-    .where(and(eq(matchPlayers.matchId, matchId), eq(matchPlayers.userId, userId)));
+    .where(and(eq(matchPlayers.matchId, matchId), eq(matchPlayers.userId, userId), eq(matchPlayers.status, "confirmed"), eq(matchPlayers.paid, true)));
   return Boolean(player);
 }
 
@@ -54,6 +54,75 @@ async function ensureGuestsColumn() {
   } catch (error) {
     console.error("[Pichangas] no se pudo agregar match_players.guests:", error);
   }
+}
+
+/** Tabla de los chats abiertos (general y preguntas por partido). Aditiva e idempotente, como las demas migraciones de arranque. */
+async function ensureOpenMessagesTable() {
+  try {
+    await db.execute(sql`CREATE TABLE IF NOT EXISTS open_messages (
+      id varchar PRIMARY KEY DEFAULT gen_random_uuid(),
+      match_id varchar REFERENCES matches(id) ON DELETE CASCADE,
+      user_id varchar NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      body text NOT NULL,
+      created_at timestamp DEFAULT now()
+    )`);
+    await db.execute(sql`CREATE INDEX IF NOT EXISTS open_messages_match_created_idx ON open_messages (match_id, created_at)`);
+  } catch (error) {
+    console.error("[Pichangas] no se pudo crear open_messages:", error);
+  }
+}
+
+// Antispam de los chats abiertos: un mensaje cada 1,5 s por usuario (en memoria; vale por instancia).
+const OPEN_CHAT_GAP_MS = 1500;
+const lastOpenPost = new Map<string, number>();
+
+/**
+ * Chat abierto en `path`: cualquier jugador con sesion lo lee y escribe. `resolve` devuelve el partido al que pertenece
+ * (null = chat general; undefined = no existe). Moderacion minima: limite de ritmo, 500 caracteres y las cuentas suspendidas no escriben.
+ */
+function registerOpenChat(app: Express, path: string, resolve: (req: Request) => Promise<string | null | undefined>) {
+  app.get(path, async (req, res) => {
+    const userId = requireUser(req, res);
+    if (!userId) return;
+    try {
+      const matchId = await resolve(req);
+      if (matchId === undefined) return res.status(404).json({ message: "Partido no encontrado" });
+      const rows = await db
+        .select({ id: openMessages.id, userId: openMessages.userId, body: openMessages.body, createdAt: openMessages.createdAt, name: users.name, avatar: users.avatar })
+        .from(openMessages)
+        .innerJoin(users, eq(openMessages.userId, users.id))
+        .where(matchId === null ? isNull(openMessages.matchId) : eq(openMessages.matchId, matchId))
+        .orderBy(sql`${openMessages.createdAt} desc`)
+        .limit(100);
+      res.json(rows.reverse());
+    } catch (error) {
+      console.error(`[GET ${path}] error:`, error);
+      res.status(500).json({ message: "No se pudo cargar el chat" });
+    }
+  });
+
+  app.post(path, async (req, res) => {
+    const userId = requireUser(req, res);
+    if (!userId) return;
+    try {
+      const parsed = z.object({ body: z.string().trim().min(1).max(500) }).safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ message: "Escribe un mensaje de hasta 500 caracteres" });
+      const matchId = await resolve(req);
+      if (matchId === undefined) return res.status(404).json({ message: "Partido no encontrado" });
+
+      const now = Date.now();
+      if (now - (lastOpenPost.get(userId) ?? 0) < OPEN_CHAT_GAP_MS) return res.status(429).json({ message: "Espera un momento antes de enviar otro mensaje" });
+      const [user] = await db.select({ name: users.name, avatar: users.avatar, status: users.status }).from(users).where(eq(users.id, userId));
+      if (user?.status === "suspended") return res.status(403).json({ message: "Tu cuenta está suspendida" });
+      lastOpenPost.set(userId, now);
+
+      const [message] = await db.insert(openMessages).values({ matchId, userId, body: parsed.data.body }).returning();
+      res.status(201).json({ ...message, name: user?.name ?? "", avatar: user?.avatar ?? null });
+    } catch (error) {
+      console.error(`[POST ${path}] error:`, error);
+      res.status(500).json({ message: "No se pudo enviar el mensaje" });
+    }
+  });
 }
 
 /** Crea la tabla del perfil de jugador si falta (aditivo e idempotente, como las demas migraciones de arranque). */
@@ -150,6 +219,7 @@ export function registerPichangas(app: Express) {
     void ensureConfirmedAtColumn();
     void ensurePlayerProfilesTable();
     void ensureMatchPhotosColumn();
+    void ensureOpenMessagesTable();
   }
   // Las reservas vencidas tambien se liberan solas, sin esperar a que alguien abra la pantalla.
   // En Vercel no hay proceso vivo: releaseExpiredHolds ya se llama al leer partidos.
@@ -477,12 +547,19 @@ export function registerPichangas(app: Express) {
     }
   });
 
+  // ── Chats abiertos: general y preguntas al organizador de cada partido ──
+  registerOpenChat(app, "/api/chat/general", async () => null);
+  registerOpenChat(app, "/api/matches/:id/questions", async (req) => {
+    const [match] = await db.select({ id: matches.id }).from(matches).where(eq(matches.id, req.params.id));
+    return match ? match.id : undefined;
+  });
+
   // ── Chat del partido (Camerino & Coordinacion) ──
   app.get("/api/matches/:id/messages", async (req, res) => {
     const userId = requireUser(req, res);
     if (!userId) return;
     try {
-      if (!(await isMatchMember(req.params.id, userId))) return res.status(403).json({ message: "Solo los anotados ven este chat" });
+      if (!(await isMatchMember(req.params.id, userId))) return res.status(403).json({ message: "Solo quienes tienen cupo ven este chat" });
       const rows = await db
         .select({
           id: matchMessages.id, userId: matchMessages.userId, body: matchMessages.body, createdAt: matchMessages.createdAt,
@@ -506,7 +583,7 @@ export function registerPichangas(app: Express) {
     try {
       const parsed = z.object({ body: z.string().trim().min(1).max(500) }).safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ message: "Escribe un mensaje de hasta 500 caracteres" });
-      if (!(await isMatchMember(req.params.id, userId))) return res.status(403).json({ message: "Solo los anotados escriben en este chat" });
+      if (!(await isMatchMember(req.params.id, userId))) return res.status(403).json({ message: "Solo quienes tienen cupo escriben en este chat" });
 
       const [user] = await db.select({ name: users.name, avatar: users.avatar }).from(users).where(eq(users.id, userId));
       const [message] = await db

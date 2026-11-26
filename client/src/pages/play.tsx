@@ -10,6 +10,7 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 import { MatchCard } from "@/components/pichangas/match-card";
 import { MatchDetailView } from "@/components/pichangas/match-detail";
 import { MatchCheckoutView } from "@/components/pichangas/match-checkout";
+import { ChatsView } from "@/components/pichangas/chats-view";
 import { MatchPassView } from "@/components/pichangas/match-pass";
 import { CitySelect, NightEmpty, NightMenu, PitchButton, QuickPill, WelcomeBanner } from "@/components/pichangas/night-ui";
 import { NightBackLink, NightIconButton, NightInput, NightLinkButton, NightTabs } from "@/components/pichangas/night-controls";
@@ -370,6 +371,7 @@ export default function PlayPage() {
   const [, matchParams] = useRoute<{ id: string }>(PLAY_PATTERNS.match);
   const [, passParams] = useRoute<{ id: string }>(PLAY_PATTERNS.pass);
   const [, payParams] = useRoute<{ id: string }>(PLAY_PATTERNS.pay);
+  const [, chatParams] = useRoute<{ id: string }>(PLAY_PATTERNS.chat);
   const { data: user, isLoading } = useQuery<CurrentUser | null>({ queryKey: ["/api/user/current"] });
 
   useEffect(() => {
@@ -419,6 +421,13 @@ export default function PlayPage() {
 
   if (location.startsWith(PLAY_ROUTES.mine)) {
     return <PlayerShell active="mine"><MineView /></PlayerShell>;
+  }
+  if (location.startsWith(PLAY_ROUTES.chats)) {
+    return (
+      <PlayerShell active="chats">
+        <ChatsView selectedId={chatParams?.id ? matchIdFromParam(chatParams.id) : undefined} me={user} isDesktop={isDesktop} />
+      </PlayerShell>
+    );
   }
   if (location.startsWith(PLAY_ROUTES.hostNew)) {
     return <PlayerShell active="host"><HostMatchPage /></PlayerShell>;

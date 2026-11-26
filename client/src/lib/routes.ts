@@ -61,7 +61,7 @@ export const ROUTES = {
 /** Un partido para armar su URL: con titulo sale legible (`/play/loza-wanchaq-tarde-b09bc189`); solo con el id, `/play/b09bc189`. */
 export type MatchRef = string | { id: string; title: string };
 /** Segmentos de /play que no son partidos. */
-export const PLAY_RESERVED = ["mine", "profile", "host"] as const;
+export const PLAY_RESERVED = ["mine", "chats", "profile", "host"] as const;
 export function matchSlug(m: MatchRef): string {
   const id = (typeof m === "string" ? m : m.id).slice(0, 8);
   if (typeof m === "string") return id;
@@ -75,6 +75,11 @@ export const matchIdFromParam = (param: string) => /-([0-9a-f]{8})$/.exec(param)
 export const PLAY_ROUTES = {
   feed: "/play",
   mine: "/play/mine",
+  /** Chats: un chat por pichanga (lista + conversacion). */
+  chats: "/play/chats",
+  chat: (m: MatchRef) => `/play/chats/${matchSlug(m)}`,
+  /** Chat general: todos los jugadores. */
+  chatGeneral: "/play/chats/general",
   profile: "/play/profile",
   /** Perfil de host: mis partidos organizados y crear uno nuevo. */
   host: "/play/host",
@@ -87,6 +92,7 @@ export const PLAY_ROUTES = {
   pay: (m: MatchRef) => `/play/${matchSlug(m)}/pay`,
 } as const;
 export const PLAY_PATTERNS = {
+  chat: "/play/chats/:id",
   match: "/play/:id",
   pass: "/play/:id/pass",
   pay: "/play/:id/pay",

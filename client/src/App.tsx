@@ -71,6 +71,8 @@ function Router() {
       <Route path={ROUTES.root} component={Play} />
       <Route path="/play" component={Play} />
       <Route path="/play/mine" component={Play} />
+      <Route path="/play/chats" component={Play} />
+      <Route path="/play/chats/:id" component={Play} />
       <Route path="/play/profile" component={Play} />
       <Route path={PLAY_ROUTES.host} component={Play} />
       <Route path={PLAY_ROUTES.hostNew} component={Play} />

@@ -238,25 +238,27 @@ export function useJoinLeave(matchId: string) {
  * Chat del partido. Consulta cada 15 s mientras la pantalla esta abierta: los mensajes llegan sin recargar y sin
  * WebSocket (mismo criterio que el chat de la app).
  */
-export function useMatchMessages(matchId: string | undefined, enabled = true) {
+export function useChatMessages(path: string | undefined, enabled = true) {
   return useQuery<MatchMessage[]>({
-    queryKey: [`/api/matches/${matchId}/messages`],
-    enabled: !!matchId && enabled,
+    queryKey: [path],
+    enabled: !!path && enabled,
     refetchInterval: 15_000,
     staleTime: 5_000,
   });
 }
+export const useMatchMessages = (matchId: string | undefined, enabled = true) =>
+  useChatMessages(matchId ? `/api/matches/${matchId}/messages` : undefined, enabled);
 
 /** Enviar al chat con UI optimista: el mensaje aparece al instante y se confirma al volver el servidor. */
-export function useSendMatchMessage(
-  matchId: string,
+export function useSendChatMessage(
+  path: string,
   me: { id: string; name: string; avatar?: string | null },
 ) {
   const qc = useQueryClient();
-  const key = [`/api/matches/${matchId}/messages`];
+  const key = [path];
   return useMutation({
     mutationFn: async (body: string) =>
-      (await apiRequest("POST", `/api/matches/${matchId}/messages`, { body })).json() as Promise<MatchMessage>,
+      (await apiRequest("POST", path, { body })).json() as Promise<MatchMessage>,
     onMutate: async (body) => {
       await qc.cancelQueries({ queryKey: key });
       const prev = qc.getQueryData<MatchMessage[]>(key);
@@ -284,6 +286,9 @@ export function useSendMatchMessage(
     onSettled: () => qc.invalidateQueries({ queryKey: key }),
   });
 }
+
+export const useSendMatchMessage = (matchId: string, me: { id: string; name: string; avatar?: string | null }) =>
+  useSendChatMessage(`/api/matches/${matchId}/messages`, me);
 
 /** Portada por defecto: ninguna pichanga queda sin portada (cancha sin foto o foto que no carga). */
 export const DEFAULT_COVER = "/venues/portada-default.jpg";

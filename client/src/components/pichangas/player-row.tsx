@@ -16,6 +16,8 @@ export interface PlayerRowProps {
   highlight?: boolean;
   /** Texto atenuado (acompañante: ocupa cupo pero no tiene cuenta). */
   muted?: boolean;
+  /** Acompañante o invitado: en lugar de avatar lleva el ícono de invitado. */
+  guest?: boolean;
   /** Accion al final de la fila (ej. "Separar ahora"). */
   action?: ReactNode;
   /** Fila seleccionable (cupo libre): tocar cualquier parte de la fila la marca o desmarca. */
@@ -30,7 +32,7 @@ export interface PlayerRowProps {
 
 // Fila de jugador de la plantilla. La usan el detalle (confirmados, suplentes y el cupo libre) para que todas
 // las filas midan y se lean igual.
-export function PlayerRow({ number, name, avatar, isMe, placeholder, highlight, muted, action, index = 0, onSelect, selected, className, title }: PlayerRowProps) {
+export function PlayerRow({ number, name, avatar, isMe, placeholder, highlight, muted, guest, action, index = 0, onSelect, selected, className, title }: PlayerRowProps) {
   const reduce = useReducedMotion();
   return (
     <motion.li
@@ -51,7 +53,8 @@ export function PlayerRow({ number, name, avatar, isMe, placeholder, highlight, 
     >
       {/* El cupo libre no lleva numero, pero reserva el ancho para alinear con las demas filas. */}
       <span className="w-4 shrink-0 text-right text-caption font-bold text-night-muted tabular-nums">{number ?? ""}</span>
-      {!placeholder && <UserAvatar name={name} avatar={avatar} size="sm" />}
+      {guest && <img src="/brand/invitado.webp" alt="" width={32} height={32} className="size-8 shrink-0 object-contain" loading="lazy" decoding="async" />}
+      {!placeholder && !guest && <UserAvatar name={name} avatar={avatar} size="sm" />}
       <span className={cn("min-w-0 flex-1 truncate text-body", highlight ? "font-bold text-pitch" : muted ? "text-night-muted" : "text-night-text")}>
         {isMe ? `${name} (tú)` : name}
       </span>

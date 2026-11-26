@@ -888,6 +888,18 @@ export const matchPlayers = pgTable("match_players", {
   unqMatchUser: uniqueIndex("match_players_match_user_unique").on(table.matchId, table.userId),
 }));
 
+// Chats ABIERTOS (cualquier jugador con sesion): el chat general (match_id NULL) y las preguntas al organizador de cada partido.
+// El chat del equipo (match_messages) sigue siendo solo para quienes tienen cupo.
+export const openMessages = pgTable("open_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  matchId: varchar("match_id").references(() => matches.id, { onDelete: "cascade" }), // NULL = chat general
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  matchCreatedIdx: index("open_messages_match_created_idx").on(table.matchId, table.createdAt),
+}));
+
 // Chat de grupo de un partido ("Camerino & Coordinacion"): solo lo leen y escriben los anotados y el organizador.
 export const matchMessages = pgTable("match_messages", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

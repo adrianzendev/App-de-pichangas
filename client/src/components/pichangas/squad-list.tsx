@@ -95,6 +95,7 @@ export function SquadList({
                 key={`${p.userId}-guest-${g}`}
                 name={p.guestNames?.[g]?.trim() || `Acompañante de ${p.name.split(" ")[0]}`}
                 placeholder
+                guest
                 muted
                 highlight={mine}
                 selected={mine}
