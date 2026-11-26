@@ -157,7 +157,7 @@ export function CitySelect({ value, cities, onChange, className }: { value: stri
 /** Estado vacio o de error sobre fondo oscuro. */
 export function NightEmpty({ icon, title, description, action, fill }: { icon: ReactNode; title: string; description?: string; action?: ReactNode; /** Ocupa todo el alto libre de su contenedor (el mensaje queda centrado). */ fill?: boolean }) {
   return (
-    <div className={cn(surfaceClass(), "flex flex-col items-center gap-2 px-6 py-10 text-center", fill && "flex-1 justify-center")}>
+    <div className={cn("flex flex-col items-center gap-2 px-6 py-10 text-center", fill && "flex-1 justify-center")}>
       <span className="text-night-muted" aria-hidden>{icon}</span>
       <p className="text-body font-semibold text-night-text">{title}</p>
       {description && <p className="text-label text-night-muted">{description}</p>}

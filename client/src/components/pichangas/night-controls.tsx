@@ -190,10 +190,10 @@ export function NightListRow({ active, icon, title, subtitle, meta, metaBottom, 
 
 export function NightTile({ icon, label, onClick, href }: { icon: ReactNode; label: string; onClick?: () => void; href?: string }) {
   const className =
-    "flex flex-col items-center justify-center gap-2 rounded-md bg-night-container p-3 text-label font-bold text-night-text transition-transform duration-fast active:scale-95 hover:bg-night-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch";
+    "group flex flex-col items-center justify-center gap-2 rounded-md bg-night-container p-3 text-label font-bold text-night-text transition-transform duration-fast active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pitch";
   const content = (
     <>
-      <span className="flex size-10 items-center justify-center rounded-full bg-night-high text-pitch" aria-hidden>{icon}</span>
+      <span className="flex size-10 items-center justify-center rounded-full bg-night-high text-pitch transition-colors duration-fast group-hover:bg-night-highest" aria-hidden>{icon}</span>
       {label}
     </>
   );

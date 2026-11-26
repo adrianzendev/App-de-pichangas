@@ -26,7 +26,7 @@ import { logout } from "@/lib/logout";
 import { cn } from "@/lib/utils";
 import { ADMIN_ROUTES, PLAY_PATTERNS, PLAY_RESERVED, PLAY_ROUTES, ROUTES, matchIdFromParam } from "@/lib/routes";
 import {
-  FORMAT_LABEL, FORMAT_OPTIONS, GENDER_LABEL, GENDER_OPTIONS, LEVEL_LABEL, LEVEL_OPTIONS, SORT_OPTIONS, citiesOf, dayLabel, loadCity, saveCity, searchAndSort,
+  FORMAT_LABEL, FORMAT_OPTIONS, GENDER_LABEL, GENDER_OPTIONS, LEVEL_LABEL, LEVEL_OPTIONS, SORT_OPTIONS, WHEN_OPTIONS, useDisabledFilters, citiesOf, dayLabel, loadCity, saveCity, searchAndSort,
   useMatches, useMyMatches, useVenues,
   type MatchFilters, type MatchSort, type MatchSummary,
 } from "@/lib/pichangas";
@@ -77,7 +77,13 @@ function FeedScreen({ selectedId, userId, isDesktop }: { selectedId?: string; us
   const toggle = (key: keyof MatchFilters, value: string) => update({ ...filters, [key]: filters[key] === value ? undefined : value });
 
   const { data: venues = [] } = useVenues();
+  const off = useDisabledFilters();
+  const shown = <T extends { id: string }>(kind: string, options: T[]) => options.filter((o) => !off.has(`${kind}:${o.id}`));
   const cities = useMemo(() => citiesOf(venues), [venues]);
+  // La ciudad guardada puede no tener zonas activas (las habilita el administrador): se pasa a la primera disponible para no dejar el feed vacio.
+  useEffect(() => {
+    if (cities.length > 0 && filters.city && !cities.includes(filters.city)) update({ ...filters, city: cities[0] });
+  }, [cities]); // eslint-disable-line react-hooks/exhaustive-deps
   const city = filters.city ?? "Lima";
   const districts = useMemo(
     () => Array.from(new Set(venues.filter((v) => v.city === city).map((v) => v.district))).sort((a, b) => a.localeCompare(b, "es")),
@@ -157,19 +163,20 @@ function FeedScreen({ selectedId, userId, isDesktop }: { selectedId?: string; us
               <QuickPill active={!filters.district} onClick={() => update({ ...filters, district: undefined })}>Todos</QuickPill>
               {districts.map((d) => <QuickPill key={d} active={filters.district === d} onClick={() => toggle("district", d)}>{d}</QuickPill>)}
             </FilterGroup>
-            <FilterGroup label="Cuándo">
-              <QuickPill active={day === "today"} onClick={() => setDay(day === "today" ? undefined : "today")}>Hoy</QuickPill>
-              <QuickPill active={day === "tomorrow"} onClick={() => setDay(day === "tomorrow" ? undefined : "tomorrow")}>Mañana</QuickPill>
-            </FilterGroup>
-            <FilterGroup label="Formato">
-              {FORMAT_OPTIONS.map((o) => <QuickPill key={o.id} active={filters.format === o.id} onClick={() => toggle("format", o.id)}>{o.label}</QuickPill>)}
-            </FilterGroup>
-            <FilterGroup label="Nivel">
-              {LEVEL_OPTIONS.map((o) => <QuickPill key={o.id} active={filters.level === o.id} onClick={() => toggle("level", o.id)}>{o.label}</QuickPill>)}
-            </FilterGroup>
-            <FilterGroup label="Quién juega">
-              {GENDER_OPTIONS.map((o) => <QuickPill key={o.id} active={filters.gender === o.id} onClick={() => toggle("gender", o.id)}>{o.label}</QuickPill>)}
-            </FilterGroup>
+            {shown("when", WHEN_OPTIONS).length > 0 && (
+              <FilterGroup label="Cuándo">
+                {shown("when", WHEN_OPTIONS).map((o) => <QuickPill key={o.id} active={day === o.id} onClick={() => setDay(day === o.id ? undefined : (o.id as DayFilter))}>{o.label}</QuickPill>)}
+              </FilterGroup>
+            )}
+            {shown("format", FORMAT_OPTIONS).length > 0 && <FilterGroup label="Formato">
+              {shown("format", FORMAT_OPTIONS).map((o) => <QuickPill key={o.id} active={filters.format === o.id} onClick={() => toggle("format", o.id)}>{o.label}</QuickPill>)}
+            </FilterGroup>}
+            {shown("level", LEVEL_OPTIONS).length > 0 && <FilterGroup label="Nivel">
+              {shown("level", LEVEL_OPTIONS).map((o) => <QuickPill key={o.id} active={filters.level === o.id} onClick={() => toggle("level", o.id)}>{o.label}</QuickPill>)}
+            </FilterGroup>}
+            {shown("gender", GENDER_OPTIONS).length > 0 && <FilterGroup label="Quién juega">
+              {shown("gender", GENDER_OPTIONS).map((o) => <QuickPill key={o.id} active={filters.gender === o.id} onClick={() => toggle("gender", o.id)}>{o.label}</QuickPill>)}
+            </FilterGroup>}
           </div>
         )}
       </div>

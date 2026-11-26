@@ -48,8 +48,51 @@ async function activeDistrictCodes(): Promise<string[]> {
   return rows.map((r) => r.code);
 }
 
+/** Opciones de filtro del feed que el administrador apago (solo se guardan las apagadas). Aditiva e idempotente. */
+async function ensureFilterOptionsTable() {
+  try {
+    await db.execute(sql`CREATE TABLE IF NOT EXISTS disabled_filter_options (kind varchar(20) NOT NULL, value varchar(30) NOT NULL, PRIMARY KEY (kind, value))`);
+  } catch (error) {
+    console.error("[Filtros] no se pudo crear disabled_filter_options:", error);
+  }
+}
+
+async function disabledFilterOptions(): Promise<{ kind: string; value: string }[]> {
+  try {
+    const result = await db.execute(sql`select kind, value from disabled_filter_options order by kind, value`);
+    return ((result as unknown as { rows?: { kind: string; value: string }[] }).rows ?? (result as unknown as { kind: string; value: string }[])) as { kind: string; value: string }[];
+  } catch {
+    return []; // la tabla aun no existe: todo habilitado
+  }
+}
+
 export function registerAdminPichangas(app: Express) {
-  if (RUN_MIGRATIONS) void ensureGeoTable();
+  if (RUN_MIGRATIONS) { void ensureGeoTable(); void ensureFilterOptionsTable(); }
+
+  // Que opciones de los filtros del feed estan apagadas (lo leen los jugadores para ocultarlas).
+  app.get("/api/filter-options", async (_req, res) => {
+    res.json({ disabled: await disabledFilterOptions() });
+  });
+
+  // Enciende o apaga UNA opcion de filtro (cuando, format, level, gender).
+  app.put("/api/admin/pichangas/filter-options", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const parsed = z.object({
+      kind: z.enum(["when", "format", "level", "gender"]),
+      value: z.string().regex(/^[a-z0-9_]{1,30}$/),
+      enabled: z.boolean(),
+    }).safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Opción no válida" });
+    const { kind, value, enabled } = parsed.data;
+    try {
+      if (enabled) await db.execute(sql`delete from disabled_filter_options where kind = ${kind} and value = ${value}`);
+      else await db.execute(sql`insert into disabled_filter_options (kind, value) values (${kind}, ${value}) on conflict do nothing`);
+      res.json({ disabled: await disabledFilterOptions() });
+    } catch (error) {
+      console.error("[PUT /api/admin/pichangas/filter-options] error:", error);
+      res.status(500).json({ message: "No se pudo guardar el filtro" });
+    }
+  });
 
   // Geografia: que departamentos, provincias y distritos del Peru estan activos.
   app.get("/api/admin/pichangas/geo", async (req, res) => {
@@ -361,6 +404,11 @@ export function registerAdminPichangas(app: Express) {
     try {
       const [updated] = await db.update(users).set({ status: parsed.data.status }).where(eq(users.id, req.params.id)).returning({ id: users.id, status: users.status });
       if (!updated) return res.status(404).json({ message: "Jugador no encontrado" });
+      // Al suspender una cuenta se deshacen sus inscripciones a partidos que aun no se juegan (sus cupos quedan libres).
+      // Los partidos que organiza y su historial no se tocan.
+      if (updated.status === "suspended") {
+        await db.execute(sql`delete from match_players where user_id = ${updated.id} and match_id in (select id from matches where starts_at > now() and organizer_id <> ${updated.id})`);
+      }
       res.json(updated);
     } catch (error) {
       console.error("[PATCH /api/admin/pichangas/players/:id/status] error:", error);

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { PLAY_ROUTES } from "@/lib/routes";
@@ -129,6 +130,18 @@ export const SURFACE_LABEL: Record<string, string> = {
 export const FORMAT_OPTIONS = Object.entries(FORMAT_LABEL).map(([id, label]) => ({ id, label }));
 export const LEVEL_OPTIONS = Object.entries(LEVEL_LABEL).map(([id, label]) => ({ id, label }));
 export const GENDER_OPTIONS = Object.entries(GENDER_LABEL).map(([id, label]) => ({ id, label }));
+/** "Cuando" del feed (no es un campo del partido: se filtra por el dia). */
+export const WHEN_OPTIONS = [{ id: "today", label: "Hoy" }, { id: "tomorrow", label: "Mañana" }];
+
+/** Opciones de filtro que el administrador apago. Clave "<kind>:<value>" (kind: when | format | level | gender). */
+export interface FilterOptionsState { disabled: { kind: string; value: string }[] }
+export function useFilterOptions() {
+  return useQuery<FilterOptionsState>({ queryKey: ["/api/filter-options"], staleTime: 60_000 });
+}
+export function useDisabledFilters(): Set<string> {
+  const { data } = useFilterOptions();
+  return useMemo(() => new Set((data?.disabled ?? []).map((d) => `${d.kind}:${d.value}`)), [data]);
+}
 
 const TZ = "America/Lima";
 const dayKey = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: TZ });

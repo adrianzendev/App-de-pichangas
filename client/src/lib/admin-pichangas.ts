@@ -134,3 +134,7 @@ export const deleteRuleRequest = (id: string) => apiRequest("DELETE", `/api/admi
 export const useAdminGeo = () => useQuery<{ active: string[] }>({ queryKey: ["/api/admin/pichangas/geo"] });
 export const setGeoRequest = async (active: string[]): Promise<{ active: string[] }> =>
   (await apiRequest("PUT", "/api/admin/pichangas/geo", { active })).json();
+
+// Filtros del feed: encender o apagar cada opcion (cuando, format, level, gender).
+export const setFilterOptionRequest = async (input: { kind: string; value: string; enabled: boolean }) =>
+  (await apiRequest("PUT", "/api/admin/pichangas/filter-options", input)).json();

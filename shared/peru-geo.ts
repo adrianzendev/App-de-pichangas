@@ -2107,6 +2107,27 @@ export const PERU_DISTRICTS: readonly Row[] = [
   ["250401","Purus"],
 ];
 
+const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+const DEPARTMENT_BY_CODE = new Map(PERU_DEPARTMENTS.map(([c, n]) => [c, norm(n)]));
+const PROVINCE_BY_CODE = new Map(PERU_PROVINCES.map(([c, n]) => [c, norm(n)]));
+const DISTRICTS_BY_NAME = new Map<string, string[]>();
+for (const [c, n] of PERU_DISTRICTS) {
+  const k = norm(n);
+  DISTRICTS_BY_NAME.set(k, [...(DISTRICTS_BY_NAME.get(k) ?? []), c]);
+}
+
+/**
+ * Codigos de distrito que corresponden al distrito y la ciudad escritos en una cancha. Varios distritos comparten nombre
+ * (Santiago, San Martin...): se queda con los que caen en la region o provincia indicada como ciudad; si ninguno, con todos.
+ */
+export function venueDistrictCodes(district: string, city: string): string[] {
+  const candidates = DISTRICTS_BY_NAME.get(norm(district)) ?? [];
+  if (candidates.length <= 1) return candidates;
+  const c = norm(city);
+  const narrowed = candidates.filter((code) => DEPARTMENT_BY_CODE.get(code.slice(0, 2)) === c || PROVINCE_BY_CODE.get(code.slice(0, 4)) === c);
+  return narrowed.length > 0 ? narrowed : candidates;
+}
+
 /** Codigos de todos los distritos que cuelgan de un departamento (2 digitos), provincia (4) o distrito (6). */
 export function districtCodesUnder(code: string): string[] {
   if (!/^([0-9]{2}([0-9]{2}([0-9]{2})?)?)?$/.test(code)) return [];

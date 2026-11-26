@@ -2,6 +2,7 @@ import type { Express, Request, Response } from "express";
 import { and, asc, eq, gte, inArray, isNull, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "./db";
+import { venueDistrictCodes } from "@shared/peru-geo";
 import { IS_VERCEL, RUN_MIGRATIONS } from "./runtime";
 import {
   venues, matches, matchPlayers, matchMessages, openMessages, users, playerProfiles,
@@ -18,6 +19,12 @@ function requireUser(req: Request, res: Response): string | null {
   const id = currentUserId(req);
   if (!id) res.status(401).json({ message: "Inicia sesión para continuar" });
   return id;
+}
+
+/** Las cuentas suspendidas no reservan cupos ni crean partidos. */
+async function isSuspended(userId: string): Promise<boolean> {
+  const [u] = await db.select({ status: users.status }).from(users).where(eq(users.id, userId));
+  return !!u?.status && u.status !== "active";
 }
 
 /** Jugadores confirmados por partido (para cupos). */
@@ -215,6 +222,24 @@ export async function releaseExpiredHolds() {
   }
 }
 
+/**
+ * Zonas activadas por el administrador (panel Geografia). Sin ninguna activada no se filtra nada (la app sigue abierta a todo el Peru);
+ * con alguna, el feed solo muestra partidos de canchas cuyo distrito esta activo.
+ */
+async function activeGeoDistricts(): Promise<Set<string> | null> {
+  try {
+    const result = await db.execute(sql`select code from geo_active_districts`);
+    const rows = ((result as unknown as { rows?: { code: string }[] }).rows ?? (result as unknown as { code: string }[])) as { code: string }[];
+    return rows.length > 0 ? new Set(rows.map((r) => r.code)) : null;
+  } catch {
+    return null; // la tabla aun no existe: sin filtro
+  }
+}
+
+/** La cancha esta en una zona activa (o no hay zonas activadas: todo el Peru esta abierto). */
+const inActiveGeo = (activeGeo: Set<string> | null, v: { district: string; city: string }) =>
+  !activeGeo || venueDistrictCodes(v.district, v.city).some((c) => activeGeo.has(c));
+
 export function registerPichangas(app: Express) {
   if (RUN_MIGRATIONS) {
     void ensureGuestsColumn();
@@ -285,7 +310,9 @@ export function registerPichangas(app: Express) {
         .from(venues)
         .where(and(...conds))
         .orderBy(asc(venues.city), asc(venues.district), asc(venues.name));
-      res.json(rows);
+      // Los jugadores y hosts solo ven canchas de las zonas que el administrador activo.
+      const activeGeo = await activeGeoDistricts();
+      res.json(rows.filter((v) => inActiveGeo(activeGeo, v)));
     } catch (error) {
       console.error("[GET /api/venues] error:", error);
       res.status(500).json({ message: "No se pudieron cargar las canchas" });
@@ -328,8 +355,10 @@ export function registerPichangas(app: Express) {
         .orderBy(asc(matches.startsAt))
         .limit(100);
 
-      const counts = await confirmedCounts(rows.map((r) => r.match.id));
-      res.json(rows.map((r) => ({ ...r.match, venue: r.venue, organizerName: r.organizerName, organizerAvatar: r.organizerAvatar, confirmedCount: counts.get(r.match.id) ?? 0 })));
+      const activeGeo = await activeGeoDistricts();
+      const visible = rows.filter((r) => inActiveGeo(activeGeo, r.venue));
+      const counts = await confirmedCounts(visible.map((r) => r.match.id));
+      res.json(visible.map((r) => ({ ...r.match, venue: r.venue, organizerName: r.organizerName, organizerAvatar: r.organizerAvatar, confirmedCount: counts.get(r.match.id) ?? 0 })));
     } catch (error) {
       console.error("[GET /api/matches] error:", error);
       res.status(500).json({ message: "No se pudieron cargar los partidos" });
@@ -348,8 +377,12 @@ export function registerPichangas(app: Express) {
         .innerJoin(users, eq(matches.organizerId, users.id))
         .where(eq(matchPlayers.userId, userId))
         .orderBy(asc(matches.startsAt));
-      const counts = await confirmedCounts(rows.map((r) => r.match.id));
-      res.json(rows.map((r) => ({ ...r.match, venue: r.venue, organizerName: r.organizerName, organizerAvatar: r.organizerAvatar, playerStatus: r.playerStatus, playerPaid: !!r.playerPaid, playerGuests: r.playerGuests, confirmedCount: counts.get(r.match.id) ?? 0 })));
+      // Solo se aprueban partidos de las zonas activas: los proximos de otras zonas no se muestran (el historial se conserva).
+      const activeGeo = await activeGeoDistricts();
+      const now = Date.now();
+      const visible = rows.filter((r) => r.match.startsAt.getTime() < now || inActiveGeo(activeGeo, r.venue));
+      const counts = await confirmedCounts(visible.map((r) => r.match.id));
+      res.json(visible.map((r) => ({ ...r.match, venue: r.venue, organizerName: r.organizerName, organizerAvatar: r.organizerAvatar, playerStatus: r.playerStatus, playerPaid: !!r.playerPaid, playerGuests: r.playerGuests, confirmedCount: counts.get(r.match.id) ?? 0 })));
     } catch (error) {
       console.error("[GET /api/matches/mine] error:", error);
       res.status(500).json({ message: "No se pudieron cargar tus partidos" });
@@ -395,13 +428,15 @@ export function registerPichangas(app: Express) {
     const userId = requireUser(req, res);
     if (!userId) return;
     try {
+      if (await isSuspended(userId)) return res.status(403).json({ message: "Tu cuenta está suspendida. Contacta a soporte." });
       // Solo los hosts crean partidos (se activa desde el perfil).
       const [profile] = await db.select({ isHost: playerProfiles.isHost }).from(playerProfiles).where(eq(playerProfiles.userId, userId));
       if (!profile?.isHost) return res.status(403).json({ message: "Activa tu perfil de host para crear partidos" });
       const parsed = insertMatchSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ message: "Datos inválidos", issues: parsed.error.issues });
-      const [venue] = await db.select({ id: venues.id }).from(venues).where(and(eq(venues.id, parsed.data.venueId), eq(venues.isActive, true)));
+      const [venue] = await db.select({ id: venues.id, district: venues.district, city: venues.city }).from(venues).where(and(eq(venues.id, parsed.data.venueId), eq(venues.isActive, true)));
       if (!venue) return res.status(400).json({ message: "La cancha no existe" });
+      if (!inActiveGeo(await activeGeoDistricts(), venue)) return res.status(400).json({ message: "Esa zona aún no está habilitada para crear partidos" });
 
       const created = await db.transaction(async (tx) => {
         const [match] = await tx.insert(matches).values({
@@ -426,6 +461,7 @@ export function registerPichangas(app: Express) {
     const userId = requireUser(req, res);
     if (!userId) return;
     try {
+      if (await isSuspended(userId)) return res.status(403).json({ message: "Tu cuenta está suspendida. Contacta a soporte." });
       await releaseExpiredHolds();
       const parsed = z.object({
         paid: z.boolean().optional(),
