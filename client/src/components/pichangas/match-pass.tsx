@@ -1,4 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode, useId } from "react";
+import { createPortal } from "react-dom";
+import { useSidebarSlot } from "@/components/pichangas/player-shell";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { MQ } from "@/lib/breakpoints";
 import { surfaceClass } from "@/components/pichangas/surface";
 import { useLocation } from "wouter";
 import QRCode from "qrcode";
@@ -149,6 +153,11 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
   const [draft, setDraft] = useState("");
   const [rulesOpen, setRulesOpen] = useState(false);
   const [namesDismissed, setNamesDismissed] = useState(false);
+  // En escritorio el chat del partido vive en el menu lateral, debajo de "Mis pichangas" (portal al hueco del shell).
+  const sidebarSlot = useSidebarSlot();
+  const isDesktop = useMediaQuery(MQ.lg);
+  const chatInSidebar = isDesktop && !!sidebarSlot;
+  const renderChat = (node: ReactNode) => (chatInSidebar && sidebarSlot ? createPortal(node, sidebarSlot) : node);
   // Ya pago con acompañantes y faltan sus nombres: se piden aqui, despues del pago (primero se paga, luego se completa la plantilla).
   const needsNames = !!minePlayer && !!minePlayer.paid && minePlayer.guests > 0 && !guestNamesComplete(minePlayer.guestNames, minePlayer.guests);
   const saveNames = useMutation({
@@ -267,7 +276,7 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
       : "bg-night-high text-night-muted";
 
   return (
-    <div className="mx-auto w-full max-w-content space-y-section-gap p-4 lg:max-w-none lg:grid lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0 lg:p-0">
+    <div className={chatInSidebar ? "mx-auto w-full max-w-content space-y-section-gap p-4 lg:p-0" : "mx-auto w-full max-w-content space-y-section-gap p-4 lg:max-w-none lg:grid lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0 lg:p-0"}>
       <div className="space-y-section-gap">
         {/* Estado del cupo + cuenta regresiva */}
         <section className={cn(surfaceClass(), "flex items-center justify-between gap-3 p-4")} aria-label="Estado de mi cupo">
@@ -370,7 +379,8 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
       </div>
 
       {/* Chat del equipo */}
-      <section className={cn(surfaceClass(), "flex flex-col overflow-hidden")} aria-label="Chat del equipo">
+      {renderChat(
+      <section className={cn(surfaceClass(), "flex flex-col overflow-hidden", chatInSidebar && "h-full")} aria-label="Chat del equipo">
         <header className="flex items-center justify-between gap-3 bg-night-high px-3 py-3">
           <div className="flex min-w-0 items-center gap-3">
             <span className="relative flex size-9 shrink-0 items-center justify-center rounded-full bg-pitch/15 text-pitch" aria-hidden>
@@ -386,12 +396,14 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
               </p>
             </div>
           </div>
-          <NightBadge tone="muted" size="sm" className="shrink-0">
-            {left === 0 ? "Completo" : left === 1 ? "Falta 1 cupo" : `Faltan ${left} cupos`}
-          </NightBadge>
+          {!chatInSidebar && (
+            <NightBadge tone="muted" size="sm" className="shrink-0">
+              {left === 0 ? "Completo" : left === 1 ? "Falta 1 cupo" : `Faltan ${left} cupos`}
+            </NightBadge>
+          )}
         </header>
 
-        <div ref={streamRef} className="max-h-80 min-h-40 space-y-3 overflow-y-auto p-3">
+        <div ref={streamRef} className={cn("space-y-3 overflow-y-auto p-3", chatInSidebar ? "min-h-0 flex-1" : "max-h-80 min-h-40")}>
           {chatLoading ? (
             <div className="space-y-3" aria-busy="true">
               <Skeleton className="h-14 w-3/4 bg-night-high" />
@@ -449,6 +461,7 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
           </NightIconButton>
         </form>
       </section>
+      )}
 
       <GuestNamesDialog
         open={needsNames && !namesDismissed}
