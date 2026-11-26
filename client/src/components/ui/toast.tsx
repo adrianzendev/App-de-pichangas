@@ -27,7 +27,7 @@ ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 // Tarjeta blanca con sombra de capa flotante. El estado (default / success / destructive) NO pinta la tarjeta:
 // lo comunica el circulo de icono que arma <Toaster />.
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full gap-3 overflow-hidden rounded-lg bg-white p-3 text-foreground shadow-modal transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-toast-swipe-end data-[swipe=move]:translate-x-toast-swipe-move data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:fade-in data-[state=open]:slide-in-from-bottom-4",
+  "group pointer-events-auto relative flex w-full items-center gap-3 overflow-hidden rounded-lg bg-white p-3 text-foreground shadow-modal transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-toast-swipe-end data-[swipe=move]:translate-x-toast-swipe-move data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:fade-in data-[state=open]:slide-in-from-bottom-4",
   {
     variants: {
       variant: {
@@ -90,14 +90,14 @@ const ToastClose = React.forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cn(
-      "absolute right-1 top-1 flex h-10 w-10 items-center justify-center rounded-full text-gray-700 transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+      "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-700 transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
       className
     )}
     toast-close=""
     aria-label="Cerrar notificación"
     {...props}
   >
-    <X className="h-5 w-5" />
+    <X className="h-4 w-4" />
   </ToastPrimitives.Close>
 ))
 ToastClose.displayName = ToastPrimitives.Close.displayName

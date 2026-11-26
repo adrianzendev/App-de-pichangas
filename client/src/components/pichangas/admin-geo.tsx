@@ -197,7 +197,7 @@ export function AdminGeoView() {
         </AdminPanel>
 
         {/* Confirmacion: debajo del detalle, siempre en el mismo lugar. */}
-        <AdminPanel className="flex flex-wrap items-center justify-between gap-3 p-3">
+        <AdminPanel className={cn("flex flex-wrap items-center justify-between gap-3 p-3", changes > 0 && "border-pitch")}>
           <p className="text-body text-night-text">
             {changes > 0 ? <>Tienes <strong>{changes}</strong> {changes === 1 ? "cambio" : "cambios"} sin guardar.</> : "No hay cambios por guardar."}
           </p>
