@@ -211,7 +211,7 @@ function FeedScreen({ selectedId, userId, isDesktop }: { selectedId?: string; us
             action={hasFilters ? <PitchButton onClick={clearAll}>Quitar filtros</PitchButton> : undefined}
           />
         ) : (
-          <ul className="grid gap-3 lg:grid-cols-2" aria-label="Partidos disponibles">
+          <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2" aria-label="Partidos disponibles">
             {visible.map((m) => (
               <li key={m.id}>
                 <MatchCard match={m} paid={paidById.get(m.id)} selected={!!selectedId && m.id.startsWith(selectedId)} onOpen={open} />
@@ -282,7 +282,7 @@ function MineView() {
           action={tab === "upcoming" ? <PitchButton onClick={() => setLocation(PLAY_ROUTES.feed)}>Buscar partidos</PitchButton> : undefined}
         />
       ) : (
-        <ul className="grid gap-3 lg:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           {list.map((m) => (
             <li key={m.id}>
               <MatchCard

@@ -35,7 +35,7 @@ export function MatchCard({ match, paid, selected, onOpen }: MatchCardProps) {
     <article
       onClick={() => onOpen(match.id)}
       className={cn(
-        surfaceClass(), "flex cursor-pointer flex-col overflow-hidden transition-colors duration-fast hover:bg-pitch/5",
+        surfaceClass(), "flex min-w-0 cursor-pointer flex-col overflow-hidden transition-colors duration-fast hover:bg-pitch/5",
         selected && "ring-1 ring-night-outline",
       )}
       data-testid={`match-card-${match.id}`}
