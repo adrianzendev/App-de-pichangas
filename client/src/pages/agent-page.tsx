@@ -20,7 +20,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   active:           { label: "Buscando...",   color: "bg-primary-100 text-primary-700" },
-  in_progress:      { label: "En progreso",   color: "bg-blue-100 text-blue-700" },
+  in_progress:      { label: "En progreso",   color: "bg-info-bg text-info-fg" },
   payment_pending:  { label: "Pago pendiente",color: "bg-gray-100 text-gray-700" },
   payment_rejected: { label: "Pago rechazado",color: "bg-gray-100 text-gray-700" },
   completed:        { label: "Terminada",     color: "bg-gray-100 text-gray-700" },

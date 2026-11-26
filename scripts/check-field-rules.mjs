@@ -88,7 +88,7 @@ const RULES = [
   [/(?<![\w-])text-gray-500(?![\w-])/, "text-gray-500: usar text-gray-700 o text-muted"],
   [/coral-\d+/, "coral-*: usar error-bg/error-fg"],
   [/(?<![\w-])text-destructive(?![\w-])/, "text-destructive: usar text-error-fg"],
-  [/(?<![\w-])(?:border|bg|text|ring|fill|stroke|from|to|via)-(?:green|emerald)-\d+/, "verde de la marca antigua: usar primary-N (morado); el verde solo existe como success"],
+  [/(?<![\w-])(?:border|bg|text|ring|fill|stroke|from|to|via)-(?:green|emerald|coral|yellow|blue)-\d+/, "color del sistema anterior (verde/coral/amarillo/azul): usar primary-N (morado) o los estados success/warning/error/info"],
   [/(?<![\w-])border-(?:primary|success)(?![\w-])/, "border-primary/success: usar border-field o primary-N"],
   [/(?<![\w-])!(?:rounded|h|min-h|border)-/, "override !rounded/!h/!border: el campo ya trae su estilo"],
   [/mix-blend-multiply/, "mix-blend-multiply: recortar la imagen a alfa"],

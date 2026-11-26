@@ -16,6 +16,7 @@ import { NightBackLink, NightIconButton, NightInput, NightLinkButton, NightTabs 
 import { PlayerShell } from "@/components/pichangas/player-shell";
 import { HostMatchPage } from "@/components/pichangas/host-match-page";
 import { HostView } from "@/components/pichangas/host-view";
+import { NoMatchesIcon } from "@/components/pichangas/no-matches-icon";
 import { ProfilePhoto } from "@/components/pichangas/profile-photo";
 import { ProfileForm } from "@/components/pichangas/profile-form";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -196,7 +197,7 @@ function FeedScreen({ selectedId, userId, isDesktop }: { selectedId?: string; us
         ) : visible.length === 0 ? (
           <NightEmpty
             fill
-            icon={<Search className="size-icon-empty" />}
+            icon={<NoMatchesIcon />}
             title={hasFilters ? "No hay pichangas con esos filtros" : "Todavía no hay pichangas convocadas"}
             description={hasFilters ? "Prueba con otro distrito o quita algún filtro." : "Vuelve en un rato: se arman todos los días."}
             action={hasFilters ? <PitchButton onClick={clearAll}>Quitar filtros</PitchButton> : undefined}
@@ -266,7 +267,7 @@ function MineView() {
         <NightEmpty icon={<CalendarCheck className="size-icon-empty" />} title="No pudimos cargar tus partidos" action={<PitchButton onClick={() => refetch()}>Reintentar</PitchButton>} />
       ) : list.length === 0 ? (
         <NightEmpty
-          icon={<CalendarCheck className="size-icon-empty" />}
+          icon={tab === "upcoming" ? <NoMatchesIcon /> : <CalendarCheck className="size-icon-empty" />}
           fill
           title={tab === "upcoming" ? "No tienes partidos próximos" : "Aún no jugaste ninguna pichanga"}
           description={tab === "upcoming" ? "Busca una pichanga y anótate." : undefined}

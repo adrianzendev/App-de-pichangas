@@ -1536,7 +1536,7 @@ export default function AdminDashboard() {
                     <span className="font-semibold">{connStats?.reduce((s, r) => s + r.students, 0) ?? 0}</span>
                   </Chip>
                   <Chip active={showTutors} onClick={() => setShowTutors(v => !v)}>
-                    <span className="size-presence-sm rounded-full bg-blue-500 ring-2 ring-white" aria-hidden />
+                    <span className="size-presence-sm rounded-full bg-info ring-2 ring-white" aria-hidden />
                     Tutores
                     <span className="font-semibold">{connStats?.reduce((s, r) => s + r.tutors, 0) ?? 0}</span>
                   </Chip>
@@ -1600,9 +1600,9 @@ export default function AdminDashboard() {
                         <Line
                           type="monotone"
                           dataKey="tutors"
-                          stroke="var(--blue-500)"
+                          stroke="var(--info)"
                           strokeWidth={2.5}
-                          dot={{ r: 3, fill: "var(--blue-500)", strokeWidth: 0 }}
+                          dot={{ r: 3, fill: "var(--info)", strokeWidth: 0 }}
                           activeDot={{ r: 5 }}
                           name="tutors"
                         />
@@ -1621,8 +1621,8 @@ export default function AdminDashboard() {
                 {(() => {
                   const statusConfig = [
                     { label: "Disponibles",    status: "active",           color: "var(--primary)" },
-                    { label: "En progreso",    status: "in_progress",      color: "var(--blue-500)" },
-                    { label: "Pago pendiente", status: "payment_pending",  color: "var(--yellow-500)"  },
+                    { label: "En progreso",    status: "in_progress",      color: "var(--info)" },
+                    { label: "Pago pendiente", status: "payment_pending",  color: "var(--warning)"  },
                     { label: "Pago rechazado", status: "payment_rejected", color: "var(--error)"   },
                     { label: "Completados",    status: "completed",        color: "var(--primary-700)" },
                     { label: "Expirados",      status: "expired",          color: "var(--gray-500)"  },

@@ -138,7 +138,7 @@ export function MatchDetailView({ matchId, currentUserId }: MatchDetailViewProps
     <SeatStepper className="lg:shrink-0" label={me ? `Cupos a pagar (tu lugar + ${picks.length} más)` : "Cupos (tú y acompañantes)"} value={seatCount} min={minSeats} max={maxSeats} onAdd={addSeat} onRemove={removeSeat} />
   ) : null;
   const joinLabel = left > 0 ? (seatCount > 1 ? `Inscribirme con ${seatCount - 1} ${seatCount === 2 ? "acompañante" : "acompañantes"}` : "Inscribirme") : "Inscribirme de suplente";
-  const payLabel = seatCount > 1 ? `Pagar ${seatCount} cupos` : "Pagar";
+  const payLabel = seatCount > 1 ? `Reservar ${seatCount} cupos` : "Reservar";
   // Anotado sin pagar: va al pago con todos los cupos (los que ya tenia + los marcados).
   const payNow = () => {
     const go = () => setLocation(`${PLAY_ROUTES.pay(match)}${seatCount > 1 ? `?cupos=${seatCount}` : ""}`);

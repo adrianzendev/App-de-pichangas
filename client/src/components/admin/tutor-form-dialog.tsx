@@ -215,7 +215,7 @@ export function TutorFormDialog({ open, onOpenChange, mode, tutor, countries, ca
       {isEdit && tutor && (
         <div className="space-y-2" data-testid="text-invitation-status">
           <p className="flex items-center gap-2 text-label">
-            <span className={`size-2 rounded-full ${tutor.activationPending ? "bg-yellow-500" : "bg-primary-600"}`} aria-hidden />
+            <span className={`size-2 rounded-full ${tutor.activationPending ? "bg-warning" : "bg-primary-600"}`} aria-hidden />
             {tutor.activationPending ? "Invitación enviada: pendiente de activación" : "Cuenta activada por el tutor"}
           </p>
           <Button

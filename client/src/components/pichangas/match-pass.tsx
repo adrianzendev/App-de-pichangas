@@ -12,6 +12,10 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 import { NightIconButton, NightInput, NightTile } from "@/components/pichangas/night-controls";
 import { NightBadge, NightEmpty, PitchButton } from "@/components/pichangas/night-ui";
 import { RuleList } from "@/components/pichangas/rule-list";
+import { GuestNamesDialog } from "@/components/pichangas/guest-names-dialog";
+import { guestNamesComplete } from "@/lib/guest-names";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { PLAY_ROUTES } from "@/lib/routes";
@@ -144,6 +148,17 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
   const send = useSendMatchMessage(matchId, me);
   const [draft, setDraft] = useState("");
   const [rulesOpen, setRulesOpen] = useState(false);
+  const [namesDismissed, setNamesDismissed] = useState(false);
+  // Ya pago con acompañantes y faltan sus nombres: se piden aqui, despues del pago (primero se paga, luego se completa la plantilla).
+  const needsNames = !!minePlayer && !!minePlayer.paid && minePlayer.guests > 0 && !guestNamesComplete(minePlayer.guestNames, minePlayer.guests);
+  const saveNames = useMutation({
+    mutationFn: async (names: string[]) => (await apiRequest("PUT", `/api/matches/${matchId}/guest-names`, { guestNames: names })).json(),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ predicate: (q) => String(q.queryKey[0]).startsWith("/api/matches") });
+      toast({ title: "Nombres guardados", variant: "success" });
+    },
+    onError: (e) => toast({ variant: "destructive", title: "No pudimos guardar los nombres", description: e instanceof Error ? e.message : undefined }),
+  });
   const streamRef = useRef<HTMLDivElement>(null);
   const countdown = useCountdown(match?.startsAt ?? new Date().toISOString());
 
@@ -434,6 +449,14 @@ export function MatchPassView({ matchId, me }: MatchPassViewProps) {
           </NightIconButton>
         </form>
       </section>
+
+      <GuestNamesDialog
+        open={needsNames && !namesDismissed}
+        count={minePlayer?.guests ?? 0}
+        initial={minePlayer?.guestNames}
+        onCancel={() => setNamesDismissed(true)}
+        onConfirm={(names) => saveNames.mutate(names)}
+      />
 
       <Dialog open={rulesOpen} onOpenChange={setRulesOpen}>
         <DialogContent className="border-night-highest bg-night text-night-text">

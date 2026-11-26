@@ -28,7 +28,7 @@ interface ErrorLogsPage {
 const LEVEL_UI: Record<ErrorLogLevel, { label: string; className: string }> = {
   critical: { label: "Crítico", className: "border-error bg-error text-white" },
   error: { label: "Error", className: "border-error bg-error-bg text-error-strong" },
-  warning: { label: "Advertencia", className: "border-yellow-500 bg-yellow-100 text-yellow-900" },
+  warning: { label: "Advertencia", className: "border-warning bg-warning-bg text-warning-fg" },
 };
 
 function LevelBadge({ level }: { level: string }) {

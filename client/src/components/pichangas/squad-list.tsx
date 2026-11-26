@@ -65,7 +65,7 @@ export function SquadList({
     <section className={cn("space-y-4", className)} aria-label="Plantilla">
       <div className="flex items-baseline justify-between">
         <h2 className="text-subheading font-bold uppercase text-night-text">Plantilla</h2>
-        <p className="text-label font-bold text-pitch">{confirmedCount} de {maxPlayers}</p>
+        <p className="text-label font-bold text-night-text">{confirmedCount} de {maxPlayers}</p>
       </div>
       <ul className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
         {players.flatMap((p, i) => {
@@ -93,7 +93,7 @@ export function SquadList({
             ...Array.from({ length: p.guests }, (_, g) => (
               <PlayerRow
                 key={`${p.userId}-guest-${g}`}
-                name={`Acompañante de ${p.name.split(" ")[0]}`}
+                name={p.guestNames?.[g]?.trim() || `Acompañante de ${p.name.split(" ")[0]}`}
                 placeholder
                 muted
                 highlight={mine}

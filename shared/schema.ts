@@ -879,6 +879,7 @@ export const matchPlayers = pgTable("match_players", {
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   status: text("status").notNull().default("confirmed"), // confirmed | waitlist
   paid: boolean("paid").default(false),
+  guestNames: text("guest_names").array().notNull().default(sql`'{}'::text[]`), // nombre de cada acompañante (mismo orden); vacio = sin nombre
   guests: integer("guests").notNull().default(0), // acompañantes que esta persona inscribe (cada uno ocupa un cupo y paga cuota)
   joinedAt: timestamp("joined_at").defaultNow(),
   // Cuando el cupo paso a confirmado sin pagar: desde ahi corre la reserva de 10 min. NULL = fila anterior a las reservas (no vence).

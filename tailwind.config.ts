@@ -47,9 +47,6 @@ export default {
       "primary-text": tok("--color-primary-text"),   /* texto verde sobre superficies claras */
       gray: scale("--gray", [0, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900]),
       /* Escalas de estado */
-      blue: scale("--blue", [100, 500, 700]),
-      coral: scale("--coral", [100, 500, 700, 900]),
-      yellow: scale("--yellow", [100, 500, 700, 900]),
       /* Estados semanticos: bg-success, bg-success-bg, text-success-fg, etc. */
       success: state("success"),
       warning: state("warning"),

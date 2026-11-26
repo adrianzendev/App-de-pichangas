@@ -80,6 +80,8 @@ export interface MatchPlayer {
   paid: boolean | null;
   /** Acompañantes que esta persona inscribio (cada uno ocupa un cupo). */
   guests: number;
+  /** Nombre de cada acompañante (mismo orden); puede venir vacio o incompleto: la plantilla usa "Acompañante de ...". */
+  guestNames?: string[];
   /** Cupo reservado sin pagar: limite (ISO) para pagar antes de perderlo. null = ya pagado, suplente u organizador. */
   holdExpiresAt?: string | null;
 }
@@ -221,7 +223,7 @@ export function useJoinLeave(matchId: string) {
     qc.invalidateQueries({ predicate: (q) => String(q.queryKey[0]).startsWith("/api/matches") });
   };
   const join = useMutation({
-    mutationFn: async (input?: { paid?: boolean; guests?: number }) =>
+    mutationFn: async (input?: { paid?: boolean; guests?: number; guestNames?: string[] }) =>
       (await apiRequest("POST", `/api/matches/${matchId}/join`, input ?? {})).json() as Promise<{ status: "confirmed" | "waitlist"; paid: boolean }>,
     onSuccess: refresh,
   });

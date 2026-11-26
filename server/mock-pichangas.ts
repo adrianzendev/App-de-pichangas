@@ -114,9 +114,6 @@ export async function seedMockPichangas(): Promise<void> {
   const byEmail = new Map(mockRows.map((r) => [r.email, r.id]));
   const uid = (name: string) => byEmail.get(`${name}${MOCK_EMAIL_DOMAIN}`)!;
 
-  // Los jugadores de prueba ya pagaron: una reserva sin pagar vence a los 10 min (releaseExpiredHolds) y los borraria.
-  await db.update(matchPlayers).set({ paid: true }).where(and(inArray(matchPlayers.userId, mockRows.map((r) => r.id)), eq(matchPlayers.status, "confirmed"), sql`${matchPlayers.paid} is not true`));
-
   // Anfitriones de ejemplo: con el perfil de host pueden crear partidos desde /play/host. La tabla se crea aqui por si el seed
   // corre antes que el arranque de pichangas.ts (ahi tambien se crea, de forma idempotente).
   await db.execute(sql`CREATE TABLE IF NOT EXISTS player_profiles (user_id varchar PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, age integer, position text, updated_at timestamp DEFAULT now())`);

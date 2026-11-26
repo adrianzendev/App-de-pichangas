@@ -279,7 +279,7 @@ la hoja `-mt-7 rounded-t-xl bg-white shadow-float` (ver `AuthShell`, `StudentHom
 
 ### Paleta oficial de tokens
 
-La escala `gray-*` es 100% neutra (saturacion 0, sin matiz verdoso): el color de marca (morado) vive en `primary-*`; el unico verde es `success-*` (estados de exito, en linea).
+La escala `gray-*` es 100% neutra (saturacion 0, sin matiz verdoso): el color de marca (morado) vive en `primary-*`; no hay verde, coral, amarillo ni azul: exito y en linea = morado (`success-*`), error = crimson, aviso = orquidea, info = aqua.
 
 - Canvas / fondo global: `bg-gray-100` (neutro Bento).
 - Tarjetas/modulos: `bg-white` + `rounded-lg` (16px), sin sombra.

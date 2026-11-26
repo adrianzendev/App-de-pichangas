@@ -12,7 +12,7 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary-600 text-white hover:bg-primary-700",
         secondary: "bg-white text-primary-600 border border-primary-600 hover:bg-gray-50",
-        destructive: "bg-coral-700 text-white hover:bg-coral-900",
+        destructive: "bg-error text-white hover:opacity-90",
         // Accion peligrosa secundaria (Eliminar cuenta, Eliminar en un detalle): sin relleno en reposo; al pasar el cursor, fondo rojo suave.
         "destructive-outline": "border border-error text-error-fg hover:bg-error-bg",
         ghost: "hover:bg-gray-100 text-gray-700",

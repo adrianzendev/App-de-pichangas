@@ -50,6 +50,7 @@ async function isMatchMember(matchId: string, userId: string): Promise<boolean> 
 async function ensureGuestsColumn() {
   try {
     await db.execute(sql`ALTER TABLE match_players ADD COLUMN IF NOT EXISTS guests integer NOT NULL DEFAULT 0`);
+    await db.execute(sql`ALTER TABLE match_players ADD COLUMN IF NOT EXISTS guest_names text[] NOT NULL DEFAULT '{}'`);
   } catch (error) {
     console.error("[Pichangas] no se pudo agregar match_players.guests:", error);
   }
@@ -295,7 +296,7 @@ export function registerPichangas(app: Express) {
       if (!row) return res.status(404).json({ message: "Partido no encontrado" });
 
       const players = await db
-        .select({ userId: matchPlayers.userId, name: users.name, avatar: users.avatar, status: matchPlayers.status, paid: matchPlayers.paid, guests: matchPlayers.guests, joinedAt: matchPlayers.joinedAt, confirmedAt: matchPlayers.confirmedAt })
+        .select({ userId: matchPlayers.userId, name: users.name, avatar: users.avatar, status: matchPlayers.status, paid: matchPlayers.paid, guests: matchPlayers.guests, guestNames: matchPlayers.guestNames, joinedAt: matchPlayers.joinedAt, confirmedAt: matchPlayers.confirmedAt })
         .from(matchPlayers)
         .innerJoin(users, eq(matchPlayers.userId, users.id))
         .where(eq(matchPlayers.matchId, row.match.id))
@@ -354,10 +355,17 @@ export function registerPichangas(app: Express) {
     if (!userId) return;
     try {
       await releaseExpiredHolds();
-      const parsed = z.object({ paid: z.boolean().optional(), guests: z.number().int().min(0).max(5).optional() }).safeParse(req.body ?? {});
+      const parsed = z.object({
+        paid: z.boolean().optional(),
+        guests: z.number().int().min(0).max(5).optional(),
+        guestNames: z.array(z.string().trim().min(1).max(60)).max(5).optional(),
+      }).safeParse(req.body ?? {});
       if (!parsed.success) return res.status(400).json({ message: "Datos inválidos" });
       const paidNow = parsed.data.paid ?? false;
       const guests = parsed.data.guests ?? 0;
+      // Nombres de los acompañantes (mismo orden). Si no llegan, la plantilla muestra "Acompañante de ...".
+      const namesGiven = parsed.data.guestNames !== undefined;
+      const nameUpdate = (n: number) => (namesGiven ? { guestNames: (parsed.data.guestNames ?? []).slice(0, n) } : {});
       const seats = 1 + guests;
       const result = await db.transaction(async (tx) => {
         const [match] = await tx.select().from(matches).where(eq(matches.id, req.params.id)).for("update");
@@ -380,7 +388,7 @@ export function registerPichangas(app: Express) {
               if (total > match.maxPlayers) return { error: 409 as const, message: "No quedan cupos suficientes" };
               if (total >= match.maxPlayers) await tx.update(matches).set({ status: "full" }).where(eq(matches.id, match.id));
             }
-            await tx.update(matchPlayers).set({ paid: true, guests: newGuests }).where(eq(matchPlayers.id, existing.id));
+            await tx.update(matchPlayers).set({ paid: true, guests: newGuests, ...nameUpdate(newGuests) }).where(eq(matchPlayers.id, existing.id));
             return { status: existing.status };
           }
           // Reserva sin pagar: se puede cambiar la cantidad de cupos mientras dura (el plazo no se renueva).
@@ -390,7 +398,7 @@ export function registerPichangas(app: Express) {
               .from(matchPlayers)
               .where(and(eq(matchPlayers.matchId, match.id), eq(matchPlayers.status, "confirmed"), ne(matchPlayers.userId, match.organizerId)));
             if (taken - existing.guests + guests > match.maxPlayers) return { error: 409 as const, message: "No quedan cupos suficientes" };
-            await tx.update(matchPlayers).set({ guests }).where(eq(matchPlayers.id, existing.id));
+            await tx.update(matchPlayers).set({ guests, ...nameUpdate(guests) }).where(eq(matchPlayers.id, existing.id));
             await tx.update(matches).set({ status: taken - existing.guests + guests >= match.maxPlayers ? "full" : "open" }).where(eq(matches.id, match.id));
             return { status: existing.status };
           }
@@ -408,7 +416,7 @@ export function registerPichangas(app: Express) {
           const free = Math.max(0, match.maxPlayers - n);
           return { error: 409 as const, message: free === 0 ? "Ya no quedan cupos" : `Ya no quedan cupos suficientes (quedan ${free})` };
         }
-        await tx.insert(matchPlayers).values({ matchId: match.id, userId, status, paid: paidNow, guests, confirmedAt: status === "confirmed" ? new Date() : null });
+        await tx.insert(matchPlayers).values({ matchId: match.id, userId, status, paid: paidNow, guests, ...nameUpdate(guests), confirmedAt: status === "confirmed" ? new Date() : null });
         if (status === "confirmed" && n + seats >= match.maxPlayers) {
           await tx.update(matches).set({ status: "full" }).where(eq(matches.id, match.id));
         }
@@ -419,6 +427,24 @@ export function registerPichangas(app: Express) {
     } catch (error) {
       console.error("[POST /api/matches/:id/join] error:", error);
       res.status(500).json({ message: "No se pudo anotar" });
+    }
+  });
+
+  // Nombres de los acompañantes (se completan despues de pagar). Solo el dueño de la inscripcion y uno por cada acompañante.
+  app.put("/api/matches/:id/guest-names", async (req, res) => {
+    const userId = requireUser(req, res);
+    if (!userId) return;
+    try {
+      const parsed = z.object({ guestNames: z.array(z.string().trim().min(1).max(60)).max(5) }).safeParse(req.body ?? {});
+      if (!parsed.success) return res.status(400).json({ message: "Escribe el nombre de cada acompañante" });
+      const [row] = await db.select({ id: matchPlayers.id, guests: matchPlayers.guests }).from(matchPlayers).where(and(eq(matchPlayers.matchId, req.params.id), eq(matchPlayers.userId, userId)));
+      if (!row) return res.status(404).json({ message: "No estás anotado en este partido" });
+      if (parsed.data.guestNames.length !== row.guests) return res.status(400).json({ message: `Faltan nombres: tienes ${row.guests} acompañante(s)` });
+      await db.update(matchPlayers).set({ guestNames: parsed.data.guestNames }).where(eq(matchPlayers.id, row.id));
+      res.json({ guestNames: parsed.data.guestNames });
+    } catch (error) {
+      console.error("[PUT /api/matches/:id/guest-names] error:", error);
+      res.status(500).json({ message: "No se pudieron guardar los nombres" });
     }
   });
 

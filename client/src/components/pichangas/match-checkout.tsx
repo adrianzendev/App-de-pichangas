@@ -177,7 +177,7 @@ export function MatchCheckoutView({ matchId, me }: MatchCheckoutViewProps) {
           </span>
         </div>
 
-        <section className="space-y-3 rounded-md bg-night-high p-card-pad shadow-night-card" aria-label="Pago con Yape">
+        <section className="space-y-3" aria-label="Pago con Yape">
           <span className="flex size-10 items-center justify-center rounded-md bg-yape text-label font-extrabold text-white" aria-label="Yape">yape</span>
           <div className="relative flex items-center">
             <label htmlFor="yape-phone" className="sr-only">Celular vinculado a tu Yape</label>

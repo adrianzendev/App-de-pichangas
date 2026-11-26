@@ -155,12 +155,6 @@
   --primary-800: #46107d;
   --primary-900: #2a0b4d;
 
-  /* === 1.3b ESCALA DE EXITO (verde SOLO para estados de exito / en linea; no es color de marca) === */
-  --success-100: hsl(136, 41%, 92%);
-  --success-200: hsl(112, 58%, 80%);
-  --success-500: hsl(149, 38%, 49%);
-  --success-700: hsl(150, 59%, 29%);
-  
   /* === 1.4 COLORES - ESCALA GRIS (HSL) === */
   --white: hsl(0, 0%, 100%);
   --black: hsl(0, 0%, 0%);
@@ -176,38 +170,22 @@
   --gray-800: hsl(0, 0%, 27%);
   --gray-900: hsl(0, 0%, 11%);       /* Primary text */
   
-  /* === 1.5 COLORES - ESTADOS (Pastel HSL) === */
-  /* Azul - En progreso */
-  --blue-100: hsl(206, 82%, 95%);
-  --blue-500: hsl(204, 60%, 61%);
-  --blue-700: hsl(204, 54%, 39%);
-  
-  /* Coral - Expirado/Error */
-  --coral-100: hsl(6, 76%, 96%);
-  --coral-500: hsl(4, 64%, 67%);
-  --coral-700: hsl(4, 44%, 52%);
-  --coral-900: hsl(4, 50%, 36%);     /* texto sobre coral-100 (>=4.5:1) */
-  
-  /* Amarillo - Pendiente */
-  --yellow-100: hsl(47, 91%, 95%);
-  --yellow-500: hsl(48, 89%, 60%);
-  --yellow-700: hsl(48, 89%, 38%);
-  --yellow-900: hsl(48, 90%, 20%);   /* texto sobre yellow-100 (>=4.5:1) */
+  /* === 1.5 COLORES - ESTADOS: salen del sistema Pinkiball (morado, orquidea, aqua, crimson); no hay verde, coral, amarillo ni azul === */
 
   /* === 1.5a COLORES SEMÁNTICOS DE ESTADO (alias; -bg = fondo suave, -fg = texto sobre -bg) === */
-  --success: var(--success-500);
-  --success-bg: var(--success-100);
-  --success-fg: var(--success-700);
-  --warning: var(--yellow-500);
-  --warning-bg: var(--yellow-100);
-  --warning-fg: var(--yellow-900);
-  --error: var(--coral-700);        /* un solo rojo de error: borde, mensaje, asterisco y papelera */
-  --error-bg: var(--coral-100);
-  --error-fg: var(--coral-700);     /* 4.6:1 sobre blanco */
-  --error-strong: var(--coral-900); /* solo texto sobre error-bg: alli coral-700 no llega a 4.5:1 */
-  --info: var(--blue-500);
-  --info-bg: var(--blue-100);
-  --info-fg: var(--blue-700);
+  --success: var(--primary-500);    /* exito / en linea: el morado de marca */
+  --success-bg: var(--primary-100);
+  --success-fg: var(--primary-700);
+  --warning: var(--orchid);
+  --warning-bg: color-mix(in srgb, var(--orchid) 12%, transparent);
+  --warning-fg: var(--orchid);
+  --error: var(--crimson);          /* un solo rojo de error: borde, mensaje, asterisco y papelera */
+  --error-bg: var(--crimson-container);
+  --error-fg: var(--crimson);       /* >=4.5:1 sobre blanco */
+  --error-strong: var(--crimson);
+  --info: var(--aqua);
+  --info-bg: color-mix(in srgb, var(--aqua) 12%, transparent);
+  --info-fg: var(--aqua);
 
   /* === 1.5b LAYOUT === */
   --content-width: 672px;
@@ -256,10 +234,10 @@
   --shadow-night-nav: 0 -4px 24px rgba(42, 11, 77, 0.10);
   --shadow-glow: 0 0 16px rgba(139, 47, 224, 0.25);
   --font-satoshi: 'Satoshi', var(--font-family);
-  --file-pdf: var(--coral-700);         /* insignias por tipo de archivo (texto blanco >=4.5:1) */
-  --file-word: var(--blue-700);
+  --file-pdf: var(--crimson);         /* insignias por tipo de archivo (texto blanco >=4.5:1) */
+  --file-word: var(--aqua);
   --file-excel: var(--primary-700);
-  --file-ppt: var(--coral-900);
+  --file-ppt: var(--orchid);
   --file-default: var(--gray-700);
   --typing-delay-1: 150ms;              /* retardo de los puntos de "escribiendo..." */
   --typing-delay-2: 300ms;
@@ -582,7 +560,7 @@
   --secondary-foreground: var(--color-primary-text);
   --accent: var(--gray-100);
   --accent-foreground: var(--gray-900);
-  --destructive: var(--coral-700);
+  --destructive: var(--crimson);
   --destructive-foreground: var(--gray-0);
   --ring: var(--primary-600);          /* foco visible de teclado (shadcn ring-ring) */
   --radius: var(--radius-md);
@@ -997,7 +975,7 @@ html[data-nav="back"]::view-transition-new(root) { z-index: 1; animation: nav-in
   --secondary-foreground: var(--primary-400);
   --accent: var(--primary-800);
   --accent-foreground: var(--primary-200);
-  --destructive: var(--coral-700);
+  --destructive: var(--crimson);
   --destructive-foreground: var(--gray-0);
   --ring: transparent;
 
@@ -1020,16 +998,16 @@ html[data-nav="back"]::view-transition-new(root) { z-index: 1; animation: nav-in
   --chat-bubble-own: hsl(0, 0%, 25%);
 
   /* Estados: fondos translúcidos y texto claro sobre fondo oscuro */
-  --success-bg: color-mix(in srgb, var(--success-500) 20%, transparent);
-  --success-fg: var(--success-200);
-  --warning-bg: color-mix(in srgb, var(--yellow-500) 20%, transparent);
-  --warning-fg: var(--yellow-100);
-  --error: var(--coral-500);
-  --error-bg: color-mix(in srgb, var(--coral-500) 20%, transparent);
-  --error-fg: var(--coral-100);
-  --error-strong: var(--coral-100);
-  --info-bg: color-mix(in srgb, var(--blue-500) 20%, transparent);
-  --info-fg: var(--blue-100);
+  --success-bg: color-mix(in srgb, var(--primary-500) 20%, transparent);
+  --success-fg: var(--primary-200);
+  --warning-bg: color-mix(in srgb, var(--orchid) 20%, transparent);
+  --warning-fg: var(--primary-200);
+  --error: var(--crimson-container);
+  --error-bg: color-mix(in srgb, var(--crimson) 30%, transparent);
+  --error-fg: var(--crimson-container);
+  --error-strong: var(--crimson-container);
+  --info-bg: color-mix(in srgb, var(--aqua) 20%, transparent);
+  --info-fg: var(--primary-200);
 
   /* Scrollbars y controles nativos oscuros */
   color-scheme: dark;
