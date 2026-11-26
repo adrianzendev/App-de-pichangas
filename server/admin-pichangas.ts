@@ -62,22 +62,19 @@ export function registerAdminPichangas(app: Express) {
     }
   });
 
-  // Activa o desactiva una zona: departamento (2 digitos), provincia (4) o distrito (6), con todo lo que contiene.
+  // Guarda la lista completa de distritos activos (el panel edita un borrador y lo confirma con un boton).
   app.put("/api/admin/pichangas/geo", async (req, res) => {
     if (!requireAdmin(req, res)) return;
-    const parsed = z.object({ code: z.string().regex(/^[0-9]{0,6}$/), active: z.boolean() }).safeParse(req.body);
-    if (!parsed.success || ![0, 2, 4, 6].includes(parsed.data.code.length)) return res.status(400).json({ message: "Zona no válida" });
-    const { code, active } = parsed.data;
+    const parsed = z.object({ active: z.array(z.string().regex(/^[0-9]{6}$/)).max(5000) }).safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Lista de zonas no válida" });
+    const valid = new Set(districtCodesUnder(""));
+    const codes = Array.from(new Set(parsed.data.active));
+    if (codes.some((c) => !valid.has(c))) return res.status(400).json({ message: "Hay zonas que no existen" });
     try {
-      const targets = districtCodesUnder(code);
-      if (targets.length === 0) return res.status(400).json({ message: "Zona no válida" });
-      if (active) {
-        await db.execute(sql`insert into geo_active_districts (code) values ${sql.join(targets.map((c) => sql`(${c})`), sql`, `)} on conflict do nothing`);
-      } else if (code.length === 0) {
-        await db.execute(sql`delete from geo_active_districts`);
-      } else {
-        await db.execute(sql`delete from geo_active_districts where code like ${code + "%"}`);
-      }
+      await db.transaction(async (tx) => {
+        await tx.execute(sql`delete from geo_active_districts`);
+        if (codes.length > 0) await tx.execute(sql`insert into geo_active_districts (code) values ${sql.join(codes.map((c) => sql`(${c})`), sql`, `)}`);
+      });
       res.json({ active: await activeDistrictCodes() });
     } catch (error) {
       console.error("[PUT /api/admin/pichangas/geo] error:", error);

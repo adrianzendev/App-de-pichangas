@@ -16,7 +16,7 @@ const ToastViewport = React.forwardRef<
   <ToastPrimitives.Viewport
     ref={ref}
     className={cn(
-      "fixed inset-x-page-h bottom-bottom-nav z-tooltip flex max-h-screen flex-col gap-2 pb-3 lg:inset-x-auto lg:bottom-6 lg:right-6 lg:w-96 lg:pb-0",
+      "fixed inset-x-page-h bottom-bottom-nav z-tooltip flex max-h-screen flex-col gap-2 pb-3 lg:inset-x-0 lg:bottom-6 lg:mx-auto lg:w-96 lg:pb-0",
       className
     )}
     {...props}
@@ -27,7 +27,7 @@ ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 // Tarjeta blanca con sombra de capa flotante. El estado (default / success / destructive) NO pinta la tarjeta:
 // lo comunica el circulo de icono que arma <Toaster />.
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full gap-3 overflow-hidden rounded-lg bg-white p-4 text-foreground shadow-modal transition-all lg:p-5 data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-toast-swipe-end data-[swipe=move]:translate-x-toast-swipe-move data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:fade-in data-[state=open]:slide-in-from-bottom-4",
+  "group pointer-events-auto relative flex w-full gap-3 overflow-hidden rounded-lg bg-white p-3 text-foreground shadow-modal transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-toast-swipe-end data-[swipe=move]:translate-x-toast-swipe-move data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:fade-in data-[state=open]:slide-in-from-bottom-4",
   {
     variants: {
       variant: {

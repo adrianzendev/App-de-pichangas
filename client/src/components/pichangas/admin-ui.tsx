@@ -44,10 +44,12 @@ export function AdminMetric({ title, value, icon: Icon, subtitle, testId }: { ti
 
 // ───────────── Botones ─────────────
 
-type BtnTone = "pitch" | "soft" | "danger";
+type BtnTone = "pitch" | "soft" | "ghost" | "danger";
 const BTN_TONE: Record<BtnTone, string> = {
   pitch: "bg-pitch text-pitch-on hover:bg-pitch-strong",
   soft: "bg-night-high text-night-text hover:bg-night-highest",
+  /** Sin fondo: filas expandibles de una lista. */
+  ghost: "text-night-text hover:bg-pitch/5",
   danger: "bg-night-high text-crimson hover:bg-crimson-container",
 };
 

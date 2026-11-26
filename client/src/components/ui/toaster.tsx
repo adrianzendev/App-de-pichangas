@@ -28,10 +28,10 @@ export function Toaster() {
         const Icon = icon ?? StatusIcon
         return (
           <Toast key={id} variant={variant} {...props}>
-            <span aria-hidden className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${circle}`}>
-              <Icon className="h-5 w-5" />
+            <span aria-hidden className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${circle}`}>
+              <Icon className="h-4 w-4" />
             </span>
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && <ToastDescription>{description}</ToastDescription>}
               {(action || cancel) && (

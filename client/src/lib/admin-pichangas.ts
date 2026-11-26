@@ -132,5 +132,5 @@ export const deleteRuleRequest = (id: string) => apiRequest("DELETE", `/api/admi
 
 // Geografia: distritos del Peru activos (departamentos y provincias se calculan a partir de ellos).
 export const useAdminGeo = () => useQuery<{ active: string[] }>({ queryKey: ["/api/admin/pichangas/geo"] });
-export const setGeoRequest = async (input: { code: string; active: boolean }): Promise<{ active: string[] }> =>
-  (await apiRequest("PUT", "/api/admin/pichangas/geo", input)).json();
+export const setGeoRequest = async (active: string[]): Promise<{ active: string[] }> =>
+  (await apiRequest("PUT", "/api/admin/pichangas/geo", { active })).json();
