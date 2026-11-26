@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { VenueGallery } from "@/components/pichangas/venue-gallery";
-import { coverPhotos, priceLabel, spotsLeft, whenLabel, type MatchSummary } from "@/lib/pichangas";
+import { coverPhotos, dayLabel, priceLabel, spotsLeft, timeRange12, type MatchSummary } from "@/lib/pichangas";
 
 interface MatchCardProps {
   match: MatchSummary;
@@ -41,8 +41,18 @@ export function MatchCard({ match, paid, selected, onOpen }: MatchCardProps) {
       data-testid={`match-card-${match.id}`}
     >
       {/* Foto de portada a sangre completa: llega a los bordes de la tarjeta (sin margen). */}
-      <div className="h-32 bg-night-high">
+      <div className="relative h-32 bg-night-high">
         <VenueGallery venue={{ photos: coverPhotos(match) }} alt={`Cancha ${match.venue.name}`} className="h-full w-full" />
+        {/* Cuando se juega: el dia (Hoy, Mañana, Sáb 28) y debajo la hora de inicio. */}
+        <div className="pointer-events-none absolute left-3 top-3 rounded-sm bg-white px-3 py-1 shadow-modal">
+          <p className="text-subheading font-extrabold uppercase text-poster">{dayLabel(match.startsAt)}</p>
+          <p className="text-caption font-bold text-pitch">{timeRange12(match.startsAt, match.durationMinutes)}</p>
+        </div>
+        {/* Cupos ocupados: arriba a la derecha de la foto; en rojo cuando quedan 2 o menos. */}
+        <div className="pointer-events-none absolute right-3 top-3 rounded-sm bg-white px-3 py-1 text-right shadow-modal">
+          <p className="text-caption font-bold uppercase text-night-muted">Cupos</p>
+          <p className={cn("text-label font-extrabold", left > 0 && left <= 2 ? "text-crimson" : "text-poster")}>{match.confirmedCount}/{match.maxPlayers}</p>
+        </div>
       </div>
 
       <div className="flex flex-col gap-3 p-3">
@@ -51,19 +61,18 @@ export function MatchCard({ match, paid, selected, onOpen }: MatchCardProps) {
         <p className="truncate text-caption text-night-muted">{match.venue.name} · {match.venue.district}</p>
       </header>
 
-      <div className="grid grid-cols-4 gap-2">
-        <Cell label="Cuándo" className="col-span-2">{whenLabel(match.startsAt, match.durationMinutes)}</Cell>
-        <Cell label="Cupos">
-          <span className={cn(left > 0 && left <= 2 && "text-crimson")}>{match.confirmedCount}/{match.maxPlayers}</span>
+      <div className="grid grid-cols-1 gap-2">
+        <Cell label="Organiza">
+          <span className="flex min-w-0 items-center gap-2">
+            <UserAvatar name={match.organizerName} avatar={match.organizerAvatar} size="xs" />
+            <span className="truncate">{match.organizerName}</span>
+          </span>
         </Cell>
-        <Cell label="Cuota"><span className="text-pitch">{priceLabel(match.pricePerPlayer)}</span></Cell>
       </div>
 
-      <footer className="flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2">
-          <UserAvatar name={match.organizerName} avatar={match.organizerAvatar} size="xs" />
-          <p className="truncate text-label text-night-muted">{match.organizerName}</p>
-        </div>
+      <footer className="mt-2 flex items-center justify-between gap-3">
+        {/* Cuota por jugador. */}
+        <p className="shrink-0 text-subheading font-extrabold text-night-text">{priceLabel(match.pricePerPlayer)} <span className="text-caption font-bold text-night-muted">por jugador</span></p>
         <Button
           // Inscrito = accion ya hecha, con relleno; Unirme = accion pendiente, solo borde (tambien cuando esta lleno: entra de suplente).
           variant={paid ? "pitch" : "pitch-outline"}

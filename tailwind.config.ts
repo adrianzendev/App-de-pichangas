@@ -66,6 +66,7 @@ export default {
         high: tok("--night-high"), highest: tok("--night-highest"), text: tok("--night-text"), muted: tok("--night-muted"), outline: tok("--night-outline"),
       },
       pitch: { DEFAULT: tok("--pitch"), strong: tok("--pitch-strong"), on: tok("--on-pitch") },
+      poster: tok("--poster"),
       aqua: tok("--aqua"),
       orchid: tok("--orchid"),
       yape: tok("--yape"),

@@ -229,6 +229,7 @@
   --crimson: #b3261e;                   /* urgencia: ultimo cupo, pago pendiente */
   --on-crimson: #ffffff;                /* texto sobre --crimson */
   --crimson-container: #fde4e1;
+  --poster: #2a0e4d;                    /* morado oscuro: etiquetas sobre fotos y fondo del tema poster */
   --shadow-night-card: none;
   --shadow-night-bar: 0 4px 24px rgba(42, 11, 77, 0.10);
   --shadow-night-nav: 0 -4px 24px rgba(42, 11, 77, 0.10);
